@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="KidsLearn"/>
+<meta name="theme-color" content="#4F8EF7"/>
+<title>KidsLearn 🎒</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/></noscript>
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+:root{
+  --bg:#FFF9F0;--card:#FFFFFF;--primary:#3B82F6;--yellow:#FBBF24;
+  --green:#22C55E;--red:#EF4444;--purple:#8B5CF6;--orange:#F97316;
+  --teal:#14B8A6;--pink:#EC4899;--text:#1E293B;--muted:#64748B;--border:#E2E8F0;
+}
+html,body{height:100%;background:var(--bg);font-family:'Nunito','Trebuchet MS','Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;font-size:17px;}
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+#root{min-height:100vh;display:flex;justify-content:center;background:var(--bg);}
+#app{width:100%;max-width:430px;background:var(--card);min-height:100vh;padding:14px 15px 40px;box-shadow:0 0 50px rgba(0,0,0,0.07);}
+.card{background:var(--card);border-radius:18px;border:1.5px solid var(--border);padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-bottom:11px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:13px;font-family:inherit;font-weight:700;cursor:pointer;transition:all .15s;padding:11px 22px;font-size:14px;color:#fff;-webkit-appearance:none;touch-action:manipulation;}
+.btn:active{transform:scale(0.95);}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:10px;}
+.btn-full{width:100%;}
+.btn-outline{background:transparent!important;border:2px solid;}
+.btn-outline.primary{border-color:var(--primary);color:var(--primary);}
+.btn-outline.muted{border-color:var(--border);color:var(--muted);}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.hback{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px 8px 4px 0;touch-action:manipulation;}
+.htitle{font-weight:900;font-size:18px;color:var(--text);text-align:center;}
+.hsub{font-size:11px;color:var(--muted);text-align:center;margin-top:1px;}
+.hscore{font-weight:700;font-size:14px;color:var(--primary);min-width:38px;text-align:right;}
+.grade-tag{font-size:11px;font-weight:700;border-radius:7px;padding:2px 8px;display:inline-block;}
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.mod-card{background:var(--card);border:2.5px solid var(--border);border-radius:20px;padding:18px 10px;text-align:center;cursor:pointer;transition:all .17s;touch-action:manipulation;box-shadow:0 3px 12px rgba(0,0,0,0.07);}
+.mod-card:active{transform:scale(0.95);}
+.grade-bar{display:flex;gap:5px;margin-bottom:11px;}
+.gbtn{flex:1;text-align:center;padding:7px 3px;border-radius:9px;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;touch-action:manipulation;transition:all .14s;}
+.numpad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0;}
+.nkey{height:46px;border-radius:10px;background:var(--card);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:var(--text);cursor:pointer;touch-action:manipulation;transition:all .1s;}
+.nkey:active{background:var(--primary);color:#fff;transform:scale(0.9);}
+.ans-box{width:110px;height:52px;border-radius:13px;margin:14px auto;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--text);border:2.5px solid var(--primary);background:rgba(79,142,247,0.07);transition:all .2s;}
+.ans-box.correct{border-color:var(--green);background:rgba(82,201,122,0.15);}
+.ans-box.wrong{border-color:var(--red);background:rgba(247,111,111,0.12);}
+.rbadge{padding:8px 16px;border-radius:11px;display:inline-block;font-weight:700;font-size:14px;margin:7px 0;}
+.rbadge.correct{background:rgba(82,201,122,0.2);color:var(--green);}
+.rbadge.wrong{background:rgba(247,111,111,0.15);color:var(--red);}
+.tile{width:38px;height:44px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:var(--text);border:2px solid var(--border);background:var(--border);transition:all .2s;margin:2px;}
+.tile.active{background:rgba(79,142,247,0.12);border-color:var(--primary);}
+.tile.correct{background:rgba(82,201,122,0.2);border-color:var(--green);}
+.tile.wrong{background:rgba(247,111,111,0.15);border-color:var(--red);}
+.tile.letter{background:var(--yellow);border-color:var(--yellow);cursor:pointer;}
+.tile.letter:active{transform:scale(0.88);}
+.tile.empty{opacity:.28;cursor:default;}
+.alpha-grid{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:12px;}
+.akey{width:25px;height:25px;border-radius:6px;background:var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:pointer;transition:all .13s;}
+.akey.active{background:var(--primary);color:#fff;}
+.read-opt{padding:10px 13px;border-radius:11px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;font-size:13px;cursor:pointer;margin-bottom:7px;width:100%;text-align:left;font-family:inherit;touch-action:manipulation;transition:all .16s;}
+.read-opt:active{transform:scale(0.98);}
+.read-opt.correct{background:rgba(82,201,122,0.18);border-color:var(--green);color:var(--green);}
+.read-opt.wrong{background:rgba(247,111,111,0.12);border-color:var(--red);color:var(--red);}
+.row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+/* Visual math dots */
+.dot-grid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:10px 0;}
+.dot{width:22px;height:22px;border-radius:50%;background:var(--primary);display:inline-block;transition:all .2s;}
+.dot.yellow{background:var(--yellow);}
+.dot.green{background:var(--green);}
+/* Matching */
+.match-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;}
+.match-item{flex:1;padding:10px;border-radius:11px;border:2px solid var(--border);background:var(--bg);font-weight:700;font-size:15px;text-align:center;cursor:pointer;touch-action:manipulation;transition:all .16s;}
+.match-item.selected{border-color:var(--primary);background:rgba(79,142,247,0.1);}
+.match-item.matched{border-color:var(--green);background:rgba(82,201,122,0.15);color:var(--green);}
+.match-item.wrong-flash{border-color:var(--red);background:rgba(247,111,111,0.12);}
+/* Fill blank */
+.fill-eq{display:flex;align-items:center;justify-content:center;gap:8px;font-size:32px;font-weight:900;color:var(--text);margin:14px 0;flex-wrap:wrap;}
+.fill-blank{width:64px;height:48px;border-radius:11px;border:2.5px dashed var(--primary);background:rgba(79,142,247,0.07);display:inline-flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;}
+.fill-blank.correct{border-color:var(--green);background:rgba(82,201,122,0.15);}
+.fill-blank.wrong{border-color:var(--red);background:rgba(247,111,111,0.12);}
+.choice-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+.choice-btn{width:56px;height:50px;border-radius:11px;border:2px solid var(--border);background:var(--bg);font-size:20px;font-weight:800;cursor:pointer;touch-action:manipulation;transition:all .14s;color:var(--text);font-family:inherit;}
+.choice-btn:active{transform:scale(0.9);}
+.choice-btn.chosen-correct{background:rgba(82,201,122,0.2);border-color:var(--green);color:var(--green);}
+.choice-btn.chosen-wrong{background:rgba(247,111,111,0.12);border-color:var(--red);color:var(--red);}
+.choice-btn.reveal-correct{background:rgba(82,201,122,0.15);border-color:var(--green);}
+/* Story AI loader */
+.story-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 0;gap:12px;color:var(--muted);font-size:14px;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* Profile */
+.prof-card{display:flex;align-items:center;gap:11px;background:var(--card);border:1.5px solid var(--border);border-radius:15px;padding:11px 13px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:9px;touch-action:manipulation;}
+.prof-card:active{transform:scale(0.98);}
+input[type=text]{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;background:var(--bg);color:var(--text);}
+input[type=text]:focus{border-color:var(--primary);}
+@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+.pop{animation:popIn .2s ease-out;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fs{animation:fadeSlide .2s ease-out;}
+/* Math mode tabs */
+.mode-tabs{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+.mode-tab{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;touch-action:manipulation;white-space:nowrap;transition:all .14s;}
+.mode-tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+/* Streak */
+.streak-badge{text-align:center;font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:4px;}
+/* install banner */
+#ibanner{position:fixed;bottom:env(safe-area-inset-bottom,14px);left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:400px;background:var(--text);color:#fff;border-radius:14px;padding:13px 14px;display:none;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.22);z-index:999;font-size:12px;}
+#ibanner button{background:var(--primary);color:#fff;border:none;border-radius:9px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+#ibanner .idismiss{background:transparent;color:#ffffff88;font-size:18px;padding:2px 4px;margin-left:auto;}
+
+/* ── PRINT STYLES ── */
+@media print {
+  /* Hide absolutely everything except the worksheet */
+  body * { visibility: hidden; }
+  #printSheet, #printSheet * { visibility: visible; }
+  #printSheet {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; height: auto !important;
+    margin: 0 !important; padding: 0 !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  @page { margin: 15mm; size: A4 portrait; }
+}
+@media screen {
+  .print-sheet { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="root"><div id="app" class="fs"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:Arial,sans-serif;background:#FFF9F0"><div style="font-size:60px;margin-bottom:16px">🎒</div><div style="font-size:18px;font-weight:700;color:#1E293B;margin-bottom:8px">KidsLearn</div><div style="font-size:14px;color:#64748B">Loading…</div></div></div></div>
+<div id="ibanner">
+  <span>📲</span><span id="itext"></span>
+  <button id="ibtn" style="display:none">Install</button>
+  <button class="idismiss" id="idismiss">✕</button>
+</div>
+
+<script>
+window.onerror=function(msg,src,line,col,err){console.error(msg,line);return false;};
+window.addEventListener('unhandledrejection',function(e){e.preventDefault();});
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTS & DATA
+// ═══════════════════════════════════════════════════════════════
+const AVATARS=["\uD83D\uDC3B","\uD83E\uDD8A","\uD83D\uDC3C","\uD83D\uDC38","\uD83E\uDD81","\uD83D\uDC28","\uD83D\uDC2F","\uD83D\uDC27","\uD83E\uDD8B","\uD83D\uDC19"];
+
+const ABC="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l=>({
+  letter:l,
+  word:{A:"Apple",B:"Ball",C:"Cat",D:"Dog",E:"Egg",F:"Fish",G:"Goat",H:"Hat",I:"Ice",J:"Jam",K:"Kite",L:"Lion",M:"Moon",N:"Nest",O:"Orange",P:"Pen",Q:"Queen",R:"Rain",S:"Sun",T:"Tree",U:"Umbrella",V:"Van",W:"Water",X:"Box",Y:"Yarn",Z:"Zebra"}[l],
+  emoji:{A:"\uD83C\uDF4E",B:"⚽",C:"\uD83D\uDC31",D:"\uD83D\uDC36",E:"\uD83E\uDD5A",F:"\uD83D\uDC1F",G:"\uD83D\uDC10",H:"\uD83C\uDFA9",I:"\uD83E\uDDCA",J:"\uD83C\uDF53",K:"\uD83E\uDE81",L:"\uD83E\uDD81",M:"\uD83C\uDF19",N:"\uD83E\uDEB9",O:"\uD83C\uDF4A",P:"✏️",Q:"\uD83D\uDC51",R:"\uD83C\uDF27️",S:"☀️",T:"\uD83C\uDF33",U:"☂️",V:"\uD83D\uDE90",W:"\uD83D\uDCA7",X:"\uD83D\uDCE6",Y:"\uD83E\uDDF6",Z:"\uD83E\uDD93"}[l],
+}));
+
+// 100 spelling words across 4 levels
+function genMathSet(type, count=25){
+  const qs=[];
+  for(let i=0;i<count;i++){
+    let a,b,q,ans;
+    if(type==="add"){a=ri(1,20);b=ri(1,20);q=`${a} + ${b}`;ans=a+b;}
+    else if(type==="sub"){b=ri(1,15);a=b+ri(1,15);q=`${a} − ${b}`;ans=a-b;}
+    else if(type==="mul"){a=ri(2,12);b=ri(2,12);q=`${a} × ${b}`;ans=a*b;}
+    else if(type==="div"){b=ri(2,10);a=b*ri(2,10);q=`${a} ÷ ${b}`;ans=a/b;}
+    qs.push({q,ans,a:a,b:b,type});
+  }
+  return qs;
+}
+
+// Matching pairs for math
+function genMatchPairs(type, count=4){
+  const pairs=[];
+  const seen=new Set();
+  let attempts=0;
+  while(pairs.length<count && attempts<200){
+    attempts++;
+    let q=genOneMath(type);
+    if(!seen.has(q.q)){seen.add(q.q);pairs.push(q);}
+  }
+  return pairs;
+}
+function genOneMath(type){
+  let a,b,q,ans;
+  if(type==="add"){a=ri(1,10);b=ri(1,10);q=`${a}+${b}`;ans=a+b;}
+  else if(type==="sub"){b=ri(1,8);a=b+ri(1,8);q=`${a}−${b}`;ans=a-b;}
+  else if(type==="mul"){a=ri(2,8);b=ri(2,8);q=`${a}×${b}`;ans=a*b;}
+  else if(type==="div"){b=ri(2,8);a=b*ri(2,6);q=`${a}÷${b}`;ans=a/b;}
+  return{q,ans,a,b};
+}
+
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(arr){return[...arr].sort(()=>Math.random()-.5);}
+
+// ═══════════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════════
+function loadProfiles(){try{return JSON.parse(localStorage.getItem("kl3_profiles")||"[]");}catch{return[];}}
+function saveProfiles(p){try{localStorage.setItem("kl3_profiles",JSON.stringify(p));}catch{}}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const APP_PWD="twocats";
+function isAuthed(){try{return sessionStorage.getItem('kl_auth')==='1';}catch{return false;}}
+function setAuthed(){try{sessionStorage.setItem('kl_auth','1');}catch{}}
+
+let S={
+  screen:"login",
+  profiles:loadProfiles(),
+  activeIdx:null,
+  // ABC
+  abcIdx:0,abcFlipped:false,
+  // Spelling
+  spellIdx:0,spellLetters:[],spellTyped:[],spellResult:null,spellScore:0,
+  // Reading (AI)
+  readGrade:null,readStory:null,readLoading:false,readSelected:null,readScore:0,readCount:0,
+  // Math
+  mathType:"add",mathMode:"standard", // standard | visual | fillin | matching
+  mathQ:null,mathInput:"",mathResult:null,mathScore:0,mathStreak:0,
+  mathSet:[],mathSetIdx:0,
+  exSets:{add:[],sub:[],mul:[],div:[]},
+  exAnswers:{add:[],sub:[],mul:[],div:[]},
+  exChecked:{add:false,sub:false,mul:false,div:false},
+  exResults:{add:[],sub:[],mul:[],div:[]},
+  // Matching state
+  matchPairs:[],matchLeft:null,matchAnswered:[],matchScore:0,
+  // Fill-in state
+  fillQ:null,fillChoices:[],fillChosen:null,fillResult:null,
+  // Word problems
+  wpGrade:null,wpIdx:0,wpInput:"",wpResult:null,wpScore:0,wpHint:false,
+  // JK Games
+  jkAbcQ:null,jkAbcResult:null,jkAbcScore:0,
+  jkCountQ:null,jkCountResult:null,jkCountScore:0,
+  jkPopQ:null,jkPopInput:"",jkPopResult:null,jkPopScore:0,
+  jkColorQ:null,jkColorResult:null,jkColorScore:0,
+  jkShapeQ:null,jkShapeResult:null,jkShapeScore:0,
+  jkAnimalQ:null,jkAnimalResult:null,jkAnimalScore:0,
+  jkRhymeQ:null,jkRhymeResult:null,jkRhymeScore:0,
+  // AI loading flags
+  jkAbcLoading:false,jkCountLoading:false,jkPopLoading:false,
+  jkColorLoading:false,jkShapeLoading:false,jkAnimalLoading:false,
+  jkPhonicLoading:false,jkAddCountLoading:false,jkSortLoading:false,
+  jkBodyLoading:false,jkRhymeLoading:false,
+  skSightLoading:false,skPatternLoading:false,skSeasonsLoading:false,
+  gTimeLoading:false,gMoneyLoading:false,gPianoLoading:false,
+  mathFillLoading:false,mathMatchLoading:false,mathAILoading:false,
+  readLoading:false,aiSpellLoading:false,aiWordProbLoading:false,
+  aiSpellWord:null,aiSpellLetters:[],aiSpellTyped:[],recentSpellWords:[],
+  aiWordProblem:null,recentWpProblems:[],
+  jkTraceIdx:0,jkTraceScore:0,
+  jkPhonicQ:null,jkPhonicResult:null,jkPhonicScore:0,
+  jkAddCountQ:null,jkAddCountResult:null,jkAddCountScore:0,
+  jkSortQ:null,jkSortResult:null,jkSortScore:0,
+  jkBodyQ:null,jkBodyResult:null,jkBodyScore:0,
+  skSightQ:null,skSightResult:null,skSightScore:0,
+  skPatternQ:null,skPatternResult:null,skPatternScore:0,
+  skSeasonsQ:null,skSeasonsResult:null,skSeasonsScore:0,
+  gTimeQ:null,gTimeResult:null,gTimeScore:0,
+  gMoneyQ:null,gMoneyResult:null,gMoneyScore:0,
+  gPianoQ:null,gPianoResult:null,gPianoScore:0,
+  // Auth
+  loginError:"",
+  // Profiles
+  createMode:false,createName:"",createAvatar:0,createGrade:"G1",
+  editingGrade:false,
+};
+
+function prof(){return S.profiles[S.activeIdx]||null;}
+function gradeName(g){return{JK:"Junior K",SK:"Senior K",G1:"Grade 1",G2:"Grade 2",G3:"Grade 3"}[g]||g;}
+function gradeShort(g){return{JK:"Jr K",SK:"Sr K",G1:"Gr 1",G2:"Gr 2",G3:"Gr 3"}[g]||g;}
+function gradeColor(g){return{JK:"var(--green)",SK:"var(--teal)",G1:"var(--primary)",G2:"var(--purple)",G3:"var(--orange)"}[g]||"var(--primary)";}
+
+function addStars(n,moduleId){
+  if(S.activeIdx===null)return;
+  const p={...S.profiles[S.activeIdx]};
+  p.stars=(p.stars||0)+n;
+  p.progress={...(p.progress||{}),[moduleId]:((p.progress&&p.progress[moduleId])||0)+1};
+  S.profiles[S.activeIdx]=p;
+  saveProfiles(S.profiles);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UNIVERSAL AI ENGINE
+// Every module uses this — one API call pattern for the whole app.
+// ═══════════════════════════════════════════════════════════════
+
+// ── AI ENGINE ────────────────────────────────────────────────────
+// RULE: init functions set state SYNCHRONOUSLY then return.
+//       AI upgrades happen in background, triggering re-render only
+//       after the current call stack is clear (via setTimeout 0).
+//       render() is NEVER called from inside a render function.
+
+async function aiCall(prompt, maxTokens=600){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), 5000);
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      signal: controller.signal,
+      headers:{
+        "Content-Type":"application/json",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens: maxTokens,
+        messages:[{role:"user", content: prompt}]
+      })
+    });
+    clearTimeout(timer);
+    if(!res.ok) throw new Error("API "+res.status);
+    const data = await res.json();
+    const text = data.content.map(b=>b.text||"").join("").trim();
+    return JSON.parse(text.replace(/```json|```/g,"").trim());
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+// Sets state from fallback SYNCHRONOUSLY (so caller can render immediately),
+// then fires AI upgrade in background. Never calls render() itself.
+function aiLoad(loadKey, spinKey, promptFn, fallbackFn){
+  // Always set loading flag to false and use fallback immediately
+  S[spinKey] = false;
+  if(fallbackFn) S[loadKey] = fallbackFn();
+  // Fire AI upgrade in background after current render cycle
+  setTimeout(function(){
+    var p;
+    try{ p = aiCall(promptFn()); } catch(e){ return; }
+    if(!p || typeof p.then !== 'function') return;
+    p.then(function(result){
+      if(result && S.screen){
+        S[loadKey] = result;
+        S[spinKey] = false;
+        try{ render(); } catch(e){ console.warn("render after AI failed:", e); }
+      }
+    }).catch(function(e){ /* keep fallback */ });
+  }, 100);
+}
+
+// Shared loading card shown while AI generates
+function loadingCard(msg="Generating a new question…"){
+  return `<div class="card" style="text-align:center;padding:40px 16px">
+    <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px"></div>
+    <div style="font-size:14px;color:var(--muted);font-weight:600">✨ ${msg}</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px">Powered by AI — always fresh!</div>
+  </div>`;
+}
+
+// ── AI STORY ─────────────────────────────────────────────────────
+function loadNewStory(){
+  const g=S.readGrade||(prof()||{}).grade||"G1";
+  const gDesc={
+    JK:"Junior Kindergarten (age 4–5): 3–4 simple sentences. Animals, toys, daily routines.",
+    SK:"Senior Kindergarten (age 5–6): 4–5 sentences. Friendship, seasons, simple adventure.",
+    G1:"Grade 1 (age 6–7): 5–6 sentences. Classic tales, animals, friendship.",
+    G2:"Grade 2 (age 7–8): 6–7 sentences. Fables, nature, community helpers.",
+    G3:"Grade 3 (age 8–9): 7–8 sentences. Geography, history, science, adventure."
+  }[g]||"Grade 1";
+  const avoid=(S.readPastTitles||[]).length?`Do NOT reuse these titles: ${S.readPastTitles.slice(-5).join(", ")}.`:"";
+  aiLoad("readStory","readLoading",
+    ()=>`You are a children's reading tutor. Generate a short reading passage for ${gDesc}
+${avoid}
+Respond ONLY with valid JSON:
+{"title":"Story title","passage":"Text here. Use \\n for line breaks.","question":"Comprehension question","options":["A","B","C","D"],"answer":0}`,
+    ()=>{
+      const stories=[
+        {title:"The Brave Little Cloud",passage:"A little cloud floated high in the sky.\nShe wanted to help the thirsty flowers.\nShe puffed up big and let the rain fall.\nAll the flowers cheered!",question:"Why did the cloud make it rain?",options:["To make a rainbow","For the thirsty flowers","Because she was sad","To scare birds"],answer:1},
+        {title:"The Lost Puppy",passage:"A small puppy named Spot got lost in the park.\nHe sniffed around and followed a trail.\nHe found his way back to his owner.\nThey hugged happily.",question:"How did Spot find his way home?",options:["He flew home","He followed a trail","He asked a cat","He waited"],answer:1},
+        {title:"The Hungry Bear",passage:"A big brown bear looked for food in the forest.\nHe found a beehive full of honey.\nHe reached in carefully and took some.\nThe bees buzzed but the bear ran away!",question:"What did the bear find?",options:["Fish","Berries","Honey","Mushrooms"],answer:2},
+        {title:"The Magic Garden",passage:"Mia planted a tiny seed in her garden.\nEvery day she watered it and watched.\nOne morning a beautiful flower appeared!\nMia smiled — her hard work paid off.",question:"What did Mia do every day?",options:["Danced","Watered her seed","Read books","Painted"],answer:1},
+      ];
+      return stories[ri(0,stories.length-1)];
+    }
+  );
+  if((S.readStory||{}).title) S.readPastTitles=[...(S.readPastTitles||[]),S.readStory.title].slice(-15);
+  S.readSelected=null;
+}
+
+// ── JK ABC MATCH ─────────────────────────────────────────────────
+function initJkAbc(){
+  const grade=(prof()||{}).grade||"JK";
+  aiLoad("jkAbcQ","jkAbcLoading",
+    ()=>`Generate a letter-recognition question for a ${grade} child (age 4–6).
+Pick ONE letter A–Z. Give 4 picture options as emoji+word pairs. Exactly one matches the letter.
+Respond ONLY with valid JSON:
+{"letter":"A","word":"Apple","emoji":"\uD83C\uDF4E","choices":[{"word":"Apple","emoji":"\uD83C\uDF4E"},{"word":"Ball","emoji":"⚽"},{"word":"Cat","emoji":"\uD83D\uDC31"},{"word":"Dog","emoji":"\uD83D\uDC36"}],"ans":0}
+"ans" is the index (0–3) of the correct choice. Use variety — don't repeat recent letters.`,
+    ()=>{const i=ri(0,25);const item=ABC[i];const others=shuffle(ABC.filter(a=>a.letter!==item.l||item.letter)).slice(0,3);const choices=shuffle([item,...others]);return{letter:item.l||item.letter,word:item.w||item.word,emoji:item.e||item.emoji,choices,ans:choices.findIndex(ch=>ch.word===item.w||item.word)};}
+  );
+  if((S.jkAbcQ||{}).letter) setTimeout(()=>speak(S.jkAbcQ.letter+" is for "+S.jkAbcQ.word,0.8),300);
+}
+
+// ── JK COUNT & TAP ───────────────────────────────────────────────
+function initJkCount(){
+  const max=(prof()||{}).grade==="SK"?20:10;
+  aiLoad("jkCountQ","jkCountLoading",
+    ()=>`Generate a counting question for a young child (age 4–6). Count ${max<=10?"1–10":"1–20"} objects.
+Respond ONLY with valid JSON:
+{"count":5,"emoji":"\uD83D\uDC38","choices":[3,5,7,8],"fact":"Frogs can jump very far!"}
+"choices" must include the correct count plus 3 wrong numbers close to it. Add a fun fact about the emoji.`,
+    ()=>{const count=ri(1,max);const emoji=COUNT_EMOJIS[ri(0,COUNT_EMOJIS.length-1)];const wrongs=[-2,-1,1,2].map(o=>count+o).filter(v=>v>=1&&v<=max+2&&v!==count);return{count,emoji,choices:shuffle([count,...wrongs.slice(0,3)]),fact:""};}
+  );
+}
+
+// ── JK NUMBER POP ────────────────────────────────────────────────
+function initJkPop(){
+  aiLoad("jkPopQ","jkPopLoading",
+    ()=>`Generate a simple addition question for JK (age 4–5). Numbers 1–5 only, sum max 10.
+Respond ONLY with valid JSON:
+{"q":"3 + 2 = ?","ans":5,"a":3,"b":2,"type":"add","dotA":3,"dotB":2,"color":"#FF6B9D","tip":"Count the blue dots, then the yellow dots!"}`,
+    ()=>{const a=ri(1,5),b=ri(1,5-a+1);return{q:a+" + "+b+" = ?",ans:a+b,a,b,type:"add",dotA:a,dotB:b,color:POP_COLORS[ri(0,POP_COLORS.length-1)],tip:"Count all the dots!"};}
+  );
+  S.jkPopInput="";
+}
+
+// ── JK COLORS ────────────────────────────────────────────────────
+function initJkColor(){
+  aiLoad("jkColorQ","jkColorLoading",
+    ()=>`Generate a colour-recognition question for a JK child (age 4–5).
+Show one emoji of a specific colour, give 4 colour name choices.
+Respond ONLY with valid JSON:
+{"correct":{"name":"Red","hex":"#EF4444","emoji":"\uD83C\uDF4E","thing":"apple"},"choices":[{"name":"Red","hex":"#EF4444"},{"name":"Blue","hex":"#3B82F6"},{"name":"Yellow","hex":"#FBBF24"},{"name":"Green","hex":"#22C55E"}],"ans":"Red"}
+Use a variety of colours: Red, Blue, Yellow, Green, Orange, Purple, Pink, Brown, White, Black.`,
+    ()=>{const c=COLORS_DATA[ri(0,COLORS_DATA.length-1)];const others=shuffle(COLORS_DATA.filter(x=>x.name!==c.name)).slice(0,3);return{correct:c,choices:shuffle([c,...others]),ans:c.name,thing:c.things[ri(0,c.things.length-1)]};}
+  );
+}
+
+// ── JK SHAPES ────────────────────────────────────────────────────
+function initJkShape(){
+  aiLoad("jkShapeQ","jkShapeLoading",
+    ()=>`Generate a shape-recognition question for a JK child. Pick one of: Circle, Square, Triangle, Rectangle, Star, Heart, Diamond, Oval.
+Give 4 shape name choices.
+Respond ONLY with valid JSON:
+{"name":"Circle","desc":"round like a ball","choices":["Circle","Square","Triangle","Star"],"ans":"Circle"}
+Vary the shape each time.`,
+    ()=>{const s=SHAPES_DATA[ri(0,SHAPES_DATA.length-1)];const others=shuffle(SHAPES_DATA.filter(x=>x.name!==s.name)).slice(0,3);const color=SHAPE_COLORS[ri(0,SHAPE_COLORS.length-1)];return{correct:s,choices:shuffle([s,...others]),ans:s.name,color,name:s.name,desc:s.desc};}
+  );
+  if(!(S.jkShapeQ||{}).correct && (S.jkShapeQ||{}).name){
+    // AI returned flat format — normalise
+    const found=SHAPES_DATA.find(s=>s.name===S.jkShapeQ.name)||SHAPES_DATA[0];
+    const others=shuffle(SHAPES_DATA.filter(s=>s.name!==found.name)).slice(0,3);
+    S.jkShapeQ={correct:found,choices:shuffle([found,...others]),ans:found.name,color:SHAPE_COLORS[ri(0,SHAPE_COLORS.length-1)],...S.jkShapeQ};
+  }
+}
+
+// ── JK ANIMALS ───────────────────────────────────────────────────
+function initJkAnimal(){
+  aiLoad("jkAnimalQ","jkAnimalLoading",
+    ()=>`Generate an animal-recognition question for a JK child (age 4–5). Vary between 3 types:
+  type 0 = show the emoji, ask its name
+  type 1 = show the sound, ask which animal
+  type 2 = show the habitat, ask which animal lives there
+Pick a random type (0–2) and a common animal a child would know.
+Respond ONLY with valid JSON:
+{"correct":{"name":"Dog","emoji":"\uD83D\uDC36","sound":"Woof!","home":"house","eats":"bones"},"choices":[{"name":"Dog","emoji":"\uD83D\uDC36"},{"name":"Cat","emoji":"\uD83D\uDC31"},{"name":"Cow","emoji":"\uD83D\uDC04"},{"name":"Duck","emoji":"\uD83E\uDD86"}],"qType":0,"ans":"Dog"}`,
+    ()=>{const a=ANIMALS_DATA[ri(0,ANIMALS_DATA.length-1)];const others=shuffle(ANIMALS_DATA.filter(x=>x.name!==a.name)).slice(0,3);return{correct:a,choices:shuffle([a,...others]),qType:ri(0,2),ans:a.name,sound:a.sound};}
+  );
+}
+
+// ── JK PHONICS ───────────────────────────────────────────────────
+function initJkPhonic(){
+  aiLoad("jkPhonicQ","jkPhonicLoading",
+    ()=>`Generate a letter-sound (phonics) question for a JK child.
+Pick one letter A–Z. Give its phoneme sound and an example word, plus 3 wrong letter choices.
+Respond ONLY with valid JSON:
+{"sound":"Ah — like in Apple","letter":"A","emoji":"\uD83C\uDF4E","choices":[{"letter":"A","emoji":"\uD83C\uDF4E"},{"letter":"B","emoji":"⚽"},{"letter":"S","emoji":"☀️"},{"letter":"M","emoji":"\uD83C\uDF19"}],"ans":"A"}`,
+    ()=>{const p=PHONIC_SOUNDS[ri(0,PHONIC_SOUNDS.length-1)];const others=shuffle(PHONIC_SOUNDS.filter(x=>x.letter!==p.letter)).slice(0,3);return{...p,choices:shuffle([p,...others]),ans:p.letter};}
+  );
+  if((S.jkPhonicQ||{}).sound) setTimeout(()=>speak(S.jkPhonicQ.sound,0.78),300);
+}
+
+// ── JK ADD BY COUNTING ───────────────────────────────────────────
+function initJkAddCount(){
+  aiLoad("jkAddCountQ","jkAddCountLoading",
+    ()=>`Generate a visual addition question for a JK child (age 4–5). Max numbers 1–5, sum max 10. Use fun emojis.
+Respond ONLY with valid JSON:
+{"a":3,"b":2,"emoji":"\uD83D\uDC38","emoji2":"\uD83E\uDD8B","ans":5,"choices":[3,4,5,7],"story":"3 frogs and 2 butterflies — how many altogether?"}
+"choices" must contain the correct answer plus 3 plausible wrong numbers.`,
+    ()=>{const a=ri(1,5),b=ri(1,5);const ans=a+b;const e1=COUNT_EMOJIS[ri(0,COUNT_EMOJIS.length-1)],e2=COUNT_EMOJIS[ri(0,COUNT_EMOJIS.length-1)];const wrongs=[-2,-1,1,2].map(o=>ans+o).filter(v=>v>=1&&v!==ans);return{a,b,emoji:e1,emoji2:e2,ans,choices:shuffle([ans,...wrongs.slice(0,3)]),story:`${a} + ${b} = ?`};}
+  );
+}
+
+// ── JK SORT & MATCH ──────────────────────────────────────────────
+function initJkSort(){
+  aiLoad("jkSortQ","jkSortLoading",
+    ()=>`Generate a sorting/categorisation question for a JK child.
+Create a set of 6 items. Some match a category, some do not. Child taps all matching ones.
+Use simple emoji categories: a colour, a type of food, animals, vehicles, or a shape.
+Respond ONLY with valid JSON:
+{"q":"Tap all the ANIMALS \uD83D\uDC3E","items":[{"e":"\uD83D\uDC36","match":true},{"e":"\uD83D\uDC31","match":true},{"e":"\uD83D\uDE97","match":false},{"e":"\uD83C\uDF55","match":false},{"e":"\uD83D\uDC38","match":true},{"e":"\uD83C\uDFE0","match":false}],"ans":"animals","hint":"Animals are living creatures!"}
+Exactly 3 items should match (match:true). Keep it simple and visual.`,
+    ()=>{const set=SORT_DATA[ri(0,SORT_DATA.length-1)];return{...set,items:shuffle(set.items),tapped:[]};}
+  );
+  if(S.jkSortQ) S.jkSortQ={...S.jkSortQ,tapped:[]};
+}
+
+// ── JK MY BODY ───────────────────────────────────────────────────
+function initJkBody(){
+  aiLoad("jkBodyQ","jkBodyLoading",
+    ()=>`Generate a body-parts question for a JK child (age 4–5).
+Pick one body part. Give 4 choices.
+Respond ONLY with valid JSON:
+{"correct":{"part":"nose","emoji":"\uD83D\uDC43","desc":"You use this to smell!","img":"\uD83D\uDC43"},"choices":[{"part":"nose","img":"\uD83D\uDC43"},{"part":"eyes","img":"\uD83D\uDC40"},{"part":"hands","img":"\uD83D\uDD90️"},{"part":"ears","img":"\uD83D\uDC42"}],"ans":"nose"}
+Body parts to use: head, eyes, ears, nose, mouth, hands, feet, tummy, knees, back, elbow, shoulder.`,
+    ()=>{const b=BODY_PARTS[ri(0,BODY_PARTS.length-1)];const others=shuffle(BODY_PARTS.filter(x=>x.part!==b.part)).slice(0,3);return{correct:b,choices:shuffle([b,...others]),ans:b.part};}
+  );
+  if((S.jkBodyQ||{}).ans) setTimeout(()=>speak("Point to your "+S.jkBodyQ.ans+"!",0.8),300);
+}
+
+// ── JK RHYME ─────────────────────────────────────────────────────
+function initJkRhyme(){
+  aiLoad("jkRhymeQ","jkRhymeLoading",
+    ()=>`Generate a rhyming words question for a young child (age 4–6).
+Pick a simple 3-letter word. Give one rhyming word and 3 non-rhyming distractors.
+Respond ONLY with valid JSON:
+{"word":"CAT","ans":"BAT","choices":["BAT","DOG","SUN","CUP"],"hint":"CAT and BAT both end in -AT!"}
+Vary the words each time. Use simple CVC words like: cat, dog, sun, hat, big, hop, bed, bus, cup, pen.`,
+    ()=>{const set=RHYME_SETS[ri(0,RHYME_SETS.length-1)];const ans=set.rhymes[ri(0,set.rhymes.length-1)];const wrongs=shuffle(set.non).slice(0,3);return{word:set.word,ans,choices:shuffle([ans,...wrongs]),hint:set.word+" and "+ans+" rhyme!"};}
+  );
+  if((S.jkRhymeQ||{}).word) setTimeout(()=>speak(S.jkRhymeQ.word+". Which word rhymes with "+S.jkRhymeQ.word+"?",0.8),300);
+}
+
+// ── SK SIGHT WORDS ───────────────────────────────────────────────
+function initSkSight(){
+  aiLoad("skSightQ","skSightLoading",
+    ()=>`Generate a sight-word recognition question for a Senior Kindergarten child (age 5–6).
+Pick one common sight word. Give 4 word choices (the correct one + 3 similar-looking wrong ones).
+Respond ONLY with valid JSON:
+{"word":"the","choices":["the","they","there","then"],"ans":"the","sentence":"___ cat sat on the mat."}
+Use common sight words: the, a, and, is, in, it, to, of, I, you, he, she, we, are, was, my, on, at, do, go, can, up, big, run, yes, no, see, look, come, play, like, here, help, with, said, that, this, have, all.`,
+    ()=>{const w=SIGHT_WORDS[ri(0,SIGHT_WORDS.length-1)];const others=shuffle(SIGHT_WORDS.filter(x=>x!==w)).slice(0,3);return{word:w,choices:shuffle([w,...others]),ans:w,sentence:""};}
+  );
+  if((S.skSightQ||{}).word) setTimeout(()=>speak(S.skSightQ.word,0.7),300);
+}
+
+// ── SK PATTERNS ──────────────────────────────────────────────────
+function initSkPattern(){
+  aiLoad("skPatternQ","skPatternLoading",
+    ()=>`Generate a pattern-completion question for a Senior Kindergarten child (age 5–6).
+Create a repeating pattern using emoji. The child picks what comes next.
+Respond ONLY with valid JSON:
+{"seq":["\uD83D\uDD34","\uD83D\uDD35","\uD83D\uDD34","\uD83D\uDD35","\uD83D\uDD34"],"ans":"\uD83D\uDD35","choices":["\uD83D\uDD35","\uD83D\uDFE1","\uD83D\uDFE2","\uD83D\uDD34"],"hint":"AB pattern","type":"AB"}
+Pattern types to use: AB, AAB, ABC, AABB. Keep it simple and visual. Use coloured shapes or animals.`,
+    ()=>{const set=PATTERN_DATA[ri(0,PATTERN_DATA.length-1)];const uniq=[...new Set(set.seq)];const wrongs=["❓","\uD83C\uDF81","\uD83C\uDFC6","\uD83C\uDF88"].filter(e=>!uniq.includes(e)).slice(0,3);return{...set,choices:shuffle([set.ans,...wrongs])};}
+  );
+}
+
+// ── SK SEASONS ───────────────────────────────────────────────────
+function initSkSeasons(){
+  aiLoad("skSeasonsQ","skSeasonsLoading",
+    ()=>`Generate a seasons question for a Senior Kindergarten child (age 5–6) in Canada.
+Pick one season. Give 3 fun facts about it and a comprehension question with 4 answer options.
+Respond ONLY with valid JSON:
+{"season":"Winter","emoji":"❄️","color":"#3B82F6","facts":["It snows in winter ❄️","We wear big coats \uD83E\uDDE5","We can build snowmen ⛄"],"q":"What do we wear in winter to stay warm?","opts":["Swimsuit","Big coat","T-shirt","Shorts"],"ans":1}
+"ans" is the index (0–3) of the correct option.`,
+    ()=>{const s=SEASONS_DATA[ri(0,SEASONS_DATA.length-1)];return{...s};}
+  );
+}
+
+// ── G TIME & CLOCKS ──────────────────────────────────────────────
+function initGTime(){
+  const grade=(prof()||{}).grade||"G1";
+  const complexity=grade==="G1"?"o'clock and half past only":grade==="G2"?"o'clock, half past, quarter past":"any time including minutes";
+  aiLoad("gTimeQ","gTimeLoading",
+    ()=>`Generate a time/clock question for ${grade} (age ${grade==="G1"?"6–7":grade==="G2"?"7–8":"8–9"}).
+Complexity: ${complexity}.
+Respond ONLY with valid JSON:
+{"type":"oclock","h":3,"m":0,"label":"What time does the clock show?","ans":"3:00","choices":["3:00","6:00","9:00","12:00"],"fact":"There are 60 minutes in one hour!"}
+Types: "oclock" (m=0), "half" (m=30), "quarter" (m=15 or 45), "units" (time facts like 60 seconds = 1 minute).
+For type "units": set h=0,m=0 and put the fill-in question in label, e.g. "60 ___ = 1 minute".`,
+    ()=>{
+      const h=ri(1,12),types=["oclock","half","quarter"];
+      const type=types[ri(0,2)];
+      const m=type==="oclock"?0:type==="half"?30:(Math.random()<0.5?15:45);
+      const ans=h+":"+(m<10?"0"+m:""+m);
+      const w=[((h%12)+1)+":"+(m<10?"0"+m:""+m),h+":"+(m===0?"30":m===30?"00":"30"),((h+9)%12+1)+":00"];
+      return {type,h,m,label:"What time does the clock show?",ans,choices:shuffle([ans,...w.slice(0,3)]),fact:""};
+    }
+  );
+}
+
+function initGTime_fallback(){
+  const h=ri(1,12),types=["oclock","half","quarter"];
+  const type=types[ri(0,2)];const m=type==="oclock"?0:type==="half"?30:(Math.random()<0.5?15:45);
+  const ans=h+":"+(m<10?"0"+m:""+m);
+  const w=[((h%12)+1)+":"+( m<10?"0"+m:""+m),h+":"+(m===0?"30":m===30?"00":"30"),((h+9)%12+1)+":00"];
+  S.gTimeQ={type,h,m,label:"What time does the clock show?",ans,choices:shuffle([ans,...w.slice(0,3)]),fact:""};
+}
+
+// ── G CANADIAN MONEY ─────────────────────────────────────────────
+
+// ── CANADIAN COINS DATA ───────────────────────────────────────────
+const COINS=[
+  {name:"Penny",  value:1,   emoji:"\uD83E\uDE99", color:"#b5651d", desc:"1 cent — copper brown coin"},
+  {name:"Nickel", value:5,   emoji:"\uD83E\uDE99", color:"#9E9E9E", desc:"5 cents — silver, beaver on back"},
+  {name:"Dime",   value:10,  emoji:"\uD83E\uDE99", color:"#9E9E9E", desc:"10 cents — smallest coin, Bluenose ship"},
+  {name:"Quarter",value:25,  emoji:"\uD83E\uDE99", color:"#9E9E9E", desc:"25 cents — caribou on back"},
+  {name:"Loonie", value:100, emoji:"\uD83E\uDD86", color:"#DAA520", desc:"$1 dollar — gold coin with a loon bird"},
+  {name:"Toonie", value:200, emoji:"\uD83E\uDE99", color:"#C0A020", desc:"$2 — gold and silver, polar bear"},
+];
+
+function initGMoney(){
+  const grade=(prof()||{}).grade||"G1";
+  aiLoad("gMoneyQ","gMoneyLoading",
+    ()=>`Generate a Canadian money question for ${grade} students (age ${grade==="G1"?"6–7":grade==="G2"?"7–8":"8–9"}).
+Canadian coins: Penny=1¢, Nickel=5¢, Dime=10¢, Quarter=25¢, Loonie=$1, Toonie=$2.
+Question types: identify a coin by value, state a coin's value, or add 2 coins.
+Respond ONLY with valid JSON:
+{"type":"value","label":"How much is a Quarter worth?","ans":"25¢","choices":["25¢","10¢","5¢","50¢"],"emoji":"\uD83E\uDE99","color":"#22C55E","desc":"The Quarter has a caribou on it","hint":"A quarter buys a small treat!"}`,
+    ()=>{
+      const fmtVal=v=>v>=100?"$"+(v/100).toFixed(2):v+"¢";
+      const qType=ri(0,4); // 5 question types
+      const lastType=S._lastMoneyType;
+      // avoid same type twice in a row
+      const type=(qType===lastType)?((qType+1)%5):qType;
+      S._lastMoneyType=type;
+
+      if(type===0){
+        // "How much is a [coin] worth?"
+        const coin=COINS[ri(0,COINS.length-1)];
+        const ans=fmtVal(coin.value);
+        const others=shuffle(COINS.filter(c=>c.name!==coin.name)).slice(0,3).map(c=>fmtVal(c.value));
+        return{label:"How much is a "+coin.name+" worth?",ans,choices:shuffle([ans,...others]),emoji:coin.emoji,color:coin.color,desc:coin.desc,hint:"Think about the coin's colour and size!"};
+      } else if(type===1){
+        // "Which coin is worth [value]?"
+        const coin=COINS[ri(0,COINS.length-1)];
+        const ans=coin.name;
+        const others=shuffle(COINS.filter(c=>c.name!==coin.name)).slice(0,3).map(c=>c.name);
+        return{label:"Which coin is worth "+fmtVal(coin.value)+"?",ans,choices:shuffle([ans,...others]),emoji:"\uD83E\uDE99",color:"#3B82F6",desc:coin.desc,hint:""};
+      } else if(type===2){
+        // "Add two coins"
+        const a=COINS[ri(0,4)], b=COINS[ri(0,4)];
+        const total=a.value+b.value;
+        const ans=fmtVal(total);
+        const wrongs=[-5,-10,5,10,15,25].map(d=>total+d).filter(v=>v>0&&fmtVal(v)!==ans);
+        const others=shuffle(wrongs).slice(0,3).map(fmtVal);
+        return{label:"A "+a.name+" + a "+b.name+" = ?",ans,choices:shuffle([ans,...others]),emoji:a.emoji,color:"#22C55E",desc:"Add the two coins together",hint:fmtVal(a.value)+" + "+fmtVal(b.value)};
+      } else if(type===3){
+        // "How many [small coins] make [bigger coin]?"
+        const pairs=[{q:"How many Pennies make a Nickel?",ans:"5",choices:["5","10","2","4"],emoji:"\uD83E\uDE99",color:"#9E9E9E",desc:"5 pennies = 1 nickel",hint:"Penny = 1¢, Nickel = 5¢"},
+          {q:"How many Nickels make a Quarter?",ans:"5",choices:["5","4","3","2"],emoji:"\uD83E\uDE99",color:"#9E9E9E",desc:"5 nickels = 1 quarter",hint:"Nickel = 5¢, Quarter = 25¢"},
+          {q:"How many Dimes make a Dollar (Loonie)?",ans:"10",choices:["10","5","20","8"],emoji:"\uD83E\uDD86",color:"#DAA520",desc:"10 dimes = $1.00",hint:"Dime = 10¢, Loonie = $1"},
+          {q:"How many Quarters make a Dollar (Loonie)?",ans:"4",choices:["4","5","2","10"],emoji:"\uD83E\uDD86",color:"#DAA520",desc:"4 quarters = $1.00",hint:"Quarter = 25¢, Loonie = $1"},
+          {q:"How many Pennies make a Dime?",ans:"10",choices:["10","5","2","20"],emoji:"\uD83E\uDE99",color:"#9E9E9E",desc:"10 pennies = 1 dime",hint:"Penny = 1¢, Dime = 10¢"},
+          {q:"How many Loonies make a Toonie?",ans:"2",choices:["2","4","5","3"],emoji:"\uD83E\uDE99",color:"#C0A020",desc:"2 loonies = 1 toonie",hint:"Loonie = $1, Toonie = $2"},
+        ];
+        return pairs[ri(0,pairs.length-1)];
+      } else {
+        // "True or false style — which statement is correct?"
+        const facts=[
+          {label:"Which coin is the SMALLEST in size?",ans:"Dime",choices:["Dime","Penny","Nickel","Quarter"],emoji:"\uD83E\uDE99",color:"#9E9E9E",desc:"The dime is the smallest Canadian coin",hint:"Smaller doesn't mean less valuable!"},
+          {label:"Which coin has a LOON bird on it?",ans:"Loonie",choices:["Loonie","Toonie","Quarter","Dime"],emoji:"\uD83E\uDD86",color:"#DAA520",desc:"The Loonie is named after the loon bird",hint:""},
+          {label:"Which coin is made of GOLD and SILVER?",ans:"Toonie",choices:["Toonie","Loonie","Quarter","Nickel"],emoji:"\uD83E\uDE99",color:"#C0A020",desc:"The Toonie has a gold centre and silver ring",hint:""},
+          {label:"Which coin has a CARIBOU on it?",ans:"Quarter",choices:["Quarter","Dime","Nickel","Penny"],emoji:"\uD83E\uDE99",color:"#9E9E9E",desc:"The Quarter features a caribou",hint:""},
+          {label:"Which is the LARGEST value coin?",ans:"Toonie",choices:["Toonie","Loonie","Quarter","Dime"],emoji:"\uD83E\uDE99",color:"#C0A020",desc:"The Toonie ($2) is worth the most",hint:""},
+        ];
+        return facts[ri(0,facts.length-1)];
+      }
+    }
+  );
+}
+
+// ── G PIANO NOTES ────────────────────────────────────────────────
+function initGPiano(){
+  const grade=(prof()||{}).grade||"G1";
+  aiLoad("gPianoQ","gPianoLoading",
+    ()=>`Generate a piano/music note question for ${grade} students.
+Piano white keys: C, D, E, F, G, A, B (Do Re Mi Fa Sol La Ti).
+Respond ONLY with valid JSON:
+{"note":"G","choices":["C","E","G","B"],"ans":"G","color":"#3B82F6","fact":"G is also called Sol in solfège!","mnemonic":"Every Good Boy Deserves Fudge — the notes on the lines are E G B D F"}
+Pick a random note and give a fun music fact or memory tip.`,
+    ()=>{const note=PIANO_NOTES_DATA[ri(0,PIANO_NOTES_DATA.length-1)];const others=shuffle(PIANO_NOTES_DATA.filter(n=>n.note!==note.note)).slice(0,3);return{note:note.note,choices:shuffle([note,...others]).map(n=>n.note),ans:note.note,color:note.color,fact:"",mnemonic:""};}
+  );
+  if((S.gPianoQ||{}).note) setTimeout(()=>playPianoNote(S.gPianoQ.note),400);
+}
+
+// ── G SPELLING ───────────────────────────────────────────────────
+// Spelling already has 100 words but we make the word AI-driven too
+const SPELL_BANK={
+  JK:[{word:"CAT",emoji:"\uD83D\uDC31",level:1,hint:"A furry pet"},{word:"DOG",emoji:"\uD83D\uDC36",level:1,hint:"Man's best friend"},{word:"SUN",emoji:"☀️",level:1,hint:"Shines in the sky"},{word:"HAT",emoji:"\uD83C\uDFA9",level:1,hint:"Wear on your head"},{word:"BUS",emoji:"\uD83D\uDE8C",level:1,hint:"Takes you to school"},{word:"BIG",emoji:"\uD83E\uDD81",level:1,hint:"Opposite of small"},{word:"RED",emoji:"\uD83D\uDD34",level:1,hint:"Colour of apples"},{word:"HOP",emoji:"\uD83D\uDC38",level:1,hint:"What frogs do"},{word:"CUP",emoji:"\uD83E\uDD64",level:1,hint:"Drink from this"},{word:"PIG",emoji:"\uD83D\uDC37",level:1,hint:"Oink oink!"}],
+  SK:[{word:"CAKE",emoji:"\uD83C\uDF82",level:2,hint:"A birthday treat"},{word:"FISH",emoji:"\uD83D\uDC1F",level:2,hint:"Lives in water"},{word:"BIRD",emoji:"\uD83D\uDC26",level:2,hint:"Has wings"},{word:"JUMP",emoji:"\uD83E\uDD98",level:2,hint:"Leap up high"},{word:"RAIN",emoji:"\uD83C\uDF27️",level:2,hint:"Water from clouds"},{word:"FROG",emoji:"\uD83D\uDC38",level:2,hint:"Green and jumpy"},{word:"STAR",emoji:"⭐",level:2,hint:"Shines at night"},{word:"TREE",emoji:"\uD83C\uDF33",level:2,hint:"Has leaves"},{word:"BOAT",emoji:"⛵",level:2,hint:"Floats on water"},{word:"LAMB",emoji:"\uD83D\uDC11",level:2,hint:"Baby sheep"}],
+  G1:[{word:"CLOUD",emoji:"☁️",level:2,hint:"Fluffy sky thing"},{word:"HAPPY",emoji:"\uD83D\uDE0A",level:2,hint:"Feeling great"},{word:"PLANT",emoji:"\uD83C\uDF31",level:2,hint:"Grows in soil"},{word:"TIGER",emoji:"\uD83D\uDC2F",level:2,hint:"Striped big cat"},{word:"BREAD",emoji:"\uD83C\uDF5E",level:2,hint:"Baked food"},{word:"NIGHT",emoji:"\uD83C\uDF19",level:2,hint:"Dark time of day"},{word:"CHAIR",emoji:"\uD83E\uDE91",level:2,hint:"You sit on it"},{word:"WHEEL",emoji:"\uD83C\uDFA1",level:2,hint:"Round and rolls"},{word:"SNAKE",emoji:"\uD83D\uDC0D",level:2,hint:"Slithers on ground"},{word:"FLAME",emoji:"\uD83D\uDD25",level:2,hint:"Fire makes this"}],
+  G2:[{word:"ORANGE",emoji:"\uD83C\uDF4A",level:3,hint:"Citrus fruit"},{word:"JUNGLE",emoji:"\uD83C\uDF34",level:3,hint:"Wild tropical forest"},{word:"PLANET",emoji:"\uD83E\uDE90",level:3,hint:"Orbits the sun"},{word:"WINTER",emoji:"❄️",level:3,hint:"Coldest season"},{word:"FRIEND",emoji:"\uD83D\uDC6B",level:3,hint:"Someone you like"},{word:"SCHOOL",emoji:"\uD83C\uDFEB",level:3,hint:"Where you learn"},{word:"ROCKET",emoji:"\uD83D\uDE80",level:3,hint:"Goes to space"},{word:"BUTTER",emoji:"\uD83E\uDDC8",level:3,hint:"Spread on bread"},{word:"FLOWER",emoji:"\uD83C\uDF38",level:3,hint:"Pretty and colourful"},{word:"SUNSET",emoji:"\uD83C\uDF05",level:3,hint:"Evening sky colours"}],
+  G3:[{word:"DOLPHIN",emoji:"\uD83D\uDC2C",level:3,hint:"Smart ocean mammal"},{word:"THUNDER",emoji:"⛈️",level:3,hint:"Loud storm sound"},{word:"LIBRARY",emoji:"\uD83D\uDCDA",level:4,hint:"Full of books"},{word:"CAPTAIN",emoji:"⚓",level:4,hint:"Leader of a ship"},{word:"PYRAMID",emoji:"\uD83D\uDD3A",level:4,hint:"Ancient structure"},{word:"BLANKET",emoji:"\uD83D\uDECF️",level:3,hint:"Keeps you warm"},{word:"CHICKEN",emoji:"\uD83D\uDC14",level:3,hint:"Farm bird"},{word:"DIAMOND",emoji:"\uD83D\uDC8E",level:4,hint:"Precious gem"},{word:"OCTOPUS",emoji:"\uD83D\uDC19",level:4,hint:"8 arms creature"},{word:"VOLCANO",emoji:"\uD83C\uDF0B",level:4,hint:"Erupts with lava"}],
+};
+function getSpellFallback(){
+  const g=(prof()||{}).grade||"G1";
+  const bank=SPELL_BANK[g]||SPELL_BANK.G1;
+  const recent=S.recentSpellWords||[];
+  const fresh=bank.filter(w=>!recent.includes(w.word));
+  const pick=(fresh.length?fresh:bank)[ri(0,(fresh.length?fresh:bank).length-1)];
+  return{...pick,scrambled:shuffle(pick.word.split(""))};
+}
+function loadAISpelling(){
+  const grade=(prof()||{}).grade||"G1";
+  const recent=S.recentSpellWords||[];
+  const avoid=recent.length?"Do NOT repeat: "+recent.slice(-6).join(", ")+".":"";
+  aiLoad("aiSpellWord","aiSpellLoading",
+    ()=>`Generate a spelling word for ${grade}. ${avoid} Respond ONLY with JSON no markdown: {"word":"CLOUD","emoji":"☁️","level":2,"hint":"Fluffy sky thing","scrambled":["D","U","O","L","C"]}`,
+    ()=>getSpellFallback()
+  );
+  const w=S.aiSpellWord;
+  if(w){
+    S.aiSpellLetters=shuffle(w.scrambled||w.word.split(""));
+    S.aiSpellTyped=[];
+    S.spellResult=null;
+    S.recentSpellWords=[...recent,w.word].slice(-10);
+  }
+}
+
+// ── G WORD PROBLEMS ──────────────────────────────────────────────
+function loadAIWordProblem(){
+  const g=S.wpGrade||(prof()||{}).grade||"G1";
+  const recentWP=S.recentWpProblems||[];
+  const avoidWP=recentWP.length?`Avoid these recent topics: ${recentWP.slice(-4).join(", ")}.`:"";
+  aiLoad("aiWordProblem","aiWordProbLoading",
+    ()=>`Generate a word problem for ${g} students (age ${g==="JK"?"4–5":g==="SK"?"5–6":g==="G1"?"6–7":g==="G2"?"7–8":"8–9"}).
+${avoidWP}
+Make it a fun real-world scenario with a single numerical answer. Vary themes every time: animals, food, toys, sport, travel, nature, school, shopping, family, holidays.
+For JK/SK use numbers 1–10. G1: 1–20. G2: 1–100. G3: multi-step up to 1000.
+Respond ONLY with valid JSON:
+{"q":"Lily has 8 stickers. She gets 5 more for her birthday. How many stickers does she have now?","ans":13,"hint":"8 + 5","emoji":"⭐","topic":"stickers"}
+Include a "topic" field (1 word) so we can avoid repetition.`,
+    ()=>{
+      const g=S.wpGrade||(prof()||{}).grade||"G1";
+      const banks={
+        JK:[{q:"There are 2 dogs and 3 cats. How many animals are there?",ans:5,hint:"2+3",emoji:"\uD83D\uDC3E",topic:"animals"},{q:"You have 4 apples. You eat 1. How many are left?",ans:3,hint:"4-1",emoji:"\uD83C\uDF4E",topic:"apples"},{q:"3 birds sit on a branch. 2 more arrive. How many birds?",ans:5,hint:"3+2",emoji:"\uD83D\uDC26",topic:"birds"}],
+        SK:[{q:"Sam has 5 stickers. He gets 4 more. How many does he have?",ans:9,hint:"5+4",emoji:"⭐",topic:"stickers"},{q:"There are 8 balloons. 3 pop. How many are left?",ans:5,hint:"8-3",emoji:"\uD83C\uDF88",topic:"balloons"},{q:"A bag has 6 grapes. You add 4 more. How many grapes?",ans:10,hint:"6+4",emoji:"\uD83C\uDF47",topic:"grapes"}],
+        G1:[{q:"Lily has 12 crayons. She gives 4 to her friend. How many does she have left?",ans:8,hint:"12-4",emoji:"\uD83D\uDD8D️",topic:"crayons"},{q:"A box has 7 red balls and 8 blue balls. How many balls in total?",ans:15,hint:"7+8",emoji:"⚽",topic:"balls"},{q:"Tom reads 6 pages on Monday and 9 pages on Tuesday. How many pages total?",ans:15,hint:"6+9",emoji:"\uD83D\uDCD6",topic:"reading"}],
+        G2:[{q:"A shop has 45 apples. 18 are sold. How many remain?",ans:27,hint:"45-18",emoji:"\uD83C\uDF4E",topic:"shop"},{q:"A class has 24 students. Each student needs 3 pencils. How many pencils total?",ans:72,hint:"24×3",emoji:"✏️",topic:"pencils"},{q:"Jake saves $15 each week. How much does he save in 4 weeks?",ans:60,hint:"15×4",emoji:"\uD83D\uDCB0",topic:"savings"}],
+        G3:[{q:"A train travels 125 km in the morning and 248 km in the afternoon. How far in total?",ans:373,hint:"125+248",emoji:"\uD83D\uDE82",topic:"train"},{q:"A baker makes 144 cookies and packs them in boxes of 12. How many boxes?",ans:12,hint:"144÷12",emoji:"\uD83C\uDF6A",topic:"cookies"},{q:"A pool holds 850 litres. 375 litres drain out. How many litres remain?",ans:475,hint:"850-375",emoji:"\uD83C\uDFCA",topic:"pool"}],
+      };
+      const bank=banks[g]||banks.G1;
+      const recent=S.recentWpProblems||[];
+      const fresh=bank.filter(p=>!recent.includes(p.topic));
+      return (fresh.length?fresh:bank)[ri(0,(fresh.length?fresh:bank).length-1)];
+    }
+  );
+  if(S.aiWordProblem){
+    S.wpInput="";S.wpResult=null;S.wpHint=false;
+    if(S.aiWordProblem.topic) S.recentWpProblems=[...(S.recentWpProblems||[]),S.aiWordProblem.topic].slice(-8);
+  }
+}
+
+// ── G MATH ───────────────────────────────────────────────────────
+// Standard math stays procedurally generated (numbers are infinite)
+// but fill-in and matching get AI-generated story context
+
+// ── SPELLING: replace static with AI ─────────────────────────────
+function resetSpellAI(){
+  if(S.aiSpellWord){
+    S.aiSpellLetters=shuffle(S.aiSpellWord.word.split(""));
+    S.aiSpellTyped=[];
+    S.spellResult=null;
+  } else {
+    resetSpell();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  try{
+  const app=document.getElementById("app");
+  const screens={
+    login:renderLogin,
+    profiles:renderProfiles,
+    home:renderHome,
+    abc:renderABC,
+    spelling:renderSpelling,
+    reading:renderReading,
+    math:renderMath,
+    wordprob:renderWordProblems,
+    editgrade:renderEditGrade,
+    jk_abcgame:renderJkAbcGame,
+    jk_count:renderJkCount,
+    jk_mathpop:renderJkMathPop,
+    jk_colors:renderJkColors,
+    jk_shapes:renderJkShapes,
+    jk_animals:renderJkAnimals,
+    jk_rhyme:renderJkRhyme,
+    jk_trace:renderJkTrace,
+    jk_phonic:renderJkPhonic,
+    jk_addcount:renderJkAddCount,
+    jk_sort:renderJkSort,
+    jk_body:renderJkBody,
+    sk_sight:renderSkSight,
+    sk_pattern:renderSkPattern,
+    sk_seasons:renderSkSeasons,
+    g_time:renderGTime,
+    g_money:renderGMoney,
+    g_piano:renderGPiano,
+  };
+  var _html=(screens[S.screen]||renderHome)();
+  app.innerHTML=_html;
+  bindEvents();
+  window.scrollTo(0,0);
+  }catch(err){
+    console.error("Render error:",err);
+    const app=document.getElementById("app");
+    if(app)app.innerHTML='<div style="padding:30px;text-align:center;font-family:Arial,sans-serif"><div style="font-size:48px;margin-bottom:16px">\uD83D\uDE05</div><h2 style="color:#1E293B;margin-bottom:8px">Oops!</h2><p style="color:#64748B;margin-bottom:20px">Something went wrong. Please reload the page.</p><button onclick="location.reload()" style="background:#3B82F6;color:#fff;border:none;padding:12px 24px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">Reload App</button></div>';
+  }
+}
+
+// ─── PROFILES ─────────────────────────────────────────────────
+function renderLogin(){
+  const err=S.loginError||"";
+  return `
+  <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0">
+    <div style="font-size:60px;margin-bottom:14px">\uD83C\uDF92</div>
+    <h2 style="font-size:24px;font-weight:900;color:var(--text);margin-bottom:4px;text-align:center">KidsLearn</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center">Enter the password to continue</p>
+    <div style="width:100%;max-width:300px">
+      <div style="position:relative;margin-bottom:12px">
+        <input type="password" id="pwdinput" placeholder="Password"
+          style="width:100%;border:2px solid var(--border);border-radius:13px;padding:13px 44px 13px 16px;font-size:16px;font-family:inherit;outline:none;background:#ffffff;color:#1E293B;letter-spacing:2px;"
+          autocomplete="current-password"/>
+        <button id="togglepwd" data-a="togglepwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">\uD83D\uDC41️</button>
+      </div>
+      ${err?`<div style="color:var(--red);font-size:13px;font-weight:700;margin-bottom:10px;text-align:center">❌ ${err}</div>`:""}
+      <button class="btn btn-full" style="background:var(--primary);font-size:16px;padding:14px" data-a="login">Unlock App \uD83D\uDD13</button>
+    </div>
+  </div>`;
+}
+
+function renderProfiles(){  let h=`<div style="text-align:center;margin-bottom:20px"><div style="font-size:44px;margin-bottom:6px">\uD83C\uDF92</div><h2 style="font-size:22px;font-weight:900;color:var(--text)">Who's Learning Today?</h2></div>`;
+  if(!S.profiles.length&&!S.createMode) h+=`<p style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:14px">No profiles yet — add one below!</p>`;
+  S.profiles.forEach((p,i)=>{
+    const gc=gradeColor(p.grade);
+    h+=`<div class="prof-card" data-a="selprof" data-i="${i}">
+      <span style="font-size:28px">${p.avatar}</span>
+      <div style="flex:1"><div style="font-weight:800;font-size:15px;color:var(--text)">${p.name}</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+        <span class="grade-tag" style="background:${gc}22;color:${gc}">${gradeName(p.grade)}</span>
+        <span style="font-size:12px;color:var(--muted)">⭐ ${p.stars||0}</span></div></div>
+      <button class="btn btn-sm" style="background:transparent;color:var(--muted);font-size:17px;padding:4px 6px" data-a="delprof" data-i="${i}">\uD83D\uDDD1️</button>
+    </div>`;
+  });
+  if(!S.createMode){
+    h+=`<button class="btn btn-full" style="background:var(--primary)" data-a="showcreate">+ Add Kid</button>`;
+  } else {
+    h+=`<div class="card pop"><div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:10px">New Profile</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px">
+    ${AVATARS.map((a,i)=>`<div data-a="setav" data-i="${i}" style="font-size:22px;cursor:pointer;border-radius:9px;padding:4px;border:2px solid ${i===S.createAvatar?"var(--primary)":"var(--border)"};background:${i===S.createAvatar?"rgba(79,142,247,0.1)":"transparent"}">${a}</div>`).join("")}
+    </div>
+    <input type="text" id="cname" placeholder="Child's name" value="${S.createName}" style="margin-bottom:10px"/>
+    <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px">Grade Level</div>
+    <div style="display:flex;gap:5px;margin-bottom:13px">
+    ${["JK","SK","G1","G2","G3"].map(g=>`<div data-a="setcg" data-g="${g}" style="flex:1;text-align:center;padding:7px 2px;border-radius:9px;border:1.5px solid ${S.createGrade===g?"var(--primary)":"var(--border)"};background:${S.createGrade===g?"rgba(59,130,246,0.1)":"transparent"};font-size:10px;font-weight:700;color:${S.createGrade===g?"var(--primary)":"var(--muted)"};cursor:pointer">${gradeShort(g)}</div>`).join("")}
+    </div>
+    <div class="row"><button class="btn btn-sm btn-outline muted" data-a="cancelcreate">Cancel</button>
+    <button class="btn btn-sm" style="background:var(--primary)" data-a="createprof">Create ✓</button></div></div>`;
+  }
+  return h;
+}
+
+// ─── HOME ─────────────────────────────────────────────────────
+function renderHome(){
+  const p=prof();
+  const gc=gradeColor(p.grade);
+  const isEarlyYears=p.grade==="JK"||p.grade==="SK";
+  const mods=isEarlyYears?[
+    {id:"jk_trace",   l:"Trace Letters", e:"✍️", c:"#FF6B9D"},
+    {id:"jk_abcgame", l:"ABC Match",     e:"\uD83C\uDD70️", c:"#3B82F6"},
+    {id:"jk_phonic",  l:"Letter Sounds", e:"\uD83D\uDD0A", c:"#F97316"},
+    {id:"jk_count",   l:"Count & Tap",   e:"\uD83D\uDD22", c:"#22C55E"},
+    {id:"jk_addcount",l:"Add Numbers",   e:"➕", c:"#8B5CF6"},
+    {id:"jk_shapes",  l:"Shapes",        e:"⭐", c:"#FBBF24"},
+    {id:"jk_animals", l:"Animals",       e:"\uD83D\uDC3E", c:"#EC4899"},
+    {id:"jk_colors",  l:"Colours",       e:"\uD83C\uDFA8", c:"#14B8A6"},
+    {id:"jk_body",    l:"My Body",       e:"\uD83D\uDD90️", c:"#EF4444"},
+    {id:"jk_sort",    l:"Sort & Match",  e:"\uD83D\uDD00", c:"#10B981"},
+    {id:"jk_rhyme",   l:"Rhyming Words", e:"\uD83C\uDFB5", c:"#6366F1"},
+    {id:"sk_sight",   l:"Sight Words",   e:"\uD83D\uDC40", c:"#0EA5E9"},
+    {id:"sk_pattern", l:"Patterns",      e:"\uD83D\uDD34", c:"#D946EF"},
+    {id:"sk_seasons", l:"Seasons",       e:"\uD83C\uDF42", c:"#84CC16"},
+  ]:[
+    {id:"abc",      l:"ABC & Letters",  e:"\uD83D\uDD24", c:"var(--primary)"},
+    {id:"spelling", l:"Spelling",       e:"✏️", c:"var(--orange)"},
+    {id:"reading",  l:"AI Stories",     e:"\uD83D\uDCD6", c:"var(--purple)"},
+    {id:"math",     l:"Maths",          e:"\uD83D\uDD22", c:"var(--green)"},
+    {id:"wordprob", l:"Word Problems",  e:"\uD83D\uDCDD", c:"var(--teal)"},
+    {id:"g_time",   l:"Time & Clocks",  e:"\uD83D\uDD50", c:"#3B82F6"},
+    {id:"g_money",  l:"Canadian Money", e:"\uD83E\uDE99", c:"#22C55E"},
+    {id:"g_piano",  l:"Piano Notes",    e:"\uD83C\uDFB9", c:"#8B5CF6"},
+  ];
+  const pr=p.progress||{};
+  return `
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:26px">${p.avatar}</span>
+      <div><div style="font-weight:800;font-size:15px;color:var(--text)">${p.name}</div>
+      <span class="grade-tag" style="background:${gc}22;color:${gc}">${gradeName(p.grade)}</span></div>
+    </div>
+    <div style="display:flex;gap:5px">
+      <button class="btn btn-sm" style="background:${gc}18;color:${gc}" data-a="editgrade">Grade</button>
+      <button class="btn btn-sm" style="background:var(--border);color:var(--muted)" data-a="logout">↩</button>
+    </div>
+  </div>
+  <div class="card" style="text-align:center;margin-bottom:13px;background:linear-gradient(135deg,rgba(79,142,247,0.07),rgba(247,201,79,0.13));padding:13px">
+    <div style="font-size:28px;font-weight:900">⭐ ${p.stars||0} <span style="font-size:14px;color:var(--muted);font-weight:600">stars</span></div>
+    <div style="display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:8px">
+    ${mods.map(m=>`<span style="font-size:11px;background:var(--card);border-radius:6px;padding:2px 7px;color:var(--muted);border:1px solid var(--border)">${m.e} ${pr[m.id]||0}</span>`).join("")}
+    </div>
+  </div>
+  <div class="mod-grid">
+  ${mods.map(m=>`<div class="mod-card" data-a="gomod" data-id="${m.id}" style="border-color:${m.c}25">
+    <div style="font-size:28px;margin-bottom:5px">${m.e}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--text)">${m.l}</div>
+    <div style="font-size:9px;color:var(--muted);margin-top:2px;font-weight:600">✨ AI</div>
+  </div>`).join("")}
+  </div>`;
+}
+
+// ─── ABC ──────────────────────────────────────────────────────
+function renderABC(){
+  const i=S.abcIdx,item=ABC_DATA[i]||ABC_DATA[0],fl=S.abcFlipped;
+  return `${hdr("ABC & Letters","home")}
+  <div style="text-align:center">
+    <p style="color:var(--muted);font-size:12px;margin:4px 0">${i+1} / 26</p>
+    <div style="width:178px;height:178px;border-radius:24px;margin:10px auto;background:${fl?"var(--primary)":"var(--yellow)"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,0.10);transition:background .3s" data-a="flipabc">
+      ${fl?`<span style="font-size:48px">${item.e||item.emoji}</span><span style="font-size:20px;font-weight:800;color:#fff;margin-top:4px">${item.w||item.word}</span><span style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:6px;display:block">Tap to hear</span>`
+          :`<span style="font-size:70px;font-weight:900;color:#fff;line-height:1">${item.l||item.letter}</span><span style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:8px">Tap to flip</span>`}
+    </div>
+    <div class="row" style="justify-content:center;margin-bottom:12px">
+      <button class="btn btn-sm btn-outline primary" data-a="abcprev" ${i===0?"disabled":""}>← Prev</button>
+      <button class="btn btn-sm" style="background:var(--primary)" data-a="spkltr">\uD83D\uDD0A Letter</button>
+      <button class="btn btn-sm" style="background:var(--yellow)" data-a="spkwrd">\uD83D\uDD0A Word</button>
+      <button class="btn btn-sm btn-outline primary" data-a="abcnext" ${i===25?"disabled":""}>Next →</button>
+    </div>
+    <div class="alpha-grid">${ABC.map((d,j)=>`<div class="akey ${j===i?"active":""}" data-a="abcjump" data-i="${j}">${d.letter}</div>`).join("")}</div>
+  </div>`;
+}
+
+// ─── SPELLING ─────────────────────────────────────────────────
+function renderSpelling(){
+  const aiW=S.aiSpellWord;
+  if(!aiW){return hdr("Spelling ✏️","home",S.spellScore)+`<div class="card" style="text-align:center;padding:32px"><div style="font-size:48px;margin-bottom:12px">✏️</div><p style="color:var(--muted);margin-bottom:16px">Tap to get a new word!</p><button class="btn" style="background:var(--orange)" data-a="spellnext">Start Spelling →</button></div>`;}
+  const word=aiW.word||"";
+  const emoji=aiW.emoji||"\uD83D\uDCDD";
+  const hint=aiW.hint||"";
+  const level=aiW.level||1;
+  const letters=aiW?S.aiSpellLetters:S.spellLetters;
+  const typed=aiW?S.aiSpellTyped:S.spellTyped;
+  const {spellResult,spellScore}=S;
+  return `${hdr("Spelling ✏️","home",spellScore)}
+  <div style="text-align:center">
+    <div style="font-size:52px;margin-bottom:5px">${emoji}</div>
+    ${hint?`<div style="font-size:13px;color:var(--muted);margin-bottom:4px">\uD83D\uDCA1 ${hint}</div>`:""}
+    <div class="row" style="justify-content:center;margin-bottom:10px">
+      <button class="btn btn-sm" style="background:var(--muted)" data-a="spkspell">\uD83D\uDD0A Hear it</button>
+      <span style="font-size:11px;color:var(--muted);align-self:center">Level ${level} • ✨ AI word</span>
+    </div>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;margin-bottom:8px">
+    ${Array.from({length:word.length}).map((_,i)=>{
+      const t=typed[i];
+      let cls="tile"+(t?(spellResult==="correct"?" correct":spellResult==="wrong"?" wrong":" active"):"");
+      return `<div class="${cls}">${t?t.letter:""}</div>`;
+    }).join("")}
+    </div>
+    ${spellResult?`<div class="rbadge ${spellResult}">${spellResult==="correct"?"⭐ Correct!":"❌ Answer: "+word}</div>`:""}
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;margin:10px 0 13px">
+    ${letters.map((l,i)=>l
+      ?`<div class="tile letter" data-a="spelltap" data-i="${i}">${l}</div>`
+      :`<div class="tile empty"></div>`).join("")}
+    </div>
+    <div class="row" style="justify-content:center">
+    ${!spellResult
+      ?`<button class="btn btn-sm btn-outline muted" data-a="spellback">⌫ Back</button>
+        <button class="btn btn-sm" style="background:var(--primary)" data-a="spellcheck" ${typed.length!==word.length?"disabled":""}>Check ✓</button>`
+      :`<button class="btn" style="background:var(--green)" data-a="spellnext">Next Word →</button>`}
+    </div>
+  </div>`;
+}
+
+// ─── READING (AI) ─────────────────────────────────────────────
+function renderReading(){
+  const g=S.readGrade||(prof()||{}).grade||"G1";
+  const gc={JK:"var(--green)",G1:"var(--primary)",G2:"var(--purple)",G3:"var(--orange)"}[g];
+  let body="";
+  if(S.readLoading||(!S.readStory&&!S.readLoading)){
+    if(!S.readStory&&!S.readLoading) loadNewStory();
+    body=`<div style="text-align:center;padding:40px 16px"><div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px"></div><div style="color:var(--muted);font-size:14px">Generating your story…</div></div>`;
+  } else if(S.readStory){
+    const q=S.readStory;
+    body=`
+    <div class="card" style="background:${gc}0D;border-color:${gc}33">
+      <div style="font-weight:800;font-size:13px;color:${gc};margin-bottom:8px">\uD83D\uDCD6 ${q.title}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <p style="line-height:1.8;font-size:14px;color:var(--text);white-space:pre-line;flex:1">${q.passage}</p>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;margin-left:6px" data-a="spkpassage">\uD83D\uDD0A</button>
+      </div>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;color:var(--text);margin-bottom:11px;font-size:14px">❓ ${q.question}</p>
+      ${q.options.map((opt,i)=>{
+        let cls="read-opt";
+        if(S.readSelected!==null){if(i===q.answer)cls+=" correct";else if(i===S.readSelected)cls+=" wrong";}
+        return `<button class="${cls}" data-a="readpick" data-i="${i}">${["A","B","C","D"][i]}. ${opt}</button>`;
+      }).join("")}
+      ${S.readSelected!==null?`<div style="text-align:center;margin-top:11px">
+        <div style="font-weight:700;font-size:14px;color:${S.readSelected===q.answer?"var(--green)":"var(--red)"};margin-bottom:9px">
+          ${S.readSelected===q.answer?"⭐ Correct! Great reading!":"❌ Correct answer highlighted in green."}</div>
+        <button class="btn" style="background:var(--primary)" data-a="readnext">✨ New Story</button>
+      </div>`:""}
+    </div>`;
+  } else {
+    body=`<div style="text-align:center;padding:32px 0">
+      <div style="font-size:48px;margin-bottom:10px">\uD83D\uDCD6</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px">Ready for a brand new AI story?</p>
+      <button class="btn" style="background:var(--purple)" data-a="loadstory">✨ Generate Story</button>
+    </div>`;
+  }
+  return `${hdr("AI Stories","home",S.readScore,gradeName(g))}
+  <div class="grade-bar">
+  ${["JK","G1","G2","G3"].map(gg=>`<button class="gbtn" data-a="setreadg" data-g="${gg}" style="${gg===g?`border-color:${gc};color:${gc};background:${gc}15`:""}">${gradeShort(gg)}</button>`).join("")}
+  </div>
+  ${body}
+  <div style="text-align:center;margin-top:6px"><span style="font-size:11px;color:var(--muted)">\uD83D\uDCDA ${S.readCount||0} stories read</span></div>`;
+}
+
+// ─── MATH ─────────────────────────────────────────────────────
+function renderMath(){
+  const isJK=prof()&&prof().grade==="JK";
+  const modes=["standard","visual","fillin","matching","exercise"];
+  const modeLabels={standard:"\uD83D\uDD22 Standard",visual:"\uD83D\uDC41️ Visual",fillin:"✏️ Fill-In",matching:"\uD83D\uDD17 Match",exercise:"\uD83D\uDCCB Print"};
+  const tabs=`<div class="mode-tabs">${modes.map(m=>`<button class="mode-tab ${S.mathMode===m?"active":""}" data-a="setmmode" data-m="${m}">${modeLabels[m]}</button>`).join("")}</div>`;
+
+  const types=isJK?["add"]:["add","sub","mul","div"];
+  const typeLabels={add:"➕ Add",sub:"➖ Sub",mul:"✖️ Mul",div:"➗ Div"};
+  const typeTabs=types.length>1?`<div class="row" style="margin-bottom:11px">${types.map(t=>`<button class="btn btn-sm ${S.mathType===t?"":"btn-outline primary"}" style="${S.mathType===t?"background:var(--primary)":""}" data-a="setmtype" data-t="${t}">${typeLabels[t]}</button>`).join("")}</div>`:"";
+
+  let body="";
+  if(S.mathMode==="standard") body=renderMathStandard();
+  else if(S.mathMode==="visual") body=renderMathVisual();
+  else if(S.mathMode==="fillin") body=renderMathFillIn();
+  else if(S.mathMode==="matching") body=renderMathMatching();
+  else if(S.mathMode==="exercise") body=renderMathExercise();
+
+  return `${hdr("Maths","home",S.mathScore)}${tabs}${typeTabs}${body}`;
+}
+
+function renderMathStandard(){
+  const q=S.mathQ;
+  if(!q) return loadingCard("Tap Next to start!");
+  return `
+  ${S.mathStreak>=3?`<div class="streak-badge">\uD83D\uDD25 ${S.mathStreak} streak!</div>`:""}
+  <div class="card" style="text-align:center;padding:26px 16px">
+    ${q.story?`<div style="font-size:14px;color:var(--muted);margin-bottom:10px;font-style:italic">\uD83C\uDF1F ${q.story}</div>`:""}
+    ${q.context?`<div style="font-size:34px;margin-bottom:8px">${q.context}</div>`:""}
+    <div style="font-size:40px;font-weight:900;color:var(--green);letter-spacing:-1px">${q.q} = ?</div>
+    <div class="ans-box ${S.mathResult||""}">${S.mathInput||'<span style="color:var(--border)">_</span>'}</div>
+    ${S.mathResult?`<div class="rbadge ${S.mathResult}">${S.mathResult==="correct"?"⭐ Correct!":"❌ Answer: "+q.ans}</div>`:""}
+  </div>
+  <div class="numpad">${[1,2,3,4,5,6,7,8,9,0].map(n=>`<div class="nkey" data-a="mnum" data-n="${n}">${n}</div>`).join("")}</div>
+  <div class="row">
+    <button class="btn btn-sm btn-outline muted" data-a="mdel">⌫</button>
+    ${!S.mathResult?`<button class="btn" style="background:var(--green)" data-a="mcheck" ${!S.mathInput?"disabled":""}>Check ✓</button>`
+    :`<button class="btn" style="background:var(--primary)" data-a="mnext">✨ Next</button>`}
+  </div>
+  <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px">✨ AI-generated</p>`;
+}
+
+function renderMathVisual(){
+  const q=S.mathQ;
+  if(!q) return loadingCard("Tap Next to start!");
+  const a=q.a||0,b=q.b||0;
+  // only do visual for add/sub with numbers ≤ 20
+  const usable=(S.mathType==="add"||S.mathType==="sub")&&a<=15&&b<=15&&a+b<=20;
+  if(!usable){
+    // fall back to standard for mul/div
+    return `<div class="card" style="text-align:center;padding:20px">
+      <div style="color:var(--muted);font-size:13px;margin-bottom:10px">Visual mode works best with Add & Subtract!</div>
+    </div>${renderMathStandard()}`;
+  }
+  const total=S.mathType==="add"?a+b:a;
+  const dots=Array.from({length:S.mathType==="add"?a+b:a}).map((_,i)=>{
+    let cls="dot";
+    if(S.mathType==="add"){if(i>=a)cls+=" yellow";}
+    else{if(i>=a-b)cls+=" green";}
+    return `<div class="${cls}"></div>`;
+  }).join("");
+
+  return `
+  <div class="card" style="text-align:center;padding:20px">
+    <div style="font-size:32px;font-weight:900;color:var(--green);margin-bottom:10px">${q.q} = ?</div>
+    <div class="dot-grid" style="max-width:260px;margin:0 auto 10px">${dots}</div>
+    <div style="font-size:12px;color:var(--muted)">
+      ${S.mathType==="add"?`<span style="color:var(--primary)">● ${a} blue</span> + <span style="color:var(--yellow)">● ${b} yellow</span>`:
+        `<span style="color:var(--primary)">● All ${a}</span> — <span style="color:var(--green)">● Remove ${b} green</span>`}
+    </div>
+    <div class="ans-box ${S.mathResult||""}" style="margin-top:12px">${S.mathInput||'<span style="color:var(--border)">_</span>'}</div>
+    ${S.mathResult?`<div class="rbadge ${S.mathResult}">${S.mathResult==="correct"?"⭐ Correct! You counted well!":"❌ Answer: "+q.ans}</div>`:""}
+  </div>
+  <div class="numpad">${[1,2,3,4,5,6,7,8,9,0].map(n=>`<div class="nkey" data-a="mnum" data-n="${n}">${n}</div>`).join("")}</div>
+  <div class="row">
+    <button class="btn btn-sm btn-outline muted" data-a="mdel">⌫</button>
+    ${!S.mathResult?`<button class="btn" style="background:var(--green)" data-a="mcheck" ${!S.mathInput?"disabled":""}>Check ✓</button>`
+    :`<button class="btn" style="background:var(--primary)" data-a="mnext">Next →</button>`}
+  </div>`;
+}
+
+function renderMathFillIn(){
+
+  const {fillQ,fillChoices,fillChosen,fillResult}=S;
+  if(!fillQ) return `<div class="card" style="text-align:center;padding:20px"><button class="btn" style="background:var(--green)" data-a="fillinit">Start →</button></div>`;
+  const parts=fillQ.q.split("?");
+  return `
+  <div class="card" style="text-align:center;padding:22px 16px">
+    ${fillQ.context?`<div style="font-size:36px;margin-bottom:6px">${fillQ.context}</div>`:""}
+    ${fillQ.story?`<div style="font-size:14px;color:var(--muted);margin-bottom:8px;font-style:italic">"${fillQ.story}"</div>`:""}
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Fill in the missing number</div>
+    <div class="fill-eq">
+      <span>${parts[0]}</span>
+      <span class="fill-blank ${fillResult||""}">${fillChosen!==null?fillChosen:'?'}</span>
+      <span>${parts[1]||""}</span>
+    </div>
+    ${fillResult?`<div class="rbadge ${fillResult}">${fillResult==="correct"?"⭐ Correct!":"❌ Answer was: "+fillQ.ans}</div>`:""}
+    ${!fillResult?`<div class="choice-row">${(fillChoices||[]).map(c=>`<button class="choice-btn ${fillChosen!==null?(c===fillQ.ans?"chosen-correct":(fillChosen===c?"chosen-wrong":"")):""}" data-a="fillpick" data-v="${c}">${c}</button>`).join("")}</div>`:""}
+  </div>
+  ${fillResult?`<div style="text-align:center"><button class="btn" style="background:var(--primary)" data-a="fillinit">✨ Next →</button></div>`:""}
+  <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px">Score: ⭐ ${S.mathScore} • AI-generated</p>`;
+}
+
+
+// ─── EXERCISE SET (20 Qs, printable) ──────────────────────────
+function genExerciseSet(type){
+  const qs=[];
+  const seen=new Set();
+  let attempts=0;
+  while(qs.length<20 && attempts<400){
+    attempts++;
+    const q=genOneMath(type);
+    if(!seen.has(q.q)){seen.add(q.q);qs.push(q);}
+  }
+  return qs;
+}
+
+function ensureExSet(t){
+  if(!S.exSets[t]||S.exSets[t].length===0){
+    S.exSets[t]=genExerciseSet(t);
+    S.exAnswers[t]=Array(20).fill("");
+    S.exChecked[t]=false;
+    S.exResults[t]=[];
+  }
+}
+
+function renderMathExercise(){
+  const t=S.mathType;
+  ensureExSet(t);
+  const qs=S.exSets[t];
+  const opLabel={add:"Addition",sub:"Subtraction",mul:"Multiplication",div:"Division"}[t];
+  const opSymbol={add:"＋",sub:"－",mul:"✕",div:"÷"}[t];
+  const opColor={add:"#52C97A",sub:"#4F8EF7",mul:"#E8A020",div:"#F76F6F"}[t];
+  const pName=prof()?prof().name:"";
+  const grade=prof()?gradeName(prof().grade):"";
+
+  // Question cell for print layout
+  function qCell(q,i){
+    return `<tr>
+      <td style="padding:9px 6px 9px 2px;border-bottom:1px solid #e8e8e8;width:28px;color:#aaa;font-size:12px;text-align:right;vertical-align:middle">${i+1}.</td>
+      <td style="padding:9px 10px 9px 8px;border-bottom:1px solid #e8e8e8;font-size:19px;font-weight:900;color:#222;vertical-align:middle;letter-spacing:-0.5px;white-space:nowrap">${q.q} =</td>
+      <td style="padding:9px 6px;border-bottom:1px solid #e8e8e8;vertical-align:bottom">
+        <div style="width:70px;height:26px;border-bottom:2px solid #555;"></div>
+      </td>
+      <td style="padding:9px 6px;border-bottom:1px solid #e8e8e8;width:36px;color:#bbb;font-size:11px;text-align:center;vertical-align:middle">✓/✗</td>
+    </tr>`;
+  }
+
+  const col1 = qs.slice(0,10).map((q,i)=>qCell(q,i)).join("");
+  const col2 = qs.slice(10).map((q,i)=>qCell(q,i+10)).join("");
+
+  // ── Screen preview UI ──────────────────────────────────────────
+  const screenUI = `<div class="screen-only">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+      <span style="font-size:13px;font-weight:700;color:var(--text)">\uD83D\uDCCB ${opLabel} Worksheet</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" style="background:var(--muted)" data-a="exnewset" data-t="${t}">\uD83D\uDD04 New Set</button>
+        <button class="btn btn-sm" style="background:${opColor}" data-a="exprint">\uD83D\uDDA8️ Print</button>
+      </div>
+    </div>
+    <div style="text-align:center;padding:20px 14px;background:${opColor}11;border-radius:14px;border:1.5px dashed ${opColor}66;margin-bottom:12px">
+      <div style="font-size:34px;margin-bottom:6px">${opSymbol}</div>
+      <div style="font-weight:800;font-size:15px;color:var(--text);margin-bottom:3px">${opLabel} — 20 Questions</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Ready to print! Tap the button below.</div>
+      <button class="btn" style="background:${opColor}" data-a="exprint">\uD83D\uDDA8️ Print / Save as PDF</button>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:10px 12px;margin-bottom:4px">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;text-align:center;text-transform:uppercase;letter-spacing:0.5px">Preview — first 6 questions</div>
+      ${qs.slice(0,6).map((q,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted);min-width:18px;text-align:right">${i+1}.</span>
+        <span style="font-size:15px;font-weight:800;color:${opColor}">${q.q} = </span>
+        <span style="display:inline-block;width:44px;border-bottom:1.5px solid #bbb;height:16px"></span>
+      </div>`).join("")}
+      <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:6px">+ 14 more questions on the printed sheet</div>
+    </div>
+  </div>`;
+
+  // ── Print Sheet (only visible when printing) ───────────────────
+  const printSheet = `<div class="print-sheet" id="printSheet">
+  <div style="font-family:'Nunito',Arial,sans-serif;background:#fff;color:#111;padding:0;width:100%">
+
+    <!-- TOP HEADER BAR -->
+    <div style="background:${opColor};padding:14px 20px 12px;margin-bottom:0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-0.5px">${opLabel} Worksheet</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:2px">KidsLearn  •  ${grade}  •  20 Questions</div>
+        </div>
+        <div style="font-size:36px;opacity:0.9">${opSymbol}</div>
+      </div>
+    </div>
+
+    <!-- STUDENT INFO BAND -->
+    <div style="background:#f5f5f2;border-bottom:2px solid #ddd;padding:10px 20px">
+      <div style="display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:16px;align-items:end">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px">Student Name</div>
+          <div style="border-bottom:2px solid #444;height:22px;padding-bottom:2px;font-size:15px;font-weight:700;color:#222">${pName}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px">Date</div>
+          <div style="border-bottom:2px solid #444;height:22px"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px">Score</div>
+          <div style="border-bottom:2px solid #444;height:22px;display:flex;align-items:flex-end;padding-bottom:2px">
+            <span style="font-size:14px;font-weight:800;color:#444">　　/ 20</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTRUCTION ROW -->
+    <div style="padding:8px 20px;background:#fffdf5;border-bottom:1px solid #eee;border-left:4px solid ${opColor}">
+      <span style="font-size:12px;color:#666">\uD83D\uDCDD <strong>Instructions:</strong> Solve each question and write your answer on the line. Show your working if you need to!</span>
+    </div>
+
+    <!-- QUESTIONS — 2 COLUMNS -->
+    <div style="padding:14px 20px 0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 30px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:${opColor};text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;padding-left:34px">Questions 1–10</div>
+          <table style="width:100%;border-collapse:collapse">${col1}</table>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:${opColor};text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;padding-left:34px">Questions 11–20</div>
+          <table style="width:100%;border-collapse:collapse">${col2}</table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKING SECTION ─────────────────────────────── -->
+    <div style="margin:18px 20px 0;border:2px solid #ddd;border-radius:8px;overflow:hidden">
+      <div style="background:${opColor};padding:7px 14px">
+        <span style="font-size:12px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.5px">✏️ Marking — For Teacher / Parent</span>
+      </div>
+      <div style="padding:12px 14px;background:#fafafa">
+        <!-- Marking grid: 20 boxes Q1–Q20 -->
+        <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:10px">
+          ${Array.from({length:20},(_,i)=>`
+          <div style="border:1.5px solid #ddd;border-radius:5px;text-align:center;padding:4px 2px">
+            <div style="font-size:9px;color:#aaa;font-weight:600">Q${i+1}</div>
+            <div style="height:18px;border-bottom:1px solid #ccc;margin:2px 4px"></div>
+          </div>`).join("")}
+        </div>
+        <!-- Totals row -->
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-top:6px;border-top:1px dashed #ddd">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#666;font-weight:600">Total Correct:</span>
+            <span style="display:inline-block;width:50px;border-bottom:2px solid #444;height:18px"></span>
+            <span style="font-size:11px;color:#888">/ 20</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#666;font-weight:600">Percentage:</span>
+            <span style="display:inline-block;width:60px;border-bottom:2px solid #444;height:18px"></span>
+            <span style="font-size:11px;color:#888">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#666;font-weight:600">Teacher Initials:</span>
+            <span style="display:inline-block;width:50px;border-bottom:2px solid #444;height:18px"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:10px 20px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eee;margin-top:14px">
+      <span style="font-size:10px;color:#ccc">Generated by KidsLearn \uD83C\uDF92</span>
+      <div style="display:flex;gap:6px">${["⭐","⭐","⭐","⭐","⭐"].map(s=>`<span style="font-size:16px">${s}</span>`).join("")}</div>
+      <span style="font-size:10px;color:#ccc">Keep practising every day!</span>
+    </div>
+
+  </div>
+  </div>`;
+
+  return screenUI + printSheet;
+}
+
+
+
+// ── MATH: AI-powered question generator ──────────────────────────
+function loadAIMath(){
+  const grade=(prof()||{}).grade||"G1";
+  const type=S.mathType;
+  const opLabel={add:"addition",sub:"subtraction",mul:"multiplication",div:"division"}[type];
+  const ranges={
+    JK:{add:[1,5]},SK:{add:[1,10]},
+    G1:{add:[1,20],sub:[1,20]},
+    G2:{add:[1,100],sub:[1,100],mul:[2,10],div:[2,10]},
+    G3:{add:[1,999],sub:[1,999],mul:[2,12],div:[2,12]}
+  };
+  const r=(ranges[grade]&&ranges[grade][type])||[1,20];
+  aiLoad("mathQ","mathAILoading",
+    ()=>`Generate a ${opLabel} question for ${grade} (age ${grade==="JK"?"4–5":grade==="SK"?"5–6":grade==="G1"?"6–7":grade==="G2"?"7–8":"8–9"}).
+Numbers in range ${r[0]}–${r[1]}. Add a short real-world story context (1 sentence) and an emoji.
+Respond ONLY with valid JSON:
+{"q":"7 + 8","ans":15,"a":7,"b":8,"type":"${type}","story":"Maya found 7 shells and then found 8 more","context":"\uD83D\uDC1A","hint":"Count on from 7"}
+Make it fun and educational. Vary the context each time — nature, food, animals, sports, space, toys.`,
+    ()=>{const q=genOneMath(type);return{...q,story:"",context:"",hint:""};}
+  );
+  if(!S.mathQ){const q=genOneMath(S.mathType);S.mathQ={...q,story:"",context:"",hint:""};}
+  S.mathInput="";
+  S.mathResult=null;
+}
+function initFillIn(){
+  const grade=(prof()||{}).grade||"G1";
+  const type=S.mathType;
+  const opLabel={add:"addition",sub:"subtraction",mul:"multiplication",div:"division"}[type];
+  aiLoad("fillQ","mathFillLoading",
+    ()=>`Generate a fill-in-the-blank math question for ${grade} students. Operation: ${opLabel}.
+Use a fun real-world context (food, animals, toys, sports).
+The blank can be the answer OR a missing number in the equation.
+Respond ONLY with valid JSON:
+{"q":"? + 4 = 9","ans":5,"choices":[5,3,6,8],"story":"Maya picked ? apples to make 9 total","context":"\uD83C\uDF4E"}
+"choices" must be 4 numbers including the correct answer. Vary difficulty for the grade.`,
+    ()=>{
+      const q=genOneMath(type);
+      const opSymbol={add:"+",sub:"−",mul:"×",div:"÷"}[type];
+      const blankAnswer=(type==="mul"||type==="div")||ri(0,1)===1;
+      let display,ans;
+      if(blankAnswer){display=q.a+" "+opSymbol+" "+q.b+" = ?";ans=q.ans;}
+      else{display="? "+opSymbol+" "+q.b+" = "+q.ans;ans=q.a;}
+      const wrongs=[-2,-1,1,2,3].map(o=>ans+o).filter(v=>v>=0&&v!==ans);
+      return {q:display,ans,choices:shuffle([ans,...wrongs.slice(0,3)]),story:"",context:""};
+    }
+  );
+  S.fillChosen=null;S.fillResult=null;
+  if(S.fillQ){S.fillChoices=S.fillQ.choices||[];}
+}
+
+function renderMathMatching(){
+  if(!S.matchPairs||!S.matchPairs.length){initMatching();return loadingCard("Setting up…");}
+  const pairs=Array.isArray(S.matchPairs)?S.matchPairs:((S.matchPairs||[]).pairs||[]);
+  if(!pairs.length) return loadingCard("Loading pairs…");
+  const {matchAnswered,matchLeft}=S;
+  const matchPairs=pairs;
+  const rights=shuffle(matchPairs.map(p=>p.ans));
+
+  return `
+  <div class="card" style="padding:16px">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;text-align:center">Tap a question, then tap its answer</div>
+    ${matchPairs.map((p,i)=>{
+      const done=matchAnswered.includes(i);
+      const lsel=matchLeft===i;
+      return `<div class="match-row">
+        <div class="match-item ${done?"matched":lsel?"selected":""}" data-a="matchleft" data-i="${i}" style="${done?"pointer-events:none":""}">${p.q}</div>
+        <div style="color:var(--muted);font-size:18px">=</div>
+        <div class="match-item" style="background:var(--bg)">${done?`<span style="color:var(--green);font-weight:800">${p.ans}</span>`:""}</div>
+      </div>`;
+    }).join("")}
+    <div style="margin-top:10px"><div style="font-size:12px;color:var(--muted);margin-bottom:7px;text-align:center">Answers:</div>
+    <div class="choice-row">
+    ${rights.map(r=>{
+      const taken=matchPairs.some((p,i)=>matchAnswered.includes(i)&&p.ans===r);
+      return `<button class="choice-btn ${taken?"matched":""}" data-a="matchright" data-v="${r}" ${taken?"disabled":""}>${r}</button>`;
+    }).join("")}
+    </div></div>
+    ${matchAnswered.length===matchPairs.length?`<div style="text-align:center;margin-top:12px">
+      <div class="rbadge correct">⭐ All matched! Well done!</div><br>
+      <button class="btn" style="background:var(--primary)" data-a="matchreset">New Round →</button>
+    </div>`:""}
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:12px">Score: ⭐ ${S.mathScore}</p>`;
+}
+
+function initMatching(){
+  const grade=(prof()||{}).grade||"G1";
+  const type=S.mathType;
+  const opLabel={add:"addition",sub:"subtraction",mul:"multiplication",div:"division"}[type];
+  S.matchLeft=null;S.matchAnswered=[];
+  aiLoad("matchPairs","mathMatchLoading",
+    ()=>`Generate 4 math matching pairs for ${grade} students. Operation: ${opLabel}.
+Make equations that fit the grade level. Use a fun theme (animals, space, food, etc).
+Respond ONLY with valid JSON:
+{"pairs":[{"q":"3 + 4","ans":7},{"q":"5 + 6","ans":11},{"q":"8 + 2","ans":10},{"q":"7 + 4","ans":11}],"theme":"\uD83C\uDF1F Space Math"}
+Each pair must have a unique answer (no duplicates in answers array).`,
+    ()=>({pairs:genMatchPairs(type,4).map(p=>({q:p.q,ans:p.ans})),theme:""})
+  );
+  if((S.matchPairs||[]).pairs){S.matchPairs=S.matchPairs.pairs;}
+  S.matchLeft=null;S.matchAnswered=[];
+}
+
+// ─── WORD PROBLEMS ────────────────────────────────────────────
+function renderWordProblems(){
+  const g=S.wpGrade||(prof()||{}).grade||"G1";
+  const q=S.aiWordProblem;
+  if(!q) return hdr("Word Problems \uD83D\uDCDD","home",S.wpScore)+`<div style="text-align:center;padding:32px"><div style="font-size:48px;margin-bottom:12px">\uD83D\uDCDD</div><p style="color:var(--muted);margin-bottom:16px">Ready for a word problem?</p><button class="btn" style="background:var(--teal)" data-a="wpnext">Start →</button></div>`;
+  return `${hdr("Word Problems \uD83D\uDCDD","home",S.wpScore)}
+  <div class="grade-bar">
+  ${["JK","SK","G1","G2","G3"].map(gg=>`<button class="gbtn" data-a="setwpg" data-g="${gg}" style="${gg===g?"border-color:var(--teal);color:var(--teal);background:rgba(20,184,166,0.1)":""}">${gradeShort(gg)}</button>`).join("")}
+  </div>
+  <div class="card" style="background:rgba(20,184,166,0.07);border-color:rgba(20,184,166,0.28);text-align:center">
+    ${q.emoji?`<div style="font-size:44px;margin-bottom:8px">${q.emoji}</div>`:""}
+    <div style="font-size:17px;line-height:1.75;color:var(--text);font-weight:600;margin-bottom:8px">${q.q}</div>
+    <button style="background:none;border:none;font-size:20px;cursor:pointer" data-a="spkwp">\uD83D\uDD0A</button>
+    ${S.wpHint?`<div style="margin-top:7px;font-size:14px;color:var(--teal);font-weight:700">\uD83D\uDCA1 ${q.hint||""}</div>`
+      :!S.wpResult?`<div style="margin-top:7px"><button class="btn btn-sm" style="background:transparent;border:1.5px solid var(--teal);color:var(--teal)" data-a="wphint">\uD83D\uDCA1 Hint</button></div>`:""}
+  </div>
+  <div class="card" style="text-align:center">
+    <div class="ans-box ${S.wpResult||""}">${S.wpInput||'<span style="color:var(--border)">_</span>'}</div>
+    ${S.wpResult?`<div class="rbadge ${S.wpResult}">${S.wpResult==="correct"?"⭐ Correct! The answer is "+q.ans+"!":"❌ The answer is "+q.ans}</div>`:""}
+    <div class="numpad">${[1,2,3,4,5,6,7,8,9,0].map(n=>`<div class="nkey" data-a="wpnum" data-n="${n}">${n}</div>`).join("")}</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn btn-sm btn-outline muted" data-a="wpdel">⌫</button>
+      ${!S.wpResult?`<button class="btn" style="background:var(--teal)" data-a="wpcheck" ${!S.wpInput?"disabled":""}>Check ✓</button>`
+      :`<button class="btn" style="background:var(--green)" data-a="wpnext">✨ New Problem</button>`}
+    </div>
+  </div>
+  <p style="text-align:center;font-size:12px;color:var(--muted)">Score: ⭐ ${S.wpScore} • AI-generated</p>`;
+}
+
+function renderEditGrade(){
+  const p=prof();
+  return `${hdr("Change Grade","home")}
+  <p style="color:var(--muted);font-size:14px;margin-bottom:13px">Grade for <strong>${p.name}</strong></p>
+  ${[{g:"JK",n:"Junior Kindergarten",a:"Ages 4–5"},{g:"SK",n:"Senior Kindergarten",a:"Ages 5–6"},{g:"G1",n:"Grade 1",a:"Ages 6–7"},{g:"G2",n:"Grade 2",a:"Ages 7–8"},{g:"G3",n:"Grade 3",a:"Ages 8–9"}].map(o=>`
+  <div data-a="setgrade" data-g="${o.g}" style="padding:13px 15px;border-radius:13px;border:2px solid ${p.grade===o.g?"var(--primary)":"var(--border)"};background:${p.grade===o.g?"rgba(79,142,247,0.07)":"transparent"};cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+    <div><div style="font-weight:700;color:var(--text)">${o.n}</div><div style="font-size:12px;color:var(--muted)">${o.a}</div></div>
+    ${p.grade===o.g?`<span style="color:var(--primary);font-size:18px">✓</span>`:""}
+  </div>`).join("")}
+  <div class="row" style="margin-top:8px"><button class="btn btn-sm btn-outline muted" data-a="back" data-t="home">Cancel</button></div>`;
+}
+
+// ─── HEADER HELPER ────────────────────────────────────────────
+function hdr(title,back,score,sub){
+  return `<div class="header">
+    <button class="hback" data-a="back" data-t="${back}">←</button>
+    <div><div class="htitle">${title}</div>${sub?`<div class="hsub">${sub}</div>`:""}</div>
+    <div class="hscore">${score!==undefined?`⭐${score}`:""}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════
+function bindEvents(){
+  // Wire up text input enter keys after each render
+  var pi=document.getElementById("pwdinput");
+  if(pi){
+    pi.onkeydown=function(e){if(e.key==="Enter")act("login");};
+  }
+  var cn=document.getElementById("cname");
+  if(cn){
+    cn.oninput=function(e){S.createName=e.target.value;};
+    cn.onkeydown=function(e){if(e.key==="Enter")act("createprof");};
+  }
+}
+
+
+function setupEvents(){
+  document.addEventListener("click",function(e){
+    var el=e.target;
+    while(el && el!==document.body){
+      if(el.getAttribute){
+        var a=el.getAttribute("data-a");
+        if(a){
+          var d={a:a};
+          if(el.attributes){
+            for(var i=0;i<el.attributes.length;i++){
+              var attr=el.attributes[i];
+              if(attr.name.indexOf("data-")===0){
+                d[attr.name.slice(5)]=attr.value;
+              }
+            }
+          }
+          act(a,d);
+          return;
+        }
+      }
+      el=el.parentElement;
+    }
+  });
+}
+function handleEvt(e){act(e.currentTarget.dataset.a,e.currentTarget.dataset);}
+
+function act(a,d={}){
+  try{
+  switch(a){
+    // Auth
+    case"login":{
+      const p=document.getElementById("pwdinput");
+      const val=(p?p.value:"")||"";
+      if(val===APP_PWD){setAuthed();S.loginError="";S.screen="profiles";}
+      else{S.loginError="Wrong password. Try again.";}
+      break;}
+    // Profiles
+    case"selprof":S.activeIdx=+d.i;S.screen="home";break;
+    case"delprof":if(confirm(`Remove ${S.profiles[+d.i].name}?`)){S.profiles.splice(+d.i,1);saveProfiles(S.profiles);}break;
+    case"showcreate":S.createMode=true;S.createName="";S.createAvatar=0;S.createGrade="G1";break;
+    case"cancelcreate":S.createMode=false;break;
+    case"setav":S.createAvatar=+d.i;break;
+    case"setcg":S.createGrade=d.g;break;
+    case"createprof":{const n=(document.getElementById("cname")||{value:S.createName}).value||S.createName;if(!n.trim())return;S.profiles.push({name:n.trim(),avatar:AVATARS[S.createAvatar],grade:S.createGrade,stars:0,progress:{}});saveProfiles(S.profiles);S.createMode=false;break;}
+    // Home
+    case"logout":S.activeIdx=null;S.screen="profiles";break;
+    case"editgrade":S.screen="editgrade";break;
+    case"gomod":{
+      const id=d.id;
+      if(id==="abc"){S.screen="abc";S.abcIdx=0;S.abcFlipped=false;}
+      else if(id==="spelling"){S.screen="spelling";S.aiSpellWord=null;S.aiSpellLoading=false;loadAISpelling();}
+      else if(id==="reading"){S.screen="reading";S.readGrade=(prof()||{}).grade||"G1";S.readStory=null;S.readSelected=null;S.readScore=0;S.readLoading=false;loadNewStory();}
+      else if(id==="math"){S.screen="math";S.mathScore=0;S.mathStreak=0;S.mathQ=null;S.mathMode="standard";S.mathType="add";S.matchPairs=[];S.fillQ=null;loadAIMath();}
+      else if(id==="wordprob"){S.screen="wordprob";S.wpGrade=(prof()||{}).grade||"G1";S.wpInput="";S.wpResult=null;S.wpScore=0;S.wpHint=false;S.aiWordProblem=null;loadAIWordProblem();}
+      else if(id==="jk_abcgame"){S.screen="jk_abcgame";S.jkAbcScore=0;S.jkAbcResult=null;initJkAbc();}
+      else if(id==="jk_count"){S.screen="jk_count";S.jkCountScore=0;S.jkCountResult=null;initJkCount();}
+      else if(id==="jk_mathpop"){S.screen="jk_mathpop";S.jkPopScore=0;S.jkPopResult=null;initJkPop();}
+      else if(id==="jk_colors"){S.screen="jk_colors";S.jkColorScore=0;S.jkColorResult=null;initJkColor();}
+      else if(id==="jk_shapes"){S.screen="jk_shapes";S.jkShapeScore=0;S.jkShapeResult=null;initJkShape();}
+      else if(id==="jk_animals"){S.screen="jk_animals";S.jkAnimalScore=0;S.jkAnimalResult=null;initJkAnimal();}
+      else if(id==="jk_rhyme"){S.screen="jk_rhyme";S.jkRhymeScore=0;S.jkRhymeResult=null;initJkRhyme();}
+      else if(id==="jk_trace"){S.screen="jk_trace";S.jkTraceIdx=0;S.jkTraceScore=0;}
+      else if(id==="jk_phonic"){S.screen="jk_phonic";S.jkPhonicScore=0;S.jkPhonicResult=null;initJkPhonic();}
+      else if(id==="jk_addcount"){S.screen="jk_addcount";S.jkAddCountScore=0;S.jkAddCountResult=null;initJkAddCount();}
+      else if(id==="jk_sort"){S.screen="jk_sort";S.jkSortScore=0;S.jkSortResult=null;initJkSort();}
+      else if(id==="jk_body"){S.screen="jk_body";S.jkBodyScore=0;S.jkBodyResult=null;initJkBody();}
+      else if(id==="sk_sight"){S.screen="sk_sight";S.skSightScore=0;S.skSightResult=null;initSkSight();}
+      else if(id==="sk_pattern"){S.screen="sk_pattern";S.skPatternScore=0;S.skPatternResult=null;initSkPattern();}
+      else if(id==="sk_seasons"){S.screen="sk_seasons";S.skSeasonsScore=0;S.skSeasonsResult=null;initSkSeasons();}
+      else if(id==="g_time"){S.screen="g_time";S.gTimeScore=0;S.gTimeResult=null;initGTime();}
+      else if(id==="g_money"){S.screen="g_money";S.gMoneyScore=0;S.gMoneyResult=null;initGMoney();}
+      else if(id==="g_piano"){S.screen="g_piano";S.gPianoScore=0;S.gPianoResult=null;initGPiano();}
+      break;}
+    case"togglepwd":{const p=document.getElementById("pwdinput");if(p)p.type=p.type==="password"?"text":"password";break;}
+    case"back":S.screen=d.t||"home";break;
+    // ABC
+    case"flipabc":S.abcFlipped=!S.abcFlipped;speak(S.abcFlipped?(ABC_DATA[S.abcIdx]||{word:''}).word:(ABC_DATA[S.abcIdx]||{letter:''}).letter);break;
+    case"abcprev":if(S.abcIdx>0){S.abcIdx--;S.abcFlipped=false;}break;
+    case"abcnext":if(S.abcIdx<25){S.abcIdx++;S.abcFlipped=false;}break;
+    case"abcjump":S.abcIdx=+d.i;S.abcFlipped=false;break;
+    case"spkltr":speak((ABC_DATA[S.abcIdx]||{letter:''}).letter);break;
+    case"spkwrd":speak((ABC_DATA[S.abcIdx]||{word:''}).word);break;
+    // Spelling
+    case"spkspell":speak((S.aiSpellWord?S.aiSpellWord.word:"").toLowerCase());break;
+    case"spelltap":{if(S.spellResult)return;const i=+d.i;const l=(S.aiSpellLetters||[])[i];if(!l)return;const newL=[...S.aiSpellLetters];newL[i]="";S.aiSpellLetters=newL;S.aiSpellTyped=[...(S.aiSpellTyped||[]),{letter:l,srcIdx:i}];break;}
+    case"spellback":{if(!(S.aiSpellTyped||[]).length||S.spellResult)return;const last=S.aiSpellTyped.pop();const newL=[...S.aiSpellLetters];newL[last.srcIdx]=last.letter;S.aiSpellLetters=newL;break;}
+    case"spellcheck":{const typed=(S.aiSpellTyped||[]).map(t=>t.letter).join("");const target=S.aiSpellWord?S.aiSpellWord.word:"";if(typed===target){S.spellResult="correct";S.spellScore++;addStars(1,"spelling");}else S.spellResult="wrong";break;}
+    case"spellnext":S.aiSpellWord=null;S.spellResult=null;loadAISpelling();break;
+    // Reading
+    case"setreadg":S.readGrade=d.g;S.readStory=null;S.readSelected=null;S.readLoading=false;break;
+    case"loadstory":loadNewStory();break;
+    case"readnext":S.readSelected=null;S.readStory=null;S.readCount=(S.readCount||0)+1;addStars(2,"reading");loadNewStory();break;
+    case"spkpassage":if(S.readStory)speak(S.readStory.passage,0.78);break;
+    case"readpick":{if(S.readSelected!==null)return;const i=+d.i;S.readSelected=i;if(S.readStory&&i===S.readStory.answer){S.readScore++;addStars(1,"reading");}break;}
+    // Math mode/type
+    case"setmmode":S.mathMode=d.m;S.mathQ=null;S.fillQ=null;S.matchPairs=[];if(d.m==="matching"){initMatching();}else if(d.m==="fillin"){initFillIn();}else if(d.m==="standard"||d.m==="visual"){loadAIMath();}break;
+    case"setmtype":S.mathType=d.t;S.mathQ=null;S.mathInput="";S.mathResult=null;S.fillQ=null;S.matchPairs=[];if(S.mathMode==="matching"){initMatching();}else if(S.mathMode==="fillin"){initFillIn();}else if(S.mathMode==="standard"||S.mathMode==="visual"){loadAIMath();}break;
+    // Math standard
+    case"mnum":if(!S.mathResult&&S.mathInput.length<3)S.mathInput+=d.n;break;
+    case"mdel":if(!S.mathResult)S.mathInput=S.mathInput.slice(0,-1);break;
+    case"mcheck":{const q=S.mathQ||(()=>{const qq=genOneMath(S.mathType);S.mathQ=qq;return qq;})();const ans=+S.mathInput;if(ans===q.ans){S.mathResult="correct";S.mathScore++;S.mathStreak++;addStars(S.mathStreak>=3?2:1,"math");}else{S.mathResult="wrong";S.mathStreak=0;}break;}
+    case"mnext":S.mathInput="";S.mathResult=null;loadAIMath();break;
+    // Fill-in
+    case"fillinit":initFillIn();break;
+    case"fillpick":{if(S.fillResult)return;const v=parseFloat(d.v);S.fillChosen=v;if(v===S.fillQ.ans){S.fillResult="correct";S.mathScore++;S.mathStreak++;addStars(S.mathStreak>=3?2:1,"math");}else{S.fillResult="wrong";S.mathStreak=0;}break;}
+    // Matching
+    case"matchleft":S.matchLeft=S.matchAnswered.includes(+d.i)?S.matchLeft:+d.i;break;
+    case"matchright":{if(S.matchLeft===null)return;const v=+d.v;const _mp=Array.isArray(S.matchPairs)?S.matchPairs:((S.matchPairs||[]).pairs||[]);const pair=_mp[S.matchLeft];if(pair&&pair.ans===v){S.matchAnswered=[...S.matchAnswered,S.matchLeft];S.mathScore++;addStars(1,"math");S.matchLeft=null;}else{S.matchLeft=null;}break;}
+    case"matchreset":initMatching();break;
+    // Exercise
+    case"exnewset":{const t=d.t||S.mathType;S.exSets[t]=genExerciseSet(t);S.exAnswers[t]=Array(20).fill("");S.exChecked[t]=false;S.exResults[t]=[];break;}
+    case"exprint":window.print();return;
+    // Word problems
+    case"setwpg":S.wpGrade=d.g;S.aiWordProblem=null;S.wpInput="";S.wpResult=null;S.wpHint=false;loadAIWordProblem();break;
+    case"spkwp":if(S.aiWordProblem)speak(S.aiWordProblem.q);break;
+    case"wphint":S.wpHint=true;break;
+    case"wpnum":if(!S.wpResult&&S.wpInput.length<4)S.wpInput+=d.n;break;
+    case"wpdel":if(!S.wpResult)S.wpInput=S.wpInput.slice(0,-1);break;
+    case"wpcheck":{const q=S.aiWordProblem;if(!q)break;if(+S.wpInput===q.ans){S.wpResult="correct";S.wpScore++;addStars(1,"wordprob");}else S.wpResult="wrong";break;}
+    case"wpnext":S.aiWordProblem=null;loadAIWordProblem();break;
+    // JK ABC Game
+    case"jkabcpick":{const i=+d.i;if(S.jkAbcResult)return;if(i===S.jkAbcQ.ans){S.jkAbcResult="correct";S.jkAbcScore++;addStars(1,"jk_abcgame");}else S.jkAbcResult="wrong";break;}
+    case"jkabcnext":S.jkAbcResult=null;initJkAbc();break;
+    case"jkabcspk":speak(S.jkAbcQ?S.jkAbcQ.letter:"");break;
+    // JK Count
+    case"jkcountpick":{const v=+d.v;if(S.jkCountResult)return;if(v===S.jkCountQ.count){S.jkCountResult="correct";S.jkCountScore++;addStars(1,"jk_count");}else S.jkCountResult="wrong";break;}
+    case"jkcountnext":S.jkCountResult=null;initJkCount();break;
+    // JK Number Pop
+    case"jkpopnum":if(!S.jkPopResult&&S.jkPopInput.length<2)S.jkPopInput+=d.n;break;
+    case"jkpopdel":if(!S.jkPopResult)S.jkPopInput=S.jkPopInput.slice(0,-1);break;
+    case"jkpopcheck":{const ans=+S.jkPopInput;if(ans===S.jkPopQ.ans){S.jkPopResult="correct";S.jkPopScore++;addStars(1,"jk_mathpop");}else S.jkPopResult="wrong";break;}
+    case"jkpopnext":S.jkPopResult=null;S.jkPopInput="";initJkPop();break;
+    case"jkpopspk":speak(S.jkPopQ?S.jkPopQ.q:"");break;
+    // JK Colors
+    case"jkcolorpick":{if(S.jkColorResult)return;const ok=d.v===S.jkColorQ.ans;S.jkColorResult=ok?"correct":"wrong";if(ok){S.jkColorScore++;addStars(1,"jk_colors");}break;}
+    case"jkcolornext":S.jkColorResult=null;initJkColor();break;
+    // JK Shapes
+    case"jkshapepick":{if(S.jkShapeResult)return;const ok=d.v===S.jkShapeQ.ans;S.jkShapeResult=ok?"correct":"wrong";if(ok){S.jkShapeScore++;addStars(1,"jk_shapes");}break;}
+    case"jkshapenext":S.jkShapeResult=null;initJkShape();break;
+    // JK Animals
+    case"jkanimalpick":{if(S.jkAnimalResult)return;const ok=d.v===S.jkAnimalQ.ans;S.jkAnimalResult=ok?"correct":"wrong";if(ok){S.jkAnimalScore++;addStars(1,"jk_animals");}break;}
+    case"jkanimalnext":S.jkAnimalResult=null;initJkAnimal();break;
+    case"jkanimalspk":speak(S.jkAnimalQ?S.jkAnimalQ.sound:"");break;
+    // JK Rhyme
+    case"jkrhymepick":{if(S.jkRhymeResult)return;const ok=d.v===S.jkRhymeQ.ans;S.jkRhymeResult=ok?"correct":"wrong";if(ok){S.jkRhymeScore++;addStars(1,"jk_rhyme");}break;}
+    case"jkrhymenext":S.jkRhymeResult=null;initJkRhyme();break;
+    case"jkrhymespk":speak(S.jkRhymeQ?S.jkRhymeQ.word+" — "+S.jkRhymeQ.word.slice(-2):"",0.75);break;
+    // JK Trace
+    case"jktracenext":S.jkTraceIdx=(S.jkTraceIdx+1)%26;S.jkTraceScore++;addStars(1,"jk_trace");break;
+    case"jktracebk":S.jkTraceIdx=Math.max(0,S.jkTraceIdx-1);break;
+    case"jktracespk":speak((ABC_DATA[S.jkTraceIdx]||{l:"A",w:"Apple"}).l+" — "+(ABC_DATA[S.jkTraceIdx]||{l:"A",w:"Apple"}).w,0.75);break;
+    // JK Phonics
+    case"jkphonicpick":{if(S.jkPhonicResult)return;const ok=d.v===S.jkPhonicQ.ans;S.jkPhonicResult=ok?"correct":"wrong";if(ok){S.jkPhonicScore++;addStars(1,"jk_phonic");}break;}
+    case"jkphonicnext":S.jkPhonicResult=null;initJkPhonic();break;
+    case"jkphonicspk":if(S.jkPhonicQ)speak(S.jkPhonicQ.sound,0.7);break;
+    // JK Add by Counting
+    case"jkaddpick":{if(S.jkAddCountResult)return;const ok=+d.v===S.jkAddCountQ.ans;S.jkAddCountResult=ok?"correct":"wrong";if(ok){S.jkAddCountScore++;addStars(1,"jk_addcount");}break;}
+    case"jkaddnext":S.jkAddCountResult=null;initJkAddCount();break;
+    // JK Sort & Match
+    case"jksortpick":{
+      if(d.v==="check"){
+        const allMatch=S.jkSortQ.items.filter(it=>it.match).every((_,i)=>(S.jkSortQ.tapped||[]).includes(i));
+        const noWrong=S.jkSortQ.items.every((it,i)=>it.match||(!(S.jkSortQ.tapped||[]).includes(i)));
+        S.jkSortResult=(allMatch&&noWrong)?"correct":"wrong";
+        if(allMatch&&noWrong){S.jkSortScore++;addStars(1,"jk_sort");}
+      } else {
+        if(S.jkSortResult)return;
+        const idx=+d.v;
+        const tapped=S.jkSortQ.tapped||[];
+        S.jkSortQ={...S.jkSortQ,tapped:tapped.includes(idx)?tapped.filter(x=>x!==idx):[...tapped,idx]};
+      }
+      break;}
+    case"jksortnext":S.jkSortResult=null;initJkSort();break;
+    // JK Body
+    case"jkbodypick":{if(S.jkBodyResult)return;const ok=d.v===S.jkBodyQ.ans;S.jkBodyResult=ok?"correct":"wrong";if(ok){S.jkBodyScore++;addStars(1,"jk_body");}break;}
+    case"jkbodynext":S.jkBodyResult=null;initJkBody();break;
+    case"jkbodyspk":if(S.jkBodyQ)speak("Where is your "+S.jkBodyQ.ans+"?",0.75);break;
+    // SK Sight Words
+    case"sksightpick":{if(S.skSightResult)return;const ok=d.v===S.skSightQ.ans;S.skSightResult=ok?"correct":"wrong";if(ok){S.skSightScore++;addStars(1,"sk_sight");}break;}
+    case"sksightnext":S.skSightResult=null;initSkSight();break;
+    case"sksightspk":if(S.skSightQ)speak(S.skSightQ.word,0.7);break;
+    // SK Pattern
+    case"skpatternpick":{if(S.skPatternResult)return;const ok=d.v===S.skPatternQ.ans;S.skPatternResult=ok?"correct":"wrong";if(ok){S.skPatternScore++;addStars(1,"sk_pattern");}break;}
+    case"skpatternnext":S.skPatternResult=null;initSkPattern();break;
+    // SK Seasons
+    case"skseasonpick":{if(S.skSeasonsResult)return;const ok=+d.v===S.skSeasonsQ.ans;S.skSeasonsResult=ok?"correct":"wrong";if(ok){S.skSeasonsScore++;addStars(1,"sk_seasons");}break;}
+    case"skseasonnext":S.skSeasonsResult=null;initSkSeasons();break;
+    // G Time
+    case"gtimepick":{if(S.gTimeResult)return;const ok=d.v===S.gTimeQ.ans;S.gTimeResult=ok?"correct":"wrong";if(ok){S.gTimeScore++;addStars(1,"g_time");}break;}
+    case"gtimenext":S.gTimeResult=null;initGTime();break;
+    // G Money
+    case"gmoneypick":{if(S.gMoneyResult)return;const ok=String(d.v)===String(S.gMoneyQ.ans);S.gMoneyResult=ok?"correct":"wrong";if(ok){S.gMoneyScore++;addStars(1,"g_money");}break;}
+    case"gmoneynext":S.gMoneyResult=null;initGMoney();break;
+    case"gmoneynum":if(!S.gMoneyResult&&(S.gMoneyInput||"").length<4)S.gMoneyInput=(S.gMoneyInput||"")+d.n;break;
+    case"gmoneydel":if(!S.gMoneyResult)S.gMoneyInput=(S.gMoneyInput||"").slice(0,-1);break;
+    // G Piano
+    case"gpianopick":{if(S.gPianoResult)return;const ok=d.v===S.gPianoQ.ans;S.gPianoResult=ok?"correct":"wrong";if(ok){S.gPianoScore++;addStars(1,"g_piano");}break;}
+    case"gpianonext":S.gPianoResult=null;initGPiano();break;
+    case"gpianoplay":playPianoNote(d.note||S.gPianoQ.ans);break;
+    // Grade
+    case"setgrade":S.profiles[S.activeIdx]={...S.profiles[S.activeIdx],grade:d.g};saveProfiles(S.profiles);S.screen="home";break;
+  }
+  render();
+  } catch(err) {
+    console.error("act() error:", a, err);
+  }
+}
+
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// GAME RENDER FUNCTIONS (AI-powered — all show loading spinner)
+// ═══════════════════════════════════════════════════════════════
+
+const SHAPE_COLORS=["#FF6B9D","#3B82F6","#22C55E","#F97316","#8B5CF6","#FBBF24"];
+const POP_COLORS=["#FF6B9D","#3B82F6","#22C55E","#F97316","#8B5CF6","#EC4899"];
+const COUNT_EMOJIS=["\uD83C\uDF4E","\uD83D\uDC36","⭐","\uD83C\uDF38","\uD83E\uDD8B","\uD83D\uDC38","\uD83C\uDF6D","\uD83D\uDE82","\uD83C\uDF88","\uD83D\uDC25","\uD83C\uDF55","\uD83D\uDC20","\uD83C\uDF08","\uD83C\uDFAA","\uD83E\uDD8A"];
+
+// ── MISSING DATA ARRAYS — used by JK/SK fallbacks ─────────────────
+const PHONIC_SOUNDS=[
+  {letter:"A",sound:"Ah — like in Apple",emoji:"\uD83C\uDF4E"},{letter:"B",sound:"Buh — like in Ball",emoji:"⚽"},
+  {letter:"C",sound:"Kuh — like in Cat",emoji:"\uD83D\uDC31"},{letter:"D",sound:"Duh — like in Dog",emoji:"\uD83D\uDC36"},
+  {letter:"E",sound:"Eh — like in Egg",emoji:"\uD83E\uDD5A"},{letter:"F",sound:"Fff — like in Fish",emoji:"\uD83D\uDC1F"},
+  {letter:"G",sound:"Guh — like in Goat",emoji:"\uD83D\uDC10"},{letter:"H",sound:"Huh — like in Hat",emoji:"\uD83C\uDFA9"},
+  {letter:"I",sound:"Ih — like in Igloo",emoji:"\uD83C\uDFD4️"},{letter:"J",sound:"Juh — like in Jam",emoji:"\uD83C\uDF53"},
+  {letter:"K",sound:"Kuh — like in Kite",emoji:"\uD83E\uDE81"},{letter:"L",sound:"Lll — like in Lion",emoji:"\uD83E\uDD81"},
+  {letter:"M",sound:"Mmm — like in Moon",emoji:"\uD83C\uDF19"},{letter:"N",sound:"Nnn — like in Nest",emoji:"\uD83E\uDEB9"},
+  {letter:"O",sound:"Oh — like in Orange",emoji:"\uD83C\uDF4A"},{letter:"P",sound:"Puh — like in Pig",emoji:"\uD83D\uDC37"},
+  {letter:"R",sound:"Rrr — like in Rain",emoji:"\uD83C\uDF27️"},{letter:"S",sound:"Sss — like in Sun",emoji:"☀️"},
+  {letter:"T",sound:"Tuh — like in Tree",emoji:"\uD83C\uDF33"},{letter:"W",sound:"Wuh — like in Water",emoji:"\uD83D\uDCA7"},
+];
+const ANIMALS_DATA=[
+  {name:"Dog",emoji:"\uD83D\uDC36",sound:"Woof!",home:"house"},{name:"Cat",emoji:"\uD83D\uDC31",sound:"Meow!",home:"house"},
+  {name:"Cow",emoji:"\uD83D\uDC04",sound:"Moo!",home:"farm"},{name:"Duck",emoji:"\uD83E\uDD86",sound:"Quack!",home:"pond"},
+  {name:"Lion",emoji:"\uD83E\uDD81",sound:"Roar!",home:"jungle"},{name:"Elephant",emoji:"\uD83D\uDC18",sound:"Trumpet!",home:"savanna"},
+  {name:"Frog",emoji:"\uD83D\uDC38",sound:"Ribbit!",home:"pond"},{name:"Bird",emoji:"\uD83D\uDC26",sound:"Tweet!",home:"tree"},
+  {name:"Fish",emoji:"\uD83D\uDC1F",sound:"...",home:"ocean"},{name:"Rabbit",emoji:"\uD83D\uDC30",sound:"...",home:"meadow"},
+  {name:"Horse",emoji:"\uD83D\uDC34",sound:"Neigh!",home:"farm"},{name:"Pig",emoji:"\uD83D\uDC37",sound:"Oink!",home:"farm"},
+  {name:"Bear",emoji:"\uD83D\uDC3B",sound:"Grr!",home:"forest"},{name:"Monkey",emoji:"\uD83D\uDC12",sound:"Ooh ooh!",home:"jungle"},
+  {name:"Penguin",emoji:"\uD83D\uDC27",sound:"...",home:"Antarctica"},
+];
+const COLORS_DATA=[
+  {name:"Red",hex:"#EF4444",emoji:"\uD83C\uDF4E",things:["apple","tomato","strawberry"]},
+  {name:"Blue",hex:"#3B82F6",emoji:"\uD83E\uDED0",things:["sky","blueberry","ocean"]},
+  {name:"Yellow",hex:"#FBBF24",emoji:"\uD83C\uDF3B",things:["sun","banana","lemon"]},
+  {name:"Green",hex:"#22C55E",emoji:"\uD83C\uDF3F",things:["grass","frog","leaf"]},
+  {name:"Orange",hex:"#F97316",emoji:"\uD83C\uDF4A",things:["orange","carrot","pumpkin"]},
+  {name:"Purple",hex:"#8B5CF6",emoji:"\uD83C\uDF47",things:["grape","plum","eggplant"]},
+  {name:"Pink",hex:"#EC4899",emoji:"\uD83C\uDF38",things:["flower","flamingo","bubblegum"]},
+  {name:"Brown",hex:"#92400E",emoji:"\uD83D\uDC3B",things:["bear","chocolate","tree trunk"]},
+];
+const SHAPES_DATA=[
+  {name:"Circle",desc:"perfectly round like a ball",svg:`<circle cx="50" cy="50" r="40"/>`},
+  {name:"Square",desc:"four equal straight sides",svg:`<rect x="10" y="10" width="80" height="80"/>`},
+  {name:"Triangle",desc:"three corners and three sides",svg:`<polygon points="50,10 90,90 10,90"/>`},
+  {name:"Rectangle",desc:"two long sides and two short sides",svg:`<rect x="5" y="20" width="90" height="60"/>`},
+  {name:"Star",desc:"pointy shape like a star in the sky",svg:`<polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35"/>`},
+  {name:"Heart",desc:"shaped like a heart",svg:`<path d="M50,80 C20,60 5,40 5,25 C5,10 17,5 30,10 C40,14 50,25 50,25 C50,25 60,14 70,10 C83,5 95,10 95,25 C95,40 80,60 50,80z"/>`},
+  {name:"Diamond",desc:"like a square tilted sideways",svg:`<polygon points="50,5 95,50 50,95 5,50"/>`},
+  {name:"Oval",desc:"like a stretched circle",svg:`<ellipse cx="50" cy="50" rx="45" ry="30"/>`},
+];
+const BODY_PARTS=[
+  {part:"head",emoji:"\uD83D\uDDE3️",desc:"The top of your body"},{part:"eyes",emoji:"\uD83D\uDC40",desc:"You see with these"},
+  {part:"ears",emoji:"\uD83D\uDC42",desc:"You hear with these"},{part:"nose",emoji:"\uD83D\uDC43",desc:"You smell with this"},
+  {part:"mouth",emoji:"\uD83D\uDC44",desc:"You eat and talk with this"},{part:"hands",emoji:"\uD83D\uDD90️",desc:"You hold things with these"},
+  {part:"feet",emoji:"\uD83E\uDDB6",desc:"You walk on these"},{part:"tummy",emoji:"\uD83E\uDEC3",desc:"Your belly"},
+  {part:"knees",emoji:"\uD83E\uDDB5",desc:"They bend when you walk"},{part:"elbow",emoji:"\uD83D\uDCAA",desc:"Your arm bends here"},
+  {part:"shoulder",emoji:"\uD83E\uDDB4",desc:"Connects arm to body"},{part:"back",emoji:"\uD83D\uDD19",desc:"The back of your body"},
+];
+const SORT_DATA=[
+  {q:"Tap all the ANIMALS \uD83D\uDC3E",items:[{e:"\uD83D\uDC36",match:true},{e:"\uD83D\uDC31",match:true},{e:"\uD83D\uDE97",match:false},{e:"\uD83C\uDF55",match:false},{e:"\uD83D\uDC38",match:true},{e:"\uD83C\uDFE0",match:false}],ans:"animals",hint:"Animals are living creatures!"},
+  {q:"Tap all the FOOD \uD83C\uDF4E",items:[{e:"\uD83C\uDF4E",match:true},{e:"\uD83C\uDF55",match:true},{e:"⚽",match:false},{e:"\uD83C\uDF66",match:true},{e:"\uD83D\uDE82",match:false},{e:"✏️",match:false}],ans:"food",hint:"Food is what we eat!"},
+  {q:"Tap all the VEHICLES \uD83D\uDE97",items:[{e:"\uD83D\uDE97",match:true},{e:"\uD83D\uDE82",match:true},{e:"\uD83D\uDC36",match:false},{e:"✈️",match:true},{e:"\uD83C\uDF55",match:false},{e:"\uD83C\uDF38",match:false}],ans:"vehicles",hint:"Vehicles help us travel!"},
+  {q:"Tap all the RED things \uD83D\uDD34",items:[{e:"\uD83C\uDF4E",match:true},{e:"\uD83C\uDF39",match:true},{e:"\uD83C\uDF4B",match:false},{e:"❤️",match:true},{e:"\uD83D\uDC38",match:false},{e:"\uD83C\uDF4A",match:false}],ans:"red things",hint:"Think of things that are red!"},
+  {q:"Tap all the things that FLY ✈️",items:[{e:"\uD83D\uDC26",match:true},{e:"✈️",match:true},{e:"\uD83D\uDE97",match:false},{e:"\uD83E\uDD8B",match:true},{e:"\uD83D\uDC1F",match:false},{e:"\uD83C\uDFE0",match:false}],ans:"things that fly",hint:"They go up in the air!"},
+  {q:"Tap all the ROUND things ⚽",items:[{e:"⚽",match:true},{e:"\uD83C\uDF6A",match:true},{e:"\uD83D\uDE97",match:false},{e:"\uD83C\uDF15",match:true},{e:"\uD83D\uDCDA",match:false},{e:"✏️",match:false}],ans:"round things",hint:"They are shaped like a circle!"},
+];
+const RHYME_SETS=[
+  {word:"CAT",rhymes:["HAT","BAT","MAT","RAT"],non:["DOG","SUN","CUP","BIG"]},
+  {word:"DOG",rhymes:["LOG","FOG","HOG","JOG"],non:["CAT","SUN","HOP","BED"]},
+  {word:"SUN",rhymes:["FUN","RUN","BUN","GUN"],non:["CAT","DOG","HOP","BIG"]},
+  {word:"BED",rhymes:["RED","TED","FED","LED"],non:["SUN","CAT","HOP","CUP"]},
+  {word:"HOP",rhymes:["TOP","POP","MOP","COP"],non:["BED","SUN","CAT","BIG"]},
+  {word:"PEN",rhymes:["HEN","TEN","MEN","DEN"],non:["HOP","SUN","CAT","BED"]},
+];
+const SIGHT_WORDS=["the","a","and","is","in","it","to","of","I","you","he","she","we","are","was","my","on","at","do","go","can","up","big","run","yes","no","see","look","come","play","like","here","help","with","said","that","this","have","all"];
+const PATTERN_DATA=[
+  {seq:["\uD83D\uDD34","\uD83D\uDD35","\uD83D\uDD34","\uD83D\uDD35","\uD83D\uDD34"],ans:"\uD83D\uDD35",type:"AB"},{seq:["⭐","\uD83C\uDF19","⭐","\uD83C\uDF19","⭐"],ans:"\uD83C\uDF19",type:"AB"},
+  {seq:["\uD83D\uDC36","\uD83D\uDC36","\uD83D\uDC31","\uD83D\uDC36","\uD83D\uDC36"],ans:"\uD83D\uDC31",type:"AAB"},{seq:["\uD83C\uDF4E","\uD83C\uDF4A","\uD83C\uDF4B","\uD83C\uDF4E","\uD83C\uDF4A"],ans:"\uD83C\uDF4B",type:"ABC"},
+  {seq:["\uD83D\uDD3A","\uD83D\uDD3A","\uD83D\uDD35","\uD83D\uDD35","\uD83D\uDD3A"],ans:"\uD83D\uDD3A",type:"AABB"},{seq:["\uD83C\uDF38","\uD83C\uDF3B","\uD83C\uDF38","\uD83C\uDF3B","\uD83C\uDF38"],ans:"\uD83C\uDF3B",type:"AB"},
+  {seq:["\uD83D\uDC38","\uD83D\uDC38","\uD83D\uDC38","\uD83E\uDD8B","\uD83D\uDC38"],ans:"\uD83D\uDC38",type:"AAAB"},{seq:["❤️","\uD83E\uDDE1","\uD83D\uDC9B","❤️","\uD83E\uDDE1"],ans:"\uD83D\uDC9B",type:"ABC"},
+];
+const SEASONS_DATA=[
+  {season:"Spring",emoji:"\uD83C\uDF38",color:"#22C55E",facts:["Flowers bloom in spring \uD83C\uDF38","Baby animals are born \uD83D\uDC23","It rains a lot \uD83C\uDF27️"],q:"What happens to flowers in spring?",opts:["They die","They bloom","They freeze","They fall"],ans:1},
+  {season:"Summer",emoji:"☀️",color:"#F97316",facts:["It is very hot in summer ☀️","We go swimming \uD83C\uDFCA","School is on holiday \uD83C\uDF92"],q:"What do we do in summer because it's hot?",opts:["Build snowmen","Go swimming","Wear big coats","Stay inside all day"],ans:1},
+  {season:"Fall",emoji:"\uD83C\uDF42",color:"#F97316",facts:["Leaves turn red and orange \uD83C\uDF42","We wear sweaters \uD83E\uDDE5","Harvest time for food \uD83C\uDF83"],q:"What colour do leaves turn in fall?",opts:["Green","Blue","Red and orange","Purple"],ans:2},
+  {season:"Winter",emoji:"❄️",color:"#3B82F6",facts:["It snows in winter ❄️","We wear big coats \uD83E\uDDE5","We can build snowmen ⛄"],q:"What falls from the sky in winter?",opts:["Rain","Snow","Leaves","Flowers"],ans:1},
+];
+
+function gameCard(loadingKey, qKey, title, renderFn){
+  if(S[loadingKey]) return hdr(title,"home")+loadingCard();
+  if(!S[qKey])      return hdr(title,"home")+loadingCard("Loading…");
+  return renderFn(S[qKey]);
+}
+
+// ── JK ABC MATCH ─────────────────────────────────────────────────
+function renderJkAbcGame(){
+  return gameCard("jkAbcLoading","jkAbcQ","ABC Game \uD83C\uDD70️", q=>{
+    const res=S.jkAbcResult, score=S.jkAbcScore;
+    const choices=q.choices||[];
+    const colors=["#FF6B9D","#3B82F6","#22C55E","#F97316"];
+    return `${hdr("ABC Game \uD83C\uDD70️","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">Tap the picture that starts with this letter!</p>
+      <div style="margin:0 auto 6px;width:150px;height:150px;border-radius:30px;background:linear-gradient(135deg,#FF6B9D,#F97316);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 32px rgba(255,107,157,0.35);cursor:pointer;animation:popIn .3s" data-a="jkabcspk">
+        <span style="font-size:84px;font-weight:900;color:#fff;line-height:1">${q.letter}</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:4px">\uD83D\uDD0A Tap to hear</span>
+      </div>
+      ${res?`<div class="rbadge ${res}" style="margin:6px 0;font-size:15px">${res==="correct"?("⭐ Yes! "+(q.emoji||"")+" "+q.word+"!"):("❌ It was "+(q.emoji||"")+" "+q.word)}</div>`:"<div style='height:38px'></div>"}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px">
+        ${choices.map((ch,i)=>{
+          let bg=colors[i%4],extra="";
+          if(res){if(i===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else extra="opacity:0.4";}
+          return `<div data-a="jkabcpick" data-i="${i}" style="background:${bg};border-radius:20px;padding:16px 8px;cursor:pointer;${extra};transition:all .2s;box-shadow:0 4px 14px ${bg}44">
+            <div style="font-size:48px;margin-bottom:4px">${ch.emoji||"?"}</div>
+            <div style="font-size:14px;font-weight:800;color:#fff">${ch.word||""}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#FF6B9D" data-a="jkabcnext">✨ Next Letter</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK COUNT & TAP ───────────────────────────────────────────────
+function renderJkCount(){
+  return gameCard("jkCountLoading","jkCountQ","Count & Tap \uD83D\uDD22", q=>{
+    const res=S.jkCountResult, score=S.jkCountScore;
+    const choices=q.choices||[q.count,q.count+1,q.count+2,q.count-1].filter(v=>v>0);
+    const btnColors=["#3B82F6","#22C55E","#F97316","#8B5CF6"];
+    const items=Array(q.count).fill(q.emoji||"⭐");
+    return `${hdr("Count & Tap \uD83D\uDD22","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:10px">How many ${q.emoji||"⭐"} can you count?</p>
+      ${q.fact?`<div style="font-size:12px;color:var(--teal);font-weight:600;margin-bottom:8px">\uD83D\uDCA1 ${q.fact}</div>`:""}
+      <div class="card" style="padding:18px;margin-bottom:12px;background:rgba(59,130,246,0.05)">
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:60px;align-items:center">
+          ${items.map((_,i)=>`<span style="font-size:${q.count<=5?44:q.count<=8?36:28}px;animation:popIn ${0.05+i*0.06}s">${q.emoji||"⭐"}</span>`).join("")}
+        </div>
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:16px;margin-bottom:10px">${res==="correct"?"⭐ Correct! "+q.count+" "+q.emoji+"!":"❌ There are "+q.count}</div>`:"<p style='font-size:14px;color:var(--muted);margin-bottom:10px'>Tap the right number \uD83D\uDC47</p>"}
+      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:14px">
+        ${choices.map((v,i)=>{let bg=btnColors[i%4],extra="";if(res){if(v===q.count){bg="#22C55E";extra="transform:scale(1.08)";}else{bg="#E2E8F0";extra="opacity:0.45";}}return `<div data-a="jkcountpick" data-v="${v}" style="width:72px;height:72px;border-radius:18px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:#fff;cursor:pointer;${extra};transition:all .2s;box-shadow:0 5px 16px ${bg}55">${v}</div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:var(--primary)" data-a="jkcountnext">✨ Next</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK NUMBER POP ────────────────────────────────────────────────
+function renderJkMathPop(){
+  return gameCard("jkPopLoading","jkPopQ","Number Fun \uD83D\uDD1F", q=>{
+    const res=S.jkPopResult, score=S.jkPopScore, inp=S.jkPopInput||"";
+    const color=q.color||"#3B82F6";
+    const dotsA=Array(q.dotA||q.a||1).fill(0).map((_,i)=>`<div style="width:28px;height:28px;border-radius:50%;background:${color};display:inline-block;margin:3px;box-shadow:0 2px 6px ${color}55;animation:popIn ${0.05+i*0.06}s"></div>`).join("");
+    const dotsB=Array(q.dotB||q.b||1).fill(0).map((_,i)=>`<div style="width:28px;height:28px;border-radius:50%;background:#FBBF24;display:inline-block;margin:3px;box-shadow:0 2px 6px #FBBF2455;animation:popIn ${0.05+i*0.06}s"></div>`).join("");
+    return `${hdr("Number Fun \uD83D\uDD1F","home",score)}
+    <div style="text-align:center">
+      <div style="font-size:42px;font-weight:900;color:${color};margin:6px 0 10px;text-shadow:0 3px 12px ${color}44">${q.q}</div>
+      ${q.tip?`<div style="font-size:13px;color:var(--muted);margin-bottom:6px">\uD83D\uDCA1 ${q.tip}</div>`:""}
+      <div class="card" style="padding:14px;margin-bottom:10px;background:${color}0D;border-color:${color}33">
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0;min-height:50px">${dotsA}<span style="font-size:22px;margin:0 8px;color:var(--muted)">+</span>${dotsB}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Count all the dots!</div>
+      </div>
+      <div class="ans-box ${res||""}" style="font-size:36px;width:90px;height:60px;margin:0 auto 10px">${inp||'<span style="color:var(--border);font-size:28px">?</span>'}</div>
+      ${res?`<div class="rbadge ${res}" style="margin-bottom:10px;font-size:16px">${res==="correct"?"⭐ Amazing! You got "+q.ans+"!":"❌ The answer is "+q.ans}</div>`:""}
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px">
+        ${[1,2,3,4,5,6,7,8,9,0].map(n=>`<div data-a="jkpopnum" data-n="${n}" style="height:52px;border-radius:13px;background:${color}18;border:2px solid ${color}33;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--text);cursor:pointer">${n}</div>`).join("")}
+      </div>
+      <div class="row" style="justify-content:center;margin-bottom:8px">
+        <button class="btn btn-sm btn-outline muted" data-a="jkpopdel">⌫</button>
+        <button class="btn btn-sm" style="background:var(--primary)" data-a="jkpopspk">\uD83D\uDD0A Hear it</button>
+        ${!res?`<button class="btn" style="background:${color}" data-a="jkpopcheck" ${!inp?"disabled":""}>Check ✓</button>`:`<button class="btn" style="background:var(--green)" data-a="jkpopnext">✨ Next</button>`}
+      </div>
+      <p style="color:var(--muted);font-size:12px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK COLOURS ───────────────────────────────────────────────────
+function renderJkColors(){
+  return gameCard("jkColorLoading","jkColorQ","Colours \uD83C\uDF08", q=>{
+    const res=S.jkColorResult, score=S.jkColorScore;
+    const correct=q.correct||{name:q.ans,hex:"#3B82F6",emoji:"\uD83D\uDD35",thing:"thing"};
+    const choices=q.choices||[];
+    return `${hdr("\uD83C\uDF08 Colours","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:10px">What colour is this? \uD83D\uDC47</p>
+      <div style="width:160px;height:160px;border-radius:32px;background:${correct.hex||"#3B82F6"};margin:0 auto 8px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 36px ${correct.hex||"#3B82F6"}66;animation:popIn .3s">
+        <span style="font-size:72px">${correct.emoji||"\uD83D\uDD35"}</span>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:4px">A ${q.thing||correct.thing||""}</p>
+      ${res?`<div class="rbadge ${res}" style="margin:6px 0;font-size:15px">${res==="correct"?"⭐ Yes! It is "+correct.name+"!":"❌ It is "+correct.name}</div>`:"<div style='height:32px'></div>"}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 12px">
+        ${choices.map(ch=>{
+          const hex=ch.hex||"#888";const nm=ch.name||ch;
+          let border="3px solid transparent",extra="";
+          if(res){if(nm===q.ans){border="3px solid #22C55E";extra="transform:scale(1.04)";}else extra="opacity:0.4";}
+          return `<div data-a="jkcolorpick" data-v="${nm}" style="background:${hex};border:${border};border-radius:18px;padding:14px 8px;cursor:pointer;${extra};transition:all .2s">
+            <div style="font-size:14px;font-weight:900;color:${nm==="White"||nm==="Yellow"?"#333":"#fff"};text-shadow:0 1px 3px rgba(0,0,0,0.2)">${nm}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:var(--primary)" data-a="jkcolornext">✨ Next Colour</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK SHAPES ────────────────────────────────────────────────────
+const SHAPES_SVG={
+  Circle:`<circle cx="60" cy="60" r="52" fill="COLOR"/>`,
+  Square:`<rect x="8" y="8" width="104" height="104" rx="6" fill="COLOR"/>`,
+  Triangle:`<polygon points="60,8 112,112 8,112" fill="COLOR"/>`,
+  Rectangle:`<rect x="4" y="22" width="112" height="76" rx="6" fill="COLOR"/>`,
+  Star:`<polygon points="60,8 72,42 108,42 80,63 90,98 60,76 30,98 40,63 12,42 48,42" fill="COLOR"/>`,
+  Heart:`<path d="M60 100 C20 70 5 50 5 35 C5 18 20 8 35 8 C45 8 55 15 60 22 C65 15 75 8 85 8 C100 8 115 18 115 35 C115 50 100 70 60 100Z" fill="COLOR"/>`,
+  Diamond:`<polygon points="60,5 115,60 60,115 5,60" fill="COLOR"/>`,
+  Oval:`<ellipse cx="60" cy="60" rx="55" ry="38" fill="COLOR"/>`,
+};
+function shapeSVG(name,color){
+  const s=SHAPES_SVG[name]||SHAPES_SVG.Circle;
+  return `<svg viewBox="0 0 120 120" width="150" height="150">${s.replace(/COLOR/g,color)}</svg>`;
+}
+
+function renderJkShapes(){
+  return gameCard("jkShapeLoading","jkShapeQ","Shapes ⭐", q=>{
+    const res=S.jkShapeResult, score=S.jkShapeScore;
+    const name=q.name||((q.correct&&q.correct.name))||q.ans||"Circle";
+    const color=q.color||SHAPE_COLORS[0];
+    const choices=Array.isArray(q.choices)?q.choices.map(c=>typeof c==="string"?c:c.name):[];
+    return `${hdr("⭐ Shapes","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">What shape is this?</p>
+      <div style="width:150px;height:150px;margin:0 auto 4px;animation:popIn .3s;filter:drop-shadow(0 8px 20px ${color}66)">${shapeSVG(name,color)}</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:6px">${q.desc||((q.correct&&q.correct.desc))||""}</p>
+      ${res?`<div class="rbadge ${res}" style="margin:4px 0;font-size:15px">${res==="correct"?"⭐ Yes! A "+name+"!":"❌ It is a "+name}</div>`:"<div style='height:30px'></div>"}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 12px">
+        ${choices.map((s,i)=>{
+          const sc=SHAPE_COLORS[i%SHAPE_COLORS.length];
+          let border="2px solid transparent",extra="";
+          if(res){if(s===q.ans){border="2px solid #22C55E";extra="box-shadow:0 0 0 2px #22C55E44";}else extra="opacity:0.35";}
+          return `<div data-a="jkshapepick" data-v="${s}" style="background:var(--card);border:${border};border-radius:16px;padding:10px 6px;cursor:pointer;${extra};transition:all .2s;box-shadow:0 3px 10px rgba(0,0,0,0.08)">
+            ${shapeSVG(s,sc)}
+            <div style="font-size:13px;font-weight:800;color:var(--text);margin-top:4px">${s}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:var(--green)" data-a="jkshapenext">✨ Next Shape</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK ANIMALS ───────────────────────────────────────────────────
+function renderJkAnimals(){
+  return gameCard("jkAnimalLoading","jkAnimalQ","Animals \uD83D\uDC3E", q=>{
+    const res=S.jkAnimalResult, score=S.jkAnimalScore;
+    const correct=q.correct||{name:q.ans,emoji:"\uD83D\uDC36",sound:"Woof!",home:"house"};
+    const choices=q.choices||[];
+    const qType=q.qType||0;
+    const questions=["Which animal is this?","Which animal makes this sound?","Which animal lives here?"];
+    const clues=["",`"${correct.sound||q.sound||""}"`,`in a ${correct.home||""}`];
+    const bgColors=["#FF6B9D","#3B82F6","#22C55E","#F97316"];
+    return `${hdr("\uD83D\uDC3E Animals","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:6px">${questions[qType]}</p>
+      <div style="margin:0 auto 6px;width:150px;height:150px;border-radius:30px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 32px rgba(102,126,234,0.4);animation:popIn .3s;cursor:pointer" data-a="jkanimalspk">
+        <span style="font-size:80px">${qType===0?correct.emoji:"❓"}</span>
+        ${qType>0?`<span style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:700;margin-top:4px;padding:0 8px">${clues[qType]}</span>`:`<span style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px">\uD83D\uDD0A Tap to hear</span>`}
+      </div>
+      ${res?`<div class="rbadge ${res}" style="margin:6px 0;font-size:15px">${res==="correct"?"⭐ Yes! The "+correct.name+"! "+correct.emoji:"❌ It is the "+correct.name+" "+correct.emoji}</div>`:"<div style='height:34px'></div>"}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 12px">
+        ${choices.map((a,i)=>{
+          const nm=a.name||a; const em=a.emoji||"?";
+          let bg=bgColors[i%4],extra="";
+          if(res){if(nm===q.ans){bg="#22C55E";extra="transform:scale(1.04)";}else{bg="#E2E8F0";extra="opacity:0.35";}}
+          return `<div data-a="jkanimalpick" data-v="${nm}" style="background:${bg};border-radius:18px;padding:12px 6px;cursor:pointer;${extra};transition:all .2s">
+            <div style="font-size:44px;margin-bottom:3px">${em}</div>
+            <div style="font-size:13px;font-weight:800;color:#fff">${nm}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#8B5CF6" data-a="jkanimalnext">✨ Next Animal</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK RHYME ─────────────────────────────────────────────────────
+function renderJkRhyme(){
+  return gameCard("jkRhymeLoading","jkRhymeQ","Rhyming Words \uD83C\uDFB5", q=>{
+    const res=S.jkRhymeResult, score=S.jkRhymeScore;
+    const choices=q.choices||[];
+    const btnColors=["#007AFF","#F97316","#22C55E","#8B5CF6"];
+    return `${hdr("\uD83C\uDFB5 Rhyming Words","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">Which word rhymes with…?</p>
+      <div style="margin:0 auto 8px;padding:20px 32px;border-radius:24px;background:linear-gradient(135deg,#007AFF,#5856D6);display:inline-flex;flex-direction:column;align-items:center;box-shadow:0 10px 32px rgba(0,122,255,0.4);animation:popIn .3s;cursor:pointer" data-a="jkrhymespk">
+        <span style="font-size:52px;font-weight:900;color:#fff;letter-spacing:4px">${q.word}</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:4px">\uD83D\uDD0A Tap to hear</span>
+      </div>
+      ${q.hint?`<p style="font-size:13px;color:var(--muted);margin-bottom:6px">\uD83D\uDCA1 ${q.hint}</p>`:`<p style="font-size:13px;color:var(--muted);margin-bottom:6px">Rhymes end with the same sound!</p>`}
+      ${res?`<div class="rbadge ${res}" style="margin:4px 0;font-size:15px">${res==="correct"?"⭐ Yes! "+q.word+" and "+q.ans+" rhyme!":"❌ "+q.word+" rhymes with "+q.ans}</div>`:"<div style='height:32px'></div>"}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 12px">
+        ${choices.map((ch,i)=>{let bg=btnColors[i%4],extra="";if(res){if(ch===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}return `<div data-a="jkrhymepick" data-v="${ch}" style="background:${bg};border-radius:18px;padding:16px 8px;cursor:pointer;${extra};transition:all .2s"><span style="font-size:28px;font-weight:900;color:#fff;letter-spacing:2px">${ch}</span></div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#007AFF" data-a="jkrhymenext">✨ Next Rhyme</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK TRACE ─────────────────────────────────────────────────────
+const ABC_DATA=[{l:"A",e:"\uD83C\uDF4E",w:"Apple"},{l:"B",e:"⚽",w:"Ball"},{l:"C",e:"\uD83D\uDC31",w:"Cat"},{l:"D",e:"\uD83D\uDC36",w:"Dog"},{l:"E",e:"\uD83E\uDD5A",w:"Egg"},{l:"F",e:"\uD83D\uDC1F",w:"Fish"},{l:"G",e:"\uD83C\uDF47",w:"Grapes"},{l:"H",e:"\uD83C\uDFA9",w:"Hat"},{l:"I",e:"\uD83C\uDF66",w:"Ice Cream"},{l:"J",e:"\uD83E\uDD39",w:"Juggle"},{l:"K",e:"\uD83E\uDE81",w:"Kite"},{l:"L",e:"\uD83E\uDD81",w:"Lion"},{l:"M",e:"\uD83C\uDF19",w:"Moon"},{l:"N",e:"\uD83E\uDEB9",w:"Nest"},{l:"O",e:"\uD83C\uDF4A",w:"Orange"},{l:"P",e:"\uD83D\uDC37",w:"Pig"},{l:"Q",e:"\uD83D\uDC78",w:"Queen"},{l:"R",e:"\uD83C\uDF08",w:"Rainbow"},{l:"S",e:"☀️",w:"Sun"},{l:"T",e:"\uD83C\uDF33",w:"Tree"},{l:"U",e:"☂️",w:"Umbrella"},{l:"V",e:"\uD83C\uDF3B",w:"Violet"},{l:"W",e:"\uD83D\uDC33",w:"Whale"},{l:"X",e:"\uD83C\uDFB8",w:"Xylophone"},{l:"Y",e:"\uD83E\uDDF6",w:"Yarn"},{l:"Z",e:"\uD83E\uDD93",w:"Zebra"}];
+
+function renderJkTrace(){
+  const i=S.jkTraceIdx||0;
+  const item=ABC_DATA[i]||ABC_DATA[0];
+  const colors=["#FF6B9D","#3B82F6","#22C55E","#F97316","#8B5CF6"];
+  const col=colors[i%colors.length];
+  return `${hdr("✍️ Trace Letters","home",S.jkTraceScore||0)}
+  <div style="text-align:center;padding-bottom:8px">
+    <p style="font-size:15px;color:var(--muted);margin-bottom:6px">Letter <strong style="color:${col}">${i+1} of 26</strong> — Trace it with your finger!</p>
+    <div style="position:relative;width:190px;height:190px;margin:0 auto 10px;border-radius:28px;background:${col}10;border:3px dashed ${col}55;display:flex;align-items:center;justify-content:center">
+      <span style="font-size:140px;font-weight:900;color:${col};opacity:0.15;line-height:1;user-select:none;position:absolute">${item.l}</span>
+      <span style="font-size:130px;font-weight:900;-webkit-text-stroke:6px ${col};color:transparent;line-height:1;user-select:none;position:relative">${item.l}</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 14px">
+      <span style="font-size:44px">${item.e}</span>
+      <div>
+        <div style="font-size:22px;font-weight:900;color:${col}">${item.l} is for…</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text)">${item.w}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:${col}" data-a="jktracespk">\uD83D\uDD0A Hear it</button>
+      ${i>0?`<button class="btn btn-sm" style="background:var(--muted)" data-a="jktracebk">← Back</button>`:""}
+      <button class="btn" style="background:${col};font-size:16px;padding:14px 28px" data-a="jktracenext">${i<25?"✅ I traced it! →":"\uD83C\uDF89 All Done!"}</button>
+    </div>
+    <div style="margin-top:14px;background:var(--border);border-radius:8px;height:8px;overflow:hidden">
+      <div style="background:${col};height:8px;width:${Math.round((i/25)*100)}%;border-radius:8px;transition:width .4s"></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:4px">${i} / 25 traced ⭐</p>
+  </div>`;
+}
+
+// ── JK PHONICS ───────────────────────────────────────────────────
+function renderJkPhonic(){
+  return gameCard("jkPhonicLoading","jkPhonicQ","Letter Sounds \uD83D\uDD0A", q=>{
+    const res=S.jkPhonicResult, score=S.jkPhonicScore;
+    const choices=q.choices||[];
+    const colors=["#FF6B9D","#3B82F6","#22C55E","#F97316"];
+    return `${hdr("\uD83D\uDD0A Letter Sounds","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">Listen — which letter makes this sound?</p>
+      <div style="background:linear-gradient(135deg,#F97316,#FBBF24);border-radius:26px;padding:22px 16px;margin:0 auto 8px;max-width:280px;cursor:pointer;box-shadow:0 8px 28px rgba(249,115,22,0.35);animation:popIn .3s" data-a="jkphonicspk">
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px">\uD83D\uDD0A ${q.sound}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.8)">Tap to hear again</div>
+      </div>
+      ${res?`<div class="rbadge ${res}" style="margin:8px 0;font-size:16px">${res==="correct"?"⭐ Yes! "+q.letter+" says that sound!":"❌ It was the letter "+q.letter}</div>`:`<div style="height:38px"></div>`}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        ${choices.map((ch,i)=>{
+          const lt=ch.letter||ch; const em=ch.emoji||"?";
+          let bg=colors[i%4],extra="";
+          if(res){if(lt===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.4";}}
+          return `<div data-a="jkphonicpick" data-v="${lt}" style="background:${bg};border-radius:20px;padding:16px 10px;cursor:pointer;${extra};transition:all .2s">
+            <div style="font-size:52px;font-weight:900;color:#fff;line-height:1">${lt}</div>
+            <div style="font-size:24px;margin-top:4px">${em}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#F97316" data-a="jkphonicnext">✨ Next Sound</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK ADD BY COUNTING ───────────────────────────────────────────
+function renderJkAddCount(){
+  return gameCard("jkAddCountLoading","jkAddCountQ","Add by Counting ➕", q=>{
+    const res=S.jkAddCountResult, score=S.jkAddCountScore;
+    const choices=q.choices||[];
+    const btnColors=["#3B82F6","#22C55E","#F97316","#8B5CF6"];
+    return `${hdr("➕ Add by Counting","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:10px">Count them all together! \uD83D\uDC47</p>
+      ${q.story?`<p style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${q.story}</p>`:""}
+      <div style="background:rgba(59,130,246,0.08);border-radius:18px;padding:14px;margin-bottom:8px;border:2px dashed rgba(59,130,246,0.3)">
+        <div style="font-size:13px;font-weight:700;color:#3B82F6;margin-bottom:6px">Group 1 — ${q.a} ${q.emoji||"⭐"}</div>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px">${Array(q.a).fill(0).map((_,i)=>`<span style="font-size:36px;animation:popIn ${0.05+i*0.07}s">${q.emoji||"⭐"}</span>`).join("")}</div>
+      </div>
+      <div style="font-size:28px;font-weight:900;color:var(--primary);margin:4px 0">+</div>
+      <div style="background:rgba(249,115,22,0.08);border-radius:18px;padding:14px;margin-bottom:10px;border:2px dashed rgba(249,115,22,0.3)">
+        <div style="font-size:13px;font-weight:700;color:#F97316;margin-bottom:6px">Group 2 — ${q.b} ${q.emoji2||q.emoji||"⭐"}</div>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px">${Array(q.b).fill(0).map((_,i)=>`<span style="font-size:36px;animation:popIn ${0.05+i*0.07}s">${q.emoji2||q.emoji||"⭐"}</span>`).join("")}</div>
+      </div>
+      <p style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:10px">${q.a} + ${q.b} = <span style="color:var(--primary)">?</span></p>
+      ${res?`<div class="rbadge ${res}" style="font-size:17px;margin-bottom:10px">${res==="correct"?"⭐ Correct! "+q.a+" + "+q.b+" = "+q.ans+"!":"❌ The answer is "+q.ans}</div>`:""}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        ${choices.map((v,i)=>{let bg=btnColors[i%4],extra="";if(res){if(+v===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.4";}}return `<div data-a="jkaddpick" data-v="${v}" style="background:${bg};border-radius:20px;height:70px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#fff;cursor:pointer;${extra};transition:all .2s">${v}</div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#8B5CF6" data-a="jkaddnext">✨ Next</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK SORT & MATCH ──────────────────────────────────────────────
+function renderJkSort(){
+  return gameCard("jkSortLoading","jkSortQ","Sort & Match \uD83C\uDFA8", q=>{
+    const res=S.jkSortResult, score=S.jkSortScore;
+    const items=q.items||[];
+    const tapped=q.tapped||[];
+    return `${hdr("\uD83C\uDFA8 Sort & Match","home",score)}
+    <div style="text-align:center">
+      <div style="background:linear-gradient(135deg,#14B8A6,#3B82F6);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 6px 20px rgba(20,184,166,0.3)">
+        <p style="font-size:17px;font-weight:800;color:#fff">${q.q||"Sort these!"}</p>
+        ${q.hint?`<p style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px">\uD83D\uDCA1 ${q.hint}</p>`:`<p style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px">Tap all that match!</p>`}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+        ${items.map((it,i)=>{
+          const isTapped=tapped.includes(i);
+          let bg=isTapped?(it.match?"#22C55E":"#EF4444"):"var(--card)";
+          let border=isTapped?(it.match?"#22C55E":"#EF4444"):"var(--border)";
+          if(res&&it.match&&!isTapped){bg="#FEF9C3";border="#FBBF24";}
+          return `<div data-a="jksortpick" data-v="${i}" style="background:${bg};border:3px solid ${border};border-radius:18px;padding:14px 6px;font-size:40px;cursor:pointer;transition:all .2s">${it.e||it.emoji||"?"}</div>`;
+        }).join("")}
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:15px;margin-bottom:10px">${res==="correct"?"⭐ Great sorting!":"❌ Some were missed — highlighted in yellow"}</div>`:""}
+      <div class="row" style="justify-content:center">
+        ${!res?`<button class="btn" style="background:#14B8A6" data-a="jksortpick" data-v="check">✅ Check!</button>`:`<button class="btn btn-full" style="background:var(--primary)" data-a="jksortnext">✨ Next Sort</button>`}
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── JK BODY ──────────────────────────────────────────────────────
+function renderJkBody(){
+  return gameCard("jkBodyLoading","jkBodyQ","My Body \uD83D\uDD90️", q=>{
+    const res=S.jkBodyResult, score=S.jkBodyScore;
+    const correct=q.correct||{part:q.ans,emoji:"\uD83D\uDD90️",desc:"",img:"\uD83D\uDD90️"};
+    const choices=q.choices||[];
+    const colors=["#FF6B9D","#3B82F6","#22C55E","#F97316"];
+    return `${hdr("\uD83D\uDD90️ My Body","home",score)}
+    <div style="text-align:center">
+      <div style="background:linear-gradient(135deg,#EF4444,#F97316);border-radius:24px;padding:20px 16px;margin-bottom:10px;cursor:pointer;box-shadow:0 8px 24px rgba(239,68,68,0.35)" data-a="jkbodyspk">
+        <div style="font-size:38px;margin-bottom:6px">\uD83D\uDD90️ Point to your…</div>
+        <div style="font-size:36px;font-weight:900;color:#fff">${(q.ans||"").toUpperCase()}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px">\uD83D\uDD0A Tap to hear</div>
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:15px;margin:6px 0">${res==="correct"?"⭐ Yes! Your "+correct.part+"! "+correct.desc:"❌ Your "+correct.part+"! "+correct.desc}</div>`:`<div style="height:36px"></div>`}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        ${choices.map((b,i)=>{
+          const pt=b.part||b; const img=b.img||b.emoji||"\uD83D\uDD90️";
+          let bg=colors[i%4],extra="";
+          if(res){if(pt===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}
+          return `<div data-a="jkbodypick" data-v="${pt}" style="background:${bg};border-radius:20px;padding:16px 8px;cursor:pointer;${extra};transition:all .2s">
+            <div style="font-size:44px">${img}</div>
+            <div style="font-size:14px;font-weight:800;color:#fff;margin-top:4px">${pt}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#EF4444" data-a="jkbodynext">✨ Next</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── SK SIGHT WORDS ───────────────────────────────────────────────
+function renderSkSight(){
+  return gameCard("skSightLoading","skSightQ","Sight Words \uD83D\uDC40", q=>{
+    const res=S.skSightResult, score=S.skSightScore;
+    const choices=q.choices||[];
+    const colors=["#3B82F6","#22C55E","#F97316","#8B5CF6"];
+    return `${hdr("\uD83D\uDC40 Sight Words","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">Listen — then tap the word you heard!</p>
+      ${q.sentence?`<div style="font-size:14px;color:var(--teal);font-weight:600;margin-bottom:6px">\uD83D\uDCD6 "${q.sentence}"</div>`:""}
+      <div style="background:linear-gradient(135deg,#14B8A6,#3B82F6);border-radius:24px;padding:26px 20px;margin-bottom:8px;cursor:pointer;box-shadow:0 8px 28px rgba(20,184,166,0.35)" data-a="sksightspk">
+        <div style="font-size:52px;font-weight:900;color:#fff;letter-spacing:3px">${q.word}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:6px">\uD83D\uDD0A Tap to hear again</div>
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:16px;margin:6px 0">${res==="correct"?"⭐ Yes! The word is '"+q.word+"'!":"❌ The word was '"+q.word+"'"}</div>`:`<div style="height:38px"></div>`}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        ${choices.map((w,i)=>{let bg=colors[i%4],extra="";if(res){if(w===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}return `<div data-a="sksightpick" data-v="${w}" style="background:${bg};border-radius:18px;padding:18px 8px;cursor:pointer;${extra};transition:all .2s"><span style="font-size:26px;font-weight:900;color:#fff">${w}</span></div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#14B8A6" data-a="sksightnext">✨ Next Word</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── SK PATTERNS ──────────────────────────────────────────────────
+function renderSkPattern(){
+  return gameCard("skPatternLoading","skPatternQ","Patterns \uD83D\uDD34", q=>{
+    const res=S.skPatternResult, score=S.skPatternScore;
+    const seq=q.seq||[];
+    const choices=q.choices||[];
+    const colors=["#3B82F6","#22C55E","#F97316","#8B5CF6"];
+    return `${hdr("\uD83D\uDD34 Patterns","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">What comes next in the pattern?</p>
+      <div class="card" style="padding:18px 10px;margin-bottom:10px">
+        <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap">
+          ${seq.map((e,i)=>`<span style="font-size:36px;animation:popIn ${0.05+i*0.1}s">${e}</span>`).join("")}
+          <span style="font-size:30px;color:var(--primary)">→</span>
+          <div style="width:50px;height:50px;border-radius:12px;border:3px dashed var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--muted)">?</div>
+        </div>
+        ${q.hint?`<div style="font-size:12px;color:var(--muted);margin-top:8px">Hint: ${q.hint}</div>`:""}
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:15px;margin:6px 0">${res==="correct"?"⭐ Correct! Next is "+q.ans+"!":"❌ The next one is "+q.ans}</div>`:`<div style="height:36px"></div>`}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        ${choices.map((v,i)=>{let bg=colors[i%4],extra="";if(res){if(v===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}return `<div data-a="skpatternpick" data-v="${v}" style="background:${bg};border-radius:18px;height:70px;display:flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer;${extra};transition:all .2s">${v}</div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:var(--primary)" data-a="skpatternnext">✨ Next Pattern</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── SK SEASONS ───────────────────────────────────────────────────
+function renderSkSeasons(){
+  return gameCard("skSeasonsLoading","skSeasonsQ","Seasons \uD83C\uDF42", q=>{
+    const res=S.skSeasonsResult, score=S.skSeasonsScore;
+    const color=q.color||"#22C55E";
+    return `${hdr("\uD83C\uDF42 Seasons","home",score)}
+    <div style="text-align:center">
+      <div style="background:linear-gradient(135deg,${color},${color}AA);border-radius:24px;padding:20px;margin-bottom:12px;box-shadow:0 8px 28px ${color}44">
+        <div style="font-size:64px;margin-bottom:6px">${q.emoji||"\uD83C\uDF38"}</div>
+        <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:10px">${q.season||""}</div>
+        ${(q.facts||[]).map(f=>`<div style="font-size:14px;color:rgba(255,255,255,0.92);margin:4px 0;font-weight:600">${f}</div>`).join("")}
+      </div>
+      <p style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px">❓ ${q.q||""}</p>
+      ${(q.opts||[]).map((o,i)=>{
+        let bg="var(--card)",border="var(--border)",col="var(--text)",extra="";
+        if(res){if(i===q.ans){bg=color;border=color;col="#fff";extra="transform:scale(1.03)";}else{bg="#F1F5F9";extra="opacity:0.5";}}
+        return `<button data-a="skseasonpick" data-v="${i}" style="width:100%;padding:13px 16px;border-radius:13px;border:2px solid ${border};background:${bg};color:${col};font-weight:700;font-size:15px;cursor:pointer;margin-bottom:7px;font-family:inherit;${extra};transition:all .2s;text-align:left">${["A","B","C","D"][i]}. ${o}</button>`;
+      }).join("")}
+      ${res?`<button class="btn btn-full" style="background:${color};margin-top:4px" data-a="skseasonnext">✨ Next Season</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── G TIME ───────────────────────────────────────────────────────
+function clockSVG(h,m){
+  const hAngle=(h%12)*30+(m/2)-90, mAngle=m*6-90;
+  const hx=60+28*Math.cos(hAngle*Math.PI/180), hy=60+28*Math.sin(hAngle*Math.PI/180);
+  const mx=60+40*Math.cos(mAngle*Math.PI/180), my=60+40*Math.sin(mAngle*Math.PI/180);
+  let ticks="";
+  for(let i=0;i<12;i++){const a=i*30-90;const x1=60+46*Math.cos(a*Math.PI/180),y1=60+46*Math.sin(a*Math.PI/180);const x2=60+52*Math.cos(a*Math.PI/180),y2=60+52*Math.sin(a*Math.PI/180);const lx=60+38*Math.cos(a*Math.PI/180),ly=60+38*Math.sin(a*Math.PI/180);ticks+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#475569" stroke-width="2"/><text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="middle" font-size="8" fill="#64748B" font-weight="700">${i===0?12:i}</text>`;}
+  return `<svg viewBox="0 0 120 120" width="160" height="160"><circle cx="60" cy="60" r="56" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="3"/>${ticks}<line x1="60" y1="60" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#1E293B" stroke-width="5" stroke-linecap="round"/><line x1="60" y1="60" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="60" r="4" fill="#1E293B"/></svg>`;
+}
+
+function renderGTime(){
+  return gameCard("gTimeLoading","gTimeQ","Time & Clocks \uD83D\uDD50", q=>{
+    const res=S.gTimeResult, score=S.gTimeScore;
+    const choices=q.choices||[];
+    const colors=["#3B82F6","#22C55E","#F97316","#8B5CF6"];
+    const hasClock=(q.type==="oclock"||q.type==="half"||q.type==="quarter");
+    return `${hdr("\uD83D\uDD50 Time & Clocks","home",score)}
+    <div style="text-align:center">
+      ${hasClock&&q.h!=null?`<div style="margin:0 auto 8px;width:160px;height:160px;animation:popIn .3s">${clockSVG(q.h,q.m||0)}</div>`:""}
+      <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px">${q.label||""}</div>
+      ${q.fact?`<div style="font-size:13px;color:var(--teal);font-weight:600;margin-bottom:8px">\uD83D\uDCA1 ${q.fact}</div>`:""}
+      ${res?`<div class="rbadge ${res}" style="font-size:16px;margin-bottom:10px">${res==="correct"?"⭐ Correct! "+q.ans+"!":"❌ The answer is "+q.ans}</div>`:""}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        ${choices.map((v,i)=>{let bg=colors[i%4],extra="";if(res){if(v===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}return `<div data-a="gtimepick" data-v="${v}" style="background:${bg};border-radius:16px;padding:14px 8px;cursor:pointer;${extra};transition:all .2s"><span style="font-size:17px;font-weight:800;color:#fff">${v}</span></div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#3B82F6" data-a="gtimenext">✨ Next</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── G CANADIAN MONEY ─────────────────────────────────────────────
+function renderGMoney(){
+  return gameCard("gMoneyLoading","gMoneyQ","Canadian Money \uD83E\uDE99", q=>{
+    const res=S.gMoneyResult, score=S.gMoneyScore;
+    const choices=q.choices||[];
+    const colors=["#22C55E","#3B82F6","#F97316","#8B5CF6"];
+    const color=q.color||"#22C55E";
+    return `${hdr("\uD83E\uDE99 Canadian Money","home",score)}
+    <div style="text-align:center">
+      <div style="background:linear-gradient(135deg,${color},${color}99);border-radius:24px;padding:20px 16px;margin-bottom:12px;box-shadow:0 8px 28px ${color}44">
+        <div style="font-size:52px;margin-bottom:8px">${q.emoji||"\uD83E\uDE99"}</div>
+        <div style="font-size:17px;font-weight:700;color:#fff">${q.label||""}</div>
+        ${q.desc?`<div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:4px">${q.desc}</div>`:""}
+        ${q.hint?`<div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:4px">\uD83D\uDCA1 ${q.hint}</div>`:""}
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:16px;margin-bottom:10px">${res==="correct"?"⭐ Correct! "+q.ans+"!":"❌ The answer is "+q.ans}</div>`:""}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        ${choices.map((v,i)=>{let bg=colors[i%4],extra="";if(res){if(v===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}return `<div data-a="gmoneypick" data-v="${v}" style="background:${bg};border-radius:16px;padding:14px 8px;cursor:pointer;${extra};transition:all .2s"><span style="font-size:18px;font-weight:800;color:#fff">${v}</span></div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:#22C55E" data-a="gmoneynext">✨ Next</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated</p>
+    </div>`;
+  });
+}
+
+// ── G PIANO ──────────────────────────────────────────────────────
+const PIANO_NOTES_DATA=[{note:"C",freq:261.6,color:"#EF4444"},{note:"D",freq:293.7,color:"#F97316"},{note:"E",freq:329.6,color:"#FBBF24"},{note:"F",freq:349.2,color:"#22C55E"},{note:"G",freq:392.0,color:"#3B82F6"},{note:"A",freq:440.0,color:"#8B5CF6"},{note:"B",freq:493.9,color:"#EC4899"},{note:"C5",freq:523.3,color:"#EF4444"}];
+const BLACK_KEYS_DATA=[{note:"C#",freq:277.2,pos:0.6},{note:"D#",freq:311.1,pos:1.6},{note:"F#",freq:370.0,pos:3.6},{note:"G#",freq:415.3,pos:4.6},{note:"A#",freq:466.2,pos:5.6}];
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playPianoNote(noteName){try{const all=[...PIANO_NOTES_DATA,...BLACK_KEYS_DATA];const n=all.find(x=>x.note===noteName);if(!n)return;const ctx=getAudio();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type="sine";osc.frequency.setValueAtTime(n.freq,ctx.currentTime);gain.gain.setValueAtTime(0.5,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.5);}catch(e){}}
+
+function renderGPiano(){
+  return gameCard("gPianoLoading","gPianoQ","Piano Notes \uD83C\uDFB9", q=>{
+    const res=S.gPianoResult, score=S.gPianoScore;
+    const choices=q.choices||[];
+    const color=q.color||"#3B82F6";
+    const kW=38,kH=110,gap=2;
+    let wKeys="",bKeys="";
+    PIANO_NOTES_DATA.forEach((n,i)=>{const x=i*(kW+gap);const fill=res&&n.note===q.ans?"#22C55E":"#FFFFFF";const sw=n.note===q.ans&&res?3:1.5;wKeys+=`<g data-a="gpianoplay" data-note="${n.note}" style="cursor:pointer"><rect x="${x}" y="0" width="${kW}" height="${kH}" rx="5" fill="${fill}" stroke="#CBD5E1" stroke-width="${sw}"/><text x="${x+kW/2}" y="${kH-10}" text-anchor="middle" font-size="13" font-weight="800" fill="${res&&n.note===q.ans?"#22C55E":"#64748B"}" font-family="Nunito,sans-serif">${n.note}</text></g>`;});
+    BLACK_KEYS_DATA.forEach(bk=>{const x=bk.pos*(kW+gap)-10;bKeys+=`<g data-a="gpianoplay" data-note="${bk.note}" style="cursor:pointer"><rect x="${x}" y="0" width="24" height="68" rx="4" fill="#1E293B" stroke="#0F172A" stroke-width="1"/><text x="${x+12}" y="60" text-anchor="middle" font-size="8" fill="#94A3B8" font-family="Nunito,sans-serif">${bk.note}</text></g>`;});
+    const totalW=PIANO_NOTES_DATA.length*(kW+gap)-gap;
+    return `${hdr("\uD83C\uDFB9 Piano Notes","home",score)}
+    <div style="text-align:center">
+      <p style="font-size:15px;color:var(--muted);margin-bottom:8px">Listen to the note — which key is it?</p>
+      <div style="background:linear-gradient(135deg,${color},${color}AA);border-radius:22px;padding:18px 14px;margin-bottom:12px;cursor:pointer;box-shadow:0 8px 28px ${color}44" data-a="gpianoplay" data-note="${q.note||q.ans}">
+        <div style="font-size:44px;margin-bottom:6px">\uD83C\uDFB5</div>
+        <div style="font-size:20px;font-weight:800;color:#fff">Note: <span style="font-size:28px">${res?q.ans:"?"}</span></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px">\uD83D\uDD0A Tap to play again</div>
+      </div>
+      ${q.fact?`<div style="font-size:13px;color:var(--purple);font-weight:600;margin-bottom:6px">\uD83C\uDFB5 ${q.fact}</div>`:""}
+      ${q.mnemonic?`<div style="font-size:12px;color:var(--muted);margin-bottom:8px">\uD83D\uDCA1 ${q.mnemonic}</div>`:""}
+      <div style="overflow-x:auto;padding-bottom:4px;margin-bottom:10px">
+        <svg viewBox="0 0 ${totalW} ${kH}" style="display:block;margin:0 auto;max-width:100%;min-width:280px;height:auto">${wKeys}${bKeys}</svg>
+      </div>
+      ${res?`<div class="rbadge ${res}" style="font-size:16px;margin-bottom:10px">${res==="correct"?"⭐ Correct! Note "+q.ans+"!":"❌ That was note "+q.ans}</div>`:""}
+      <p style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">Which note did you hear?</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+        ${choices.map(v=>{const n=PIANO_NOTES_DATA.find(x=>x.note===v);let bg=n?n.color:"#64748B",extra="";if(res){if(v===q.ans){bg="#22C55E";extra="transform:scale(1.05)";}else{bg="#E2E8F0";extra="opacity:0.35";}}return `<div data-a="gpianopick" data-v="${v}" style="background:${bg};border-radius:14px;padding:14px 6px;cursor:pointer;${extra};transition:all .2s"><span style="font-size:22px;font-weight:900;color:#fff">${v}</span></div>`;}).join("")}
+      </div>
+      ${res?`<button class="btn btn-full" style="background:${color}" data-a="gpianonext">✨ Next Note</button>`:""}
+      <p style="color:var(--muted);font-size:12px;margin-top:8px">Score: ⭐ ${score} • AI-generated • Do Re Mi Fa Sol La Ti Do</p>
+    </div>`;
+  });
+}
+
+function resetSpell(){/* legacy stub — spelling now uses AI */}
+function speak(t,rate=0.82){if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=rate;speechSynthesis.speak(u);}}
+
+// ═══════════════════════════════════════════════════════════════
+// PWA
+// ═══════════════════════════════════════════════════════════════
+let deferred=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;const b=document.getElementById("ibanner");document.getElementById("itext").textContent="Install KidsLearn as an app!";document.getElementById("ibtn").style.display="block";b.style.display="flex";});
+document.addEventListener("click",e=>{
+  if(e.target.id==="ibtn"&&deferred){deferred.prompt();deferred.userChoice.then(()=>{deferred=null;document.getElementById("ibanner").style.display="none";});}
+  if(e.target.id==="idismiss")document.getElementById("ibanner").style.display="none";
+});
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const inApp=window.matchMedia("(display-mode:standalone)").matches||navigator.standalone;
+if(isIOS&&!inApp){const b=document.getElementById("ibanner");document.getElementById("itext").textContent='Tap Share → "Add to Home Screen" to install';b.style.display="flex";setTimeout(()=>{b.style.display="none";},8000);}
+
+// ═══════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════
+// Global error handler for Safari
+window.onerror = function(msg, src, line, col, err) {
+  console.error("Global error:", msg, "line:", line, err);
+  return false;
+};
+window.addEventListener("unhandledrejection", function(e) {
+  console.warn("Unhandled promise rejection:", e.reason);
+  e.preventDefault(); // prevent Safari from crashing
+});
+if(!isAuthed())S.screen="login";
+setupEvents();
+try { render(); } catch(e) { }
+</script>
+</body>
+</html>

@@ -30,7 +30,7 @@ body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bot
 .btn-outline.primary{border-color:var(--primary);color:var(--primary);}
 .btn-outline.muted{border-color:var(--border);color:var(--muted);}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.hback{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px 8px 4px 0;touch-action:manipulation;}
+.hback{background:var(--primary);border:none;font-size:20px;font-weight:900;cursor:pointer;color:#fff;padding:9px 18px;border-radius:12px;touch-action:manipulation;box-shadow:0 3px 10px rgba(0,0,0,0.18);min-width:54px;}
 .htitle{font-weight:900;font-size:18px;color:var(--text);text-align:center;}
 .hsub{font-size:11px;color:var(--muted);text-align:center;margin-top:1px;}
 .hscore{font-weight:700;font-size:14px;color:var(--primary);min-width:38px;text-align:right;}
@@ -228,6 +228,10 @@ let S={
   fillQ:null,fillChoices:[],fillChosen:null,fillResult:null,
   // Word problems
   wpGrade:null,wpIdx:0,wpInput:"",wpResult:null,wpScore:0,wpHint:false,
+  // World Capitals
+  worldIdx:0,worldQ:null,worldResult:null,worldScore:0,worldMode:"browse",worldContinent:"All",
+  // Galaxy & Planets
+  planetIdx:0,spaceQ:null,spaceResult:null,spaceScore:0,spaceMode:"browse",
   // JK Games
   jkAbcQ:null,jkAbcResult:null,jkAbcScore:0,
   jkCountQ:null,jkCountResult:null,jkCountScore:0,
@@ -266,9 +270,9 @@ let S={
 };
 
 function prof(){return S.profiles[S.activeIdx]||null;}
-function gradeName(g){return{JK:"Junior K",SK:"Senior K",G1:"Grade 1",G2:"Grade 2",G3:"Grade 3"}[g]||g;}
+function gradeName(g){return{JK:"Kindergarten",SK:"Kindergarten",G1:"Grade 1",G2:"Grade 2",G3:"Grade 3"}[g]||g;}
 function gradeShort(g){return{JK:"Jr K",SK:"Sr K",G1:"Gr 1",G2:"Gr 2",G3:"Gr 3"}[g]||g;}
-function gradeColor(g){return{JK:"var(--green)",SK:"var(--teal)",G1:"var(--primary)",G2:"var(--purple)",G3:"var(--orange)"}[g]||"var(--primary)";}
+function gradeColor(g){return{JK:"#22C55E",SK:"#22C55E",G1:"#3B82F6",G2:"#8B5CF6",G3:"#F97316"}[g]||"#3B82F6";}
 
 function addStars(n,moduleId){
   if(S.activeIdx===null)return;
@@ -765,7 +769,131 @@ function resetSpellAI(){
 function render(){
   try{
   const app=document.getElementById("app");
-  const screens={
+  
+// ─── WORLD CAPITALS ─────────────────────────────────────────────
+function initWorldQ(filtered){
+  var pool=filtered&&filtered.length>1?filtered:WORLD_DATA;
+  var qi=Math.floor(Math.random()*pool.length);
+  var target=pool[qi];
+  var wrong=[];
+  while(wrong.length<3){
+    var r=WORLD_DATA[Math.floor(Math.random()*WORLD_DATA.length)];
+    if(r.capital!==target.capital&&!wrong.find(function(w){return w===r.capital;}))
+      wrong.push(r.capital);
+  }
+  var opts=[target.capital].concat(wrong);
+  for(var i=opts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=opts[i];opts[i]=opts[j];opts[j]=t;}
+  S.worldQ={country:target.country,capital:target.capital,continent:target.continent,flag:target.flag,opts:opts};
+  S.worldResult=null;
+}
+function renderWorldMap(){
+  // Build filtered list based on selected continent
+  var allConts=["All","Africa","Asia","Europe","North America","South America","Oceania"];
+  var filtered=S.worldContinent==="All"?WORLD_DATA:WORLD_DATA.filter(function(w){return w.continent===S.worldContinent;});
+  // Clamp index within filtered list
+  if(S.worldIdx>=filtered.length)S.worldIdx=0;
+  var d=filtered[S.worldIdx];
+  var flag=countryFlag(d.flag);
+  if(S.worldMode==="browse"){
+    return hdr("World Capitals","home",S.worldScore)+
+    '<div style="text-align:center;padding:6px 0">'+
+    '<p style="color:var(--muted);font-size:12px;margin:2px 0">'+(S.worldIdx+1)+' / '+filtered.length+(S.worldContinent!=="All"?' — '+S.worldContinent:'')+'</p>'+
+    '<div style="font-size:72px;margin:6px 0">'+flag+'</div>'+
+    '<div style="font-size:26px;font-weight:900;color:var(--text);margin-bottom:4px">'+d.country+'</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:2px">'+d.continent+'</div>'+
+    '<div style="background:var(--primary);color:#fff;border-radius:14px;padding:10px 24px;display:inline-block;font-size:20px;font-weight:800;margin:8px 0">Capital: '+d.capital+'</div>'+
+    '</div>'+
+    '<div class="row" style="justify-content:center;gap:10px;margin:8px 0">'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.15)" data-a="worldprev" '+(S.worldIdx===0?'disabled':'')+'>◀ Prev</button>'+
+    '<button class="btn" style="background:#22C55E;color:#fff;font-size:15px;font-weight:700;padding:10px 18px;border-radius:14px" data-a="worldquiz">Quiz Me!</button>'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.15)" data-a="worldnext" '+(S.worldIdx>=filtered.length-1?'disabled':'')+'>Next ▶</button>'+
+    '</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:4px">'+
+    allConts.map(function(cont){
+      var active=cont===S.worldContinent;
+      return '<button class="btn btn-sm" style="font-size:11px;padding:5px 10px;background:'+(active?'var(--primary)':'var(--border)')+'22;color:'+(active?'var(--primary)':'var(--muted)')+';border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';font-weight:'+(active?'800':'600')+'" data-a="worldcont" data-cont="'+cont+'">'+cont+'</button>';
+    }).join('')+
+    '</div>';
+  } else {
+    // Quiz mode — pick random from filtered list
+    if(!S.worldQ)initWorldQ(filtered);
+    var q=S.worldQ;
+    var qflag=countryFlag(q.flag);
+    return hdr("World Capitals","home",S.worldScore)+
+    '<div style="text-align:center;padding:8px 0">'+
+    '<div style="font-size:64px;margin:6px 0">'+qflag+'</div>'+
+    '<div style="font-size:22px;font-weight:900;color:var(--text);margin-bottom:4px">'+q.country+'</div>'+
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:14px">What is the capital city?</p>'+
+    q.opts.map(function(o){
+      var correct=S.worldResult&&o===q.capital;
+      var wrong=S.worldResult&&o===S.worldResult&&o!==q.capital;
+      var bg=correct?'#22C55E':wrong?'#EF4444':'var(--card)';
+      var col=correct||wrong?'#fff':'var(--text)';
+      return '<button class="btn" style="width:100%;margin:5px 0;padding:13px;font-size:16px;font-weight:700;background:'+bg+';color:'+col+';border-radius:14px;border:2px solid '+(correct?'#22C55E':wrong?'#EF4444':'var(--border)')+'" data-a="worldans" data-ans="'+o+'" '+(S.worldResult?'disabled':'')+'>'+o+'</button>';
+    }).join('')+
+    (S.worldResult?'<div style="margin-top:12px">'+
+    '<p style="font-weight:800;font-size:18px;color:'+(S.worldResult===q.capital?'#22C55E':'#EF4444')+'">'+(S.worldResult===q.capital?'⭐ Correct!':'The capital is '+q.capital+'.')+'</p>'+
+    '<div style="display:flex;gap:8px;justify-content:center;margin-top:8px">'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-weight:700;font-size:15px;padding:10px 20px;border-radius:14px" data-a="worldnextq">Next Question</button>'+
+    '<button class="btn" style="background:var(--border);color:var(--muted);font-size:14px;padding:10px 16px;border-radius:12px" data-a="worldbrowse">Browse</button>'+
+    '</div></div>':'');
+  }
+}
+
+
+// ─── GALAXY & PLANETS ───────────────────────────────────────────
+function renderGalaxy(){
+  if(S.spaceMode==="browse"){
+    var pl=PLANETS_DATA[S.planetIdx];
+    var planetColors=["#B5B5B5","#E8C97A","#4A9FE0","#C1440E","#C88B3A","#E8D5A3","#7DE8E8","#4B70DD"];
+    var pc=planetColors[S.planetIdx]||"#888";
+    return hdr("Galaxy & Planets","home",S.spaceScore)+
+    '<div style="text-align:center;padding:8px 0">'+
+    '<p style="color:var(--muted);font-size:12px;margin:2px 0">Planet '+pl.order+' of 8</p>'+
+    '<div style="margin:10px auto;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6,'+pc+' 60%);box-shadow:0 0 40px '+pc+'88,0 0 80px '+pc+'44;display:flex;align-items:center;justify-content:center">'+
+    '<span style="font-size:44px;font-weight:900;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.5)">'+pl.order+'</span>'+
+    '</div>'+
+    '<div style="font-size:28px;font-weight:900;color:var(--text);margin-bottom:2px">'+pl.name+'</div>'+
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+pl.type+' &bull; '+pl.dist+' from Sun &bull; '+pl.moons+' moon'+(pl.moons!==1?'s':'')+'</div>'+
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px 14px;margin-bottom:8px;text-align:left">'+
+    '<p style="font-size:14px;color:var(--text);margin:0 0 6px 0">'+pl.desc+'</p>'+
+    '<p style="font-size:13px;color:#F59E0B;font-weight:700;margin:0">\u2B50 '+pl.fact+'</p>'+
+    '</div>'+
+    '</div>'+
+    '<div class="row" style="justify-content:center;gap:10px;margin:6px 0">'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.15)" data-a="planetprev" '+(S.planetIdx===0?'disabled':'')+'>'+'\u25C0'+' Prev</button>'+
+    '<button class="btn" style="background:#8B5CF6;color:#fff;font-size:15px;font-weight:700;padding:10px 18px;border-radius:14px" data-a="spacequiz">Space Quiz!</button>'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,0.15)" data-a="planetnext" '+(S.planetIdx===7?'disabled':'')+'>Next '+'\u25B6'+'</button>'+
+    '</div>';
+  } else {
+    // Space quiz
+    if(!S.spaceQ){
+      var qi=Math.floor(Math.random()*SPACE_FACTS.length);
+      S.spaceQ=SPACE_FACTS[qi];
+      S.spaceResult=null;
+    }
+    var q=S.spaceQ;
+    return hdr("Galaxy & Planets","home",S.spaceScore)+
+    '<div style="background:linear-gradient(135deg,#0F172A,#1E1B4B);border-radius:18px;padding:18px;margin-bottom:12px">'+
+    '<p style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin:0">'+q.q+'</p>'+
+    '</div>'+
+    q.opts.map(function(o){
+      var correct=S.spaceResult&&o===q.ans;
+      var wrong=S.spaceResult&&o===S.spaceResult&&o!==q.ans;
+      var bg=correct?'#22C55E':wrong?'#EF4444':'var(--card)';
+      var col=correct||wrong?'#fff':'var(--text)';
+      return '<button class="btn" style="width:100%;margin:5px 0;padding:12px;font-size:15px;font-weight:700;background:'+bg+';color:'+col+';border-radius:14px;border:2px solid '+(correct?'#22C55E':wrong?'#EF4444':'var(--border)')+';" data-a="spaceans" data-ans="'+o+'" '+(S.spaceResult?'disabled':'')+'>'+o+'</button>';
+    }).join('')+
+    (S.spaceResult?'<div style="margin-top:10px"><p style="font-weight:800;font-size:17px;color:'+(S.spaceResult===q.ans?'#22C55E':'#EF4444')+';">'+(S.spaceResult===q.ans?'\u2B50 Correct!':'\u274C The answer is: '+q.ans)+'</p>'+
+    '<p style="font-size:13px;color:var(--muted);margin:4px 0 10px">\uD83D\uDE80 '+q.fact+'</p>'+
+    '<div style="display:flex;gap:8px;justify-content:center">'+
+    '<button class="btn" style="background:#8B5CF6;color:#fff;font-weight:700;font-size:15px;padding:10px 20px;border-radius:14px" data-a="spacenextq">Next Question</button>'+
+    '<button class="btn" style="background:var(--border);color:var(--muted);font-size:14px;padding:10px 16px;border-radius:12px" data-a="spacebrowse">Planets</button>'+
+    '</div></div>':'');
+  }
+}
+
+const screens={
     login:renderLogin,
     profiles:renderProfiles,
     home:renderHome,
@@ -793,6 +921,8 @@ function render(){
     g_time:renderGTime,
     g_money:renderGMoney,
     g_piano:renderGPiano,
+    g_world:renderWorldMap,
+    g_galaxy:renderGalaxy,
   };
   var _html=(screens[S.screen]||renderHome)();
   app.innerHTML=_html;
@@ -886,6 +1016,8 @@ function renderHome(){
     {id:"g_time",   l:"Time & Clocks",  e:"\uD83D\uDD50", c:"#3B82F6"},
     {id:"g_money",  l:"Canadian Money", e:"\uD83E\uDE99", c:"#22C55E"},
     {id:"g_piano",  l:"Piano Notes",    e:"\uD83C\uDFB9", c:"#8B5CF6"},
+    {id:"g_world",  l:"World Capitals",  e:"\uD83C\uDF0E", c:"#0EA5E9"},
+    {id:"g_galaxy", l:"Galaxy & Planets",e:"\uD83D\uDE80", c:"#6366F1"},
   ];
   const pr=p.progress||{};
   return `
@@ -1437,7 +1569,7 @@ function renderEditGrade(){
   const p=prof();
   return `${hdr("Change Grade","home")}
   <p style="color:var(--muted);font-size:14px;margin-bottom:13px">Grade for <strong>${p.name}</strong></p>
-  ${[{g:"JK",n:"Junior Kindergarten",a:"Ages 4–5"},{g:"SK",n:"Senior Kindergarten",a:"Ages 5–6"},{g:"G1",n:"Grade 1",a:"Ages 6–7"},{g:"G2",n:"Grade 2",a:"Ages 7–8"},{g:"G3",n:"Grade 3",a:"Ages 8–9"}].map(o=>`
+  ${[{g:"JK",n:"Kindergarten",a:"Ages 4-6 (JK & SK)"},{g:"G1",n:"Grade 1",a:"Ages 6–7"},{g:"G2",n:"Grade 2",a:"Ages 7–8"},{g:"G3",n:"Grade 3",a:"Ages 8–9"}].map(o=>`
   <div data-a="setgrade" data-g="${o.g}" style="padding:13px 15px;border-radius:13px;border:2px solid ${p.grade===o.g?"var(--primary)":"var(--border)"};background:${p.grade===o.g?"rgba(79,142,247,0.07)":"transparent"};cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
     <div><div style="font-weight:700;color:var(--text)">${o.n}</div><div style="font-size:12px;color:var(--muted)">${o.a}</div></div>
     ${p.grade===o.g?`<span style="color:var(--primary);font-size:18px">✓</span>`:""}
@@ -1543,6 +1675,8 @@ function act(a,d={}){
       else if(id==="g_time"){S.screen="g_time";S.gTimeScore=0;S.gTimeResult=null;initGTime();}
       else if(id==="g_money"){S.screen="g_money";S.gMoneyScore=0;S.gMoneyResult=null;initGMoney();}
       else if(id==="g_piano"){S.screen="g_piano";S.gPianoScore=0;S.gPianoResult=null;initGPiano();}
+      else if(id==="g_world"){S.screen="g_world";S.worldScore=0;S.worldIdx=0;S.worldMode="browse";S.worldContinent="All";S.worldQ=null;S.worldResult=null;}
+      else if(id==="g_galaxy"){S.screen="g_galaxy";S.spaceScore=0;S.planetIdx=0;S.spaceMode="browse";S.spaceQ=null;S.spaceResult=null;}
       break;}
     case"togglepwd":{const p=document.getElementById("pwdinput");if(p)p.type=p.type==="password"?"text":"password";break;}
     case"back":S.screen=d.t||"home";break;
@@ -1670,7 +1804,22 @@ function act(a,d={}){
     case"gpianopick":{if(S.gPianoResult)return;const ok=d.v===S.gPianoQ.ans;S.gPianoResult=ok?"correct":"wrong";if(ok){S.gPianoScore++;addStars(1,"g_piano");}break;}
     case"gpianonext":S.gPianoResult=null;initGPiano();break;
     case"gpianoplay":playPianoNote(d.note||S.gPianoQ.ans);break;
-    // Grade
+    // World Capitals
+    case"worldprev":if(S.worldIdx>0){S.worldIdx--;}break;
+    case"worldnext":{var wf=S.worldContinent==="All"?WORLD_DATA:WORLD_DATA.filter(function(w){return w.continent===S.worldContinent;});if(S.worldIdx<wf.length-1){S.worldIdx++;}break;}
+    case"worldquiz":S.worldMode="quiz";S.worldQ=null;break;
+    case"worldbrowse":S.worldMode="browse";break;
+    case"worldcont":S.worldContinent=d.cont;S.worldIdx=0;S.worldMode="browse";S.worldQ=null;break;
+    case"worldnextq":S.worldQ=null;S.worldResult=null;S.worldIdx=Math.floor(Math.random()*WORLD_DATA.length);break;
+    case"worldans":if(!S.worldResult){S.worldResult=d.ans;if(d.ans===S.worldQ.capital){addStars(1,"g_world");S.worldScore++;}}break;
+  // Galaxy & Planets
+    case"planetprev":if(S.planetIdx>0){S.planetIdx--;S.spaceMode="browse";}break;
+    case"planetnext":if(S.planetIdx<7){S.planetIdx++;S.spaceMode="browse";}break;
+    case"spacequiz":S.spaceMode="quiz";S.spaceQ=null;break;
+    case"spacebrowse":S.spaceMode="browse";break;
+    case"spacenextq":S.spaceQ=null;S.spaceResult=null;break;
+    case"spaceans":if(!S.spaceResult){S.spaceResult=d.ans;if(d.ans===S.spaceQ.ans){addStars(1,"g_galaxy");S.spaceScore++;}}break;
+  // Grade
     case"setgrade":S.profiles[S.activeIdx]={...S.profiles[S.activeIdx],grade:d.g};saveProfiles(S.profiles);S.screen="home";break;
   }
   render();
@@ -2289,6 +2438,248 @@ function renderGMoney(){
 // ── G PIANO ──────────────────────────────────────────────────────
 const PIANO_NOTES_DATA=[{note:"C",freq:261.6,color:"#EF4444"},{note:"D",freq:293.7,color:"#F97316"},{note:"E",freq:329.6,color:"#FBBF24"},{note:"F",freq:349.2,color:"#22C55E"},{note:"G",freq:392.0,color:"#3B82F6"},{note:"A",freq:440.0,color:"#8B5CF6"},{note:"B",freq:493.9,color:"#EC4899"},{note:"C5",freq:523.3,color:"#EF4444"}];
 const BLACK_KEYS_DATA=[{note:"C#",freq:277.2,pos:0.6},{note:"D#",freq:311.1,pos:1.6},{note:"F#",freq:370.0,pos:3.6},{note:"G#",freq:415.3,pos:4.6},{note:"A#",freq:466.2,pos:5.6}];
+// ── WORLD CAPITALS DATA ─────────────────────────────────────────
+const WORLD_DATA=[
+  {country:"Algeria",capital:"Algiers",continent:"Africa",flag:"DZ"},
+  {country:"Angola",capital:"Luanda",continent:"Africa",flag:"AO"},
+  {country:"Benin",capital:"Porto-Novo",continent:"Africa",flag:"BJ"},
+  {country:"Botswana",capital:"Gaborone",continent:"Africa",flag:"BW"},
+  {country:"Burkina Faso",capital:"Ouagadougou",continent:"Africa",flag:"BF"},
+  {country:"Burundi",capital:"Gitega",continent:"Africa",flag:"BI"},
+  {country:"Cabo Verde",capital:"Praia",continent:"Africa",flag:"CV"},
+  {country:"Cameroon",capital:"Yaounde",continent:"Africa",flag:"CM"},
+  {country:"Central African Republic",capital:"Bangui",continent:"Africa",flag:"CF"},
+  {country:"Chad",capital:"N'Djamena",continent:"Africa",flag:"TD"},
+  {country:"Comoros",capital:"Moroni",continent:"Africa",flag:"KM"},
+  {country:"Congo",capital:"Brazzaville",continent:"Africa",flag:"CG"},
+  {country:"Democratic Republic of Congo",capital:"Kinshasa",continent:"Africa",flag:"CD"},
+  {country:"Djibouti",capital:"Djibouti",continent:"Africa",flag:"DJ"},
+  {country:"Egypt",capital:"Cairo",continent:"Africa",flag:"EG"},
+  {country:"Equatorial Guinea",capital:"Malabo",continent:"Africa",flag:"GQ"},
+  {country:"Eritrea",capital:"Asmara",continent:"Africa",flag:"ER"},
+  {country:"Eswatini",capital:"Mbabane",continent:"Africa",flag:"SZ"},
+  {country:"Ethiopia",capital:"Addis Ababa",continent:"Africa",flag:"ET"},
+  {country:"Gabon",capital:"Libreville",continent:"Africa",flag:"GA"},
+  {country:"Gambia",capital:"Banjul",continent:"Africa",flag:"GM"},
+  {country:"Ghana",capital:"Accra",continent:"Africa",flag:"GH"},
+  {country:"Guinea",capital:"Conakry",continent:"Africa",flag:"GN"},
+  {country:"Guinea-Bissau",capital:"Bissau",continent:"Africa",flag:"GW"},
+  {country:"Ivory Coast",capital:"Yamoussoukro",continent:"Africa",flag:"CI"},
+  {country:"Kenya",capital:"Nairobi",continent:"Africa",flag:"KE"},
+  {country:"Lesotho",capital:"Maseru",continent:"Africa",flag:"LS"},
+  {country:"Liberia",capital:"Monrovia",continent:"Africa",flag:"LR"},
+  {country:"Libya",capital:"Tripoli",continent:"Africa",flag:"LY"},
+  {country:"Madagascar",capital:"Antananarivo",continent:"Africa",flag:"MG"},
+  {country:"Malawi",capital:"Lilongwe",continent:"Africa",flag:"MW"},
+  {country:"Mali",capital:"Bamako",continent:"Africa",flag:"ML"},
+  {country:"Mauritania",capital:"Nouakchott",continent:"Africa",flag:"MR"},
+  {country:"Mauritius",capital:"Port Louis",continent:"Africa",flag:"MU"},
+  {country:"Morocco",capital:"Rabat",continent:"Africa",flag:"MA"},
+  {country:"Mozambique",capital:"Maputo",continent:"Africa",flag:"MZ"},
+  {country:"Namibia",capital:"Windhoek",continent:"Africa",flag:"NA"},
+  {country:"Niger",capital:"Niamey",continent:"Africa",flag:"NE"},
+  {country:"Nigeria",capital:"Abuja",continent:"Africa",flag:"NG"},
+  {country:"Rwanda",capital:"Kigali",continent:"Africa",flag:"RW"},
+  {country:"Sao Tome and Principe",capital:"Sao Tome",continent:"Africa",flag:"ST"},
+  {country:"Senegal",capital:"Dakar",continent:"Africa",flag:"SN"},
+  {country:"Seychelles",capital:"Victoria",continent:"Africa",flag:"SC"},
+  {country:"Sierra Leone",capital:"Freetown",continent:"Africa",flag:"SL"},
+  {country:"Somalia",capital:"Mogadishu",continent:"Africa",flag:"SO"},
+  {country:"South Africa",capital:"Pretoria",continent:"Africa",flag:"ZA"},
+  {country:"South Sudan",capital:"Juba",continent:"Africa",flag:"SS"},
+  {country:"Sudan",capital:"Khartoum",continent:"Africa",flag:"SD"},
+  {country:"Tanzania",capital:"Dodoma",continent:"Africa",flag:"TZ"},
+  {country:"Togo",capital:"Lome",continent:"Africa",flag:"TG"},
+  {country:"Tunisia",capital:"Tunis",continent:"Africa",flag:"TN"},
+  {country:"Uganda",capital:"Kampala",continent:"Africa",flag:"UG"},
+  {country:"Zambia",capital:"Lusaka",continent:"Africa",flag:"ZM"},
+  {country:"Zimbabwe",capital:"Harare",continent:"Africa",flag:"ZW"},
+  {country:"Afghanistan",capital:"Kabul",continent:"Asia",flag:"AF"},
+  {country:"Armenia",capital:"Yerevan",continent:"Asia",flag:"AM"},
+  {country:"Azerbaijan",capital:"Baku",continent:"Asia",flag:"AZ"},
+  {country:"Bahrain",capital:"Manama",continent:"Asia",flag:"BH"},
+  {country:"Bangladesh",capital:"Dhaka",continent:"Asia",flag:"BD"},
+  {country:"Bhutan",capital:"Thimphu",continent:"Asia",flag:"BT"},
+  {country:"Brunei",capital:"Bandar Seri Begawan",continent:"Asia",flag:"BN"},
+  {country:"Cambodia",capital:"Phnom Penh",continent:"Asia",flag:"KH"},
+  {country:"China",capital:"Beijing",continent:"Asia",flag:"CN"},
+  {country:"Cyprus",capital:"Nicosia",continent:"Asia",flag:"CY"},
+  {country:"Georgia",capital:"Tbilisi",continent:"Asia",flag:"GE"},
+  {country:"India",capital:"New Delhi",continent:"Asia",flag:"IN"},
+  {country:"Indonesia",capital:"Jakarta",continent:"Asia",flag:"ID"},
+  {country:"Iran",capital:"Tehran",continent:"Asia",flag:"IR"},
+  {country:"Iraq",capital:"Baghdad",continent:"Asia",flag:"IQ"},
+  {country:"Israel",capital:"Jerusalem",continent:"Asia",flag:"IL"},
+  {country:"Japan",capital:"Tokyo",continent:"Asia",flag:"JP"},
+  {country:"Jordan",capital:"Amman",continent:"Asia",flag:"JO"},
+  {country:"Kazakhstan",capital:"Astana",continent:"Asia",flag:"KZ"},
+  {country:"Kuwait",capital:"Kuwait City",continent:"Asia",flag:"KW"},
+  {country:"Kyrgyzstan",capital:"Bishkek",continent:"Asia",flag:"KG"},
+  {country:"Laos",capital:"Vientiane",continent:"Asia",flag:"LA"},
+  {country:"Lebanon",capital:"Beirut",continent:"Asia",flag:"LB"},
+  {country:"Malaysia",capital:"Kuala Lumpur",continent:"Asia",flag:"MY"},
+  {country:"Maldives",capital:"Male",continent:"Asia",flag:"MV"},
+  {country:"Mongolia",capital:"Ulaanbaatar",continent:"Asia",flag:"MN"},
+  {country:"Myanmar",capital:"Naypyidaw",continent:"Asia",flag:"MM"},
+  {country:"Nepal",capital:"Kathmandu",continent:"Asia",flag:"NP"},
+  {country:"North Korea",capital:"Pyongyang",continent:"Asia",flag:"KP"},
+  {country:"Oman",capital:"Muscat",continent:"Asia",flag:"OM"},
+  {country:"Pakistan",capital:"Islamabad",continent:"Asia",flag:"PK"},
+  {country:"Palestine",capital:"Ramallah",continent:"Asia",flag:"PS"},
+  {country:"Philippines",capital:"Manila",continent:"Asia",flag:"PH"},
+  {country:"Qatar",capital:"Doha",continent:"Asia",flag:"QA"},
+  {country:"Russia",capital:"Moscow",continent:"Asia",flag:"RU"},
+  {country:"Saudi Arabia",capital:"Riyadh",continent:"Asia",flag:"SA"},
+  {country:"Singapore",capital:"Singapore",continent:"Asia",flag:"SG"},
+  {country:"South Korea",capital:"Seoul",continent:"Asia",flag:"KR"},
+  {country:"Sri Lanka",capital:"Sri Jayawardenepura Kotte",continent:"Asia",flag:"LK"},
+  {country:"Syria",capital:"Damascus",continent:"Asia",flag:"SY"},
+  {country:"Taiwan",capital:"Taipei",continent:"Asia",flag:"TW"},
+  {country:"Tajikistan",capital:"Dushanbe",continent:"Asia",flag:"TJ"},
+  {country:"Thailand",capital:"Bangkok",continent:"Asia",flag:"TH"},
+  {country:"Timor-Leste",capital:"Dili",continent:"Asia",flag:"TL"},
+  {country:"Turkey",capital:"Ankara",continent:"Asia",flag:"TR"},
+  {country:"Turkmenistan",capital:"Ashgabat",continent:"Asia",flag:"TM"},
+  {country:"United Arab Emirates",capital:"Abu Dhabi",continent:"Asia",flag:"AE"},
+  {country:"Uzbekistan",capital:"Tashkent",continent:"Asia",flag:"UZ"},
+  {country:"Vietnam",capital:"Hanoi",continent:"Asia",flag:"VN"},
+  {country:"Yemen",capital:"Sanaa",continent:"Asia",flag:"YE"},
+  {country:"Albania",capital:"Tirana",continent:"Europe",flag:"AL"},
+  {country:"Andorra",capital:"Andorra la Vella",continent:"Europe",flag:"AD"},
+  {country:"Austria",capital:"Vienna",continent:"Europe",flag:"AT"},
+  {country:"Belarus",capital:"Minsk",continent:"Europe",flag:"BY"},
+  {country:"Belgium",capital:"Brussels",continent:"Europe",flag:"BE"},
+  {country:"Bosnia and Herzegovina",capital:"Sarajevo",continent:"Europe",flag:"BA"},
+  {country:"Bulgaria",capital:"Sofia",continent:"Europe",flag:"BG"},
+  {country:"Croatia",capital:"Zagreb",continent:"Europe",flag:"HR"},
+  {country:"Czech Republic",capital:"Prague",continent:"Europe",flag:"CZ"},
+  {country:"Denmark",capital:"Copenhagen",continent:"Europe",flag:"DK"},
+  {country:"Estonia",capital:"Tallinn",continent:"Europe",flag:"EE"},
+  {country:"Finland",capital:"Helsinki",continent:"Europe",flag:"FI"},
+  {country:"France",capital:"Paris",continent:"Europe",flag:"FR"},
+  {country:"Germany",capital:"Berlin",continent:"Europe",flag:"DE"},
+  {country:"Greece",capital:"Athens",continent:"Europe",flag:"GR"},
+  {country:"Hungary",capital:"Budapest",continent:"Europe",flag:"HU"},
+  {country:"Iceland",capital:"Reykjavik",continent:"Europe",flag:"IS"},
+  {country:"Ireland",capital:"Dublin",continent:"Europe",flag:"IE"},
+  {country:"Italy",capital:"Rome",continent:"Europe",flag:"IT"},
+  {country:"Kosovo",capital:"Pristina",continent:"Europe",flag:"XK"},
+  {country:"Latvia",capital:"Riga",continent:"Europe",flag:"LV"},
+  {country:"Liechtenstein",capital:"Vaduz",continent:"Europe",flag:"LI"},
+  {country:"Lithuania",capital:"Vilnius",continent:"Europe",flag:"LT"},
+  {country:"Luxembourg",capital:"Luxembourg City",continent:"Europe",flag:"LU"},
+  {country:"Malta",capital:"Valletta",continent:"Europe",flag:"MT"},
+  {country:"Moldova",capital:"Chisinau",continent:"Europe",flag:"MD"},
+  {country:"Monaco",capital:"Monaco",continent:"Europe",flag:"MC"},
+  {country:"Montenegro",capital:"Podgorica",continent:"Europe",flag:"ME"},
+  {country:"Netherlands",capital:"Amsterdam",continent:"Europe",flag:"NL"},
+  {country:"North Macedonia",capital:"Skopje",continent:"Europe",flag:"MK"},
+  {country:"Norway",capital:"Oslo",continent:"Europe",flag:"NO"},
+  {country:"Poland",capital:"Warsaw",continent:"Europe",flag:"PL"},
+  {country:"Portugal",capital:"Lisbon",continent:"Europe",flag:"PT"},
+  {country:"Romania",capital:"Bucharest",continent:"Europe",flag:"RO"},
+  {country:"San Marino",capital:"San Marino",continent:"Europe",flag:"SM"},
+  {country:"Serbia",capital:"Belgrade",continent:"Europe",flag:"RS"},
+  {country:"Slovakia",capital:"Bratislava",continent:"Europe",flag:"SK"},
+  {country:"Slovenia",capital:"Ljubljana",continent:"Europe",flag:"SI"},
+  {country:"Spain",capital:"Madrid",continent:"Europe",flag:"ES"},
+  {country:"Sweden",capital:"Stockholm",continent:"Europe",flag:"SE"},
+  {country:"Switzerland",capital:"Bern",continent:"Europe",flag:"CH"},
+  {country:"Ukraine",capital:"Kyiv",continent:"Europe",flag:"UA"},
+  {country:"United Kingdom",capital:"London",continent:"Europe",flag:"GB"},
+  {country:"Vatican City",capital:"Vatican City",continent:"Europe",flag:"VA"},
+  {country:"Antigua and Barbuda",capital:"Saint John's",continent:"North America",flag:"AG"},
+  {country:"Bahamas",capital:"Nassau",continent:"North America",flag:"BS"},
+  {country:"Barbados",capital:"Bridgetown",continent:"North America",flag:"BB"},
+  {country:"Belize",capital:"Belmopan",continent:"North America",flag:"BZ"},
+  {country:"Canada",capital:"Ottawa",continent:"North America",flag:"CA"},
+  {country:"Costa Rica",capital:"San Jose",continent:"North America",flag:"CR"},
+  {country:"Cuba",capital:"Havana",continent:"North America",flag:"CU"},
+  {country:"Dominica",capital:"Roseau",continent:"North America",flag:"DM"},
+  {country:"Dominican Republic",capital:"Santo Domingo",continent:"North America",flag:"DO"},
+  {country:"El Salvador",capital:"San Salvador",continent:"North America",flag:"SV"},
+  {country:"Grenada",capital:"Saint George's",continent:"North America",flag:"GD"},
+  {country:"Guatemala",capital:"Guatemala City",continent:"North America",flag:"GT"},
+  {country:"Haiti",capital:"Port-au-Prince",continent:"North America",flag:"HT"},
+  {country:"Honduras",capital:"Tegucigalpa",continent:"North America",flag:"HN"},
+  {country:"Jamaica",capital:"Kingston",continent:"North America",flag:"JM"},
+  {country:"Mexico",capital:"Mexico City",continent:"North America",flag:"MX"},
+  {country:"Nicaragua",capital:"Managua",continent:"North America",flag:"NI"},
+  {country:"Panama",capital:"Panama City",continent:"North America",flag:"PA"},
+  {country:"Saint Kitts and Nevis",capital:"Basseterre",continent:"North America",flag:"KN"},
+  {country:"Saint Lucia",capital:"Castries",continent:"North America",flag:"LC"},
+  {country:"Saint Vincent and the Grenadines",capital:"Kingstown",continent:"North America",flag:"VC"},
+  {country:"Trinidad and Tobago",capital:"Port of Spain",continent:"North America",flag:"TT"},
+  {country:"United States",capital:"Washington D.C.",continent:"North America",flag:"US"},
+  {country:"Argentina",capital:"Buenos Aires",continent:"South America",flag:"AR"},
+  {country:"Bolivia",capital:"Sucre",continent:"South America",flag:"BO"},
+  {country:"Brazil",capital:"Brasilia",continent:"South America",flag:"BR"},
+  {country:"Chile",capital:"Santiago",continent:"South America",flag:"CL"},
+  {country:"Colombia",capital:"Bogota",continent:"South America",flag:"CO"},
+  {country:"Ecuador",capital:"Quito",continent:"South America",flag:"EC"},
+  {country:"Guyana",capital:"Georgetown",continent:"South America",flag:"GY"},
+  {country:"Paraguay",capital:"Asuncion",continent:"South America",flag:"PY"},
+  {country:"Peru",capital:"Lima",continent:"South America",flag:"PE"},
+  {country:"Suriname",capital:"Paramaribo",continent:"South America",flag:"SR"},
+  {country:"Uruguay",capital:"Montevideo",continent:"South America",flag:"UY"},
+  {country:"Venezuela",capital:"Caracas",continent:"South America",flag:"VE"},
+  {country:"Australia",capital:"Canberra",continent:"Oceania",flag:"AU"},
+  {country:"Fiji",capital:"Suva",continent:"Oceania",flag:"FJ"},
+  {country:"Kiribati",capital:"South Tarawa",continent:"Oceania",flag:"KI"},
+  {country:"Marshall Islands",capital:"Majuro",continent:"Oceania",flag:"MH"},
+  {country:"Micronesia",capital:"Palikir",continent:"Oceania",flag:"FM"},
+  {country:"Nauru",capital:"Yaren",continent:"Oceania",flag:"NR"},
+  {country:"New Zealand",capital:"Wellington",continent:"Oceania",flag:"NZ"},
+  {country:"Palau",capital:"Ngerulmud",continent:"Oceania",flag:"PW"},
+  {country:"Papua New Guinea",capital:"Port Moresby",continent:"Oceania",flag:"PG"},
+  {country:"Samoa",capital:"Apia",continent:"Oceania",flag:"WS"},
+  {country:"Solomon Islands",capital:"Honiara",continent:"Oceania",flag:"SB"},
+  {country:"Tonga",capital:"Nukualofa",continent:"Oceania",flag:"TO"},
+  {country:"Tuvalu",capital:"Funafuti",continent:"Oceania",flag:"TV"},
+  {country:"Vanuatu",capital:"Port Vila",continent:"Oceania",flag:"VU"},
+];
+function countryFlag(code){
+  try{return String.fromCodePoint(...code.split("").map(function(ch){return ch.charCodeAt(0)+127397;}));}
+  catch(e){return code;}
+}
+// ── PLANETS & SPACE DATA ─────────────────────────────────────────
+const PLANETS_DATA=[
+  {name:"Mercury",color:"#B5B5B5",order:1,type:"Rocky",dist:"77M km",moons:0,
+   fact:"Smallest planet! A year is only 88 Earth days.",
+   desc:"Closest to the Sun. Very hot days, freezing nights."},
+  {name:"Venus",color:"#E8C97A",order:2,type:"Rocky",dist:"261M km",moons:0,
+   fact:"Hottest planet even though not the closest to the Sun!",
+   desc:"Covered in thick acid clouds. Spins backwards!"},
+  {name:"Earth",color:"#4A9FE0",order:3,type:"Rocky",dist:"150M km",moons:1,
+   fact:"The only planet known to have life!",
+   desc:"Our home. Has liquid water and a perfect atmosphere."},
+  {name:"Mars",color:"#C1440E",order:4,type:"Rocky",dist:"225M km",moons:2,
+   fact:"Home to Olympus Mons, the biggest volcano in the solar system!",
+   desc:"The Red Planet. Scientists plan to send humans here."},
+  {name:"Jupiter",color:"#C88B3A",order:5,type:"Gas Giant",dist:"778M km",moons:95,
+   fact:"Biggest planet! 1,300 Earths could fit inside.",
+   desc:"Has a giant storm called the Great Red Spot."},
+  {name:"Saturn",color:"#E8D5A3",order:6,type:"Gas Giant",dist:"1.4B km",moons:146,
+   fact:"Its rings are 282,000 km wide but only as thin as a building!",
+   desc:"Beautiful rings made of ice and rock."},
+  {name:"Uranus",color:"#7DE8E8",order:7,type:"Ice Giant",dist:"2.9B km",moons:27,
+   fact:"Spins on its side like a rolling ball!",
+   desc:"An ice giant. Coldest planet at minus 224C."},
+  {name:"Neptune",color:"#4B70DD",order:8,type:"Ice Giant",dist:"4.5B km",moons:16,
+   fact:"Has the strongest winds in the solar system!",
+   desc:"A year on Neptune = 165 Earth years."},
+];
+const SPACE_FACTS=[
+  {q:"What is our galaxy called?",opts:["Milky Way","Andromeda","Triangulum","Cosmos"],ans:"Milky Way",fact:"Our galaxy has over 200 billion stars!"},
+  {q:"What is a shooting star really?",opts:["A falling star","A meteor","A comet","A satellite"],ans:"A meteor",fact:"Space rocks burn up in Earth's atmosphere making a streak of light!"},
+  {q:"Rocky bodies orbiting the Sun between Mars and Jupiter are called?",opts:["Moons","Comets","Asteroids","Nebulae"],ans:"Asteroids",fact:"The asteroid belt has millions of space rocks!"},
+  {q:"How far is a light year?",opts:["One year of sunshine","Distance light travels in one year","A short distance","Width of a galaxy"],ans:"Distance light travels in one year",fact:"One light year is about 9.46 trillion kilometres!"},
+  {q:"What kind of object is our Sun?",opts:["A planet","A moon","A star","An asteroid"],ans:"A star",fact:"The Sun is 1.3 million times bigger than Earth!"},
+  {q:"A black hole is a region where...?",opts:["It is always dark","Gravity is so strong light cannot escape","Stars are born","Planets are destroyed"],ans:"Gravity is so strong light cannot escape",fact:"The nearest black hole is about 1,000 light years away!"},
+  {q:"What is the name of the force that keeps planets in orbit?",opts:["Magnetism","Electricity","Gravity","Wind"],ans:"Gravity",fact:"Gravity from the Sun keeps all 8 planets in orbit!"},
+  {q:"Which planet has the most moons?",opts:["Jupiter","Neptune","Saturn","Uranus"],ans:"Saturn",fact:"Saturn has 146 known moons - the most of any planet!"},
+];
+
 let audioCtx=null;
 function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
 function playPianoNote(noteName){try{const all=[...PIANO_NOTES_DATA,...BLACK_KEYS_DATA];const n=all.find(x=>x.note===noteName);if(!n)return;const ctx=getAudio();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type="sine";osc.frequency.setValueAtTime(n.freq,ctx.currentTime);gain.gain.setValueAtTime(0.5,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.5);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+1.5);}catch(e){}}

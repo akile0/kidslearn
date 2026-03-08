@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ultimate Piano Learning App</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(#5fd0ff,#ffffff);
+text-align:center;
+}
+
+h1{margin:10px}
+
+.controls button{
+padding:10px 16px;
+margin:6px;
+border:none;
+border-radius:10px;
+font-size:14px;
+cursor:pointer;
+}
+
+#stats{
+font-size:18px;
+margin:6px;
+}
+
+#gameArea{
+height:280px;
+border-bottom:4px solid #222;
+position:relative;
+overflow:hidden;
+}
+
+.note{
+position:absolute;
+width:36px;
+height:26px;
+border-radius:6px;
+background:red;
+top:-30px;
+}
+
+#keyboard{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+padding:12px;
+}
+
+.key{
+width:36px;
+height:180px;
+margin:1px;
+border-radius:6px;
+display:flex;
+align-items:flex-end;
+justify-content:center;
+font-size:10px;
+cursor:pointer;
+transition:.1s;
+}
+
+.key.active{
+transform:scale(.9);
+filter:brightness(.7);
+}
+
+.key.guide{
+outline:3px solid white;
+box-shadow:0 0 15px white;
+}
+
+.c{background:#ff6b6b}
+.d{background:#ffd93d}
+.e{background:#6bcB77}
+.f{background:#4d96ff}
+.g{background:#b983ff}
+.a{background:#ff8fab}
+.b{background:#ffa94d}
+
+.pad{
+display:inline-flex;
+width:70px;
+height:70px;
+border-radius:50%;
+align-items:center;
+justify-content:center;
+background:#eee;
+margin:8px;
+cursor:pointer;
+box-shadow:0 4px 0 rgba(0,0,0,.2);
+}
+
+.pad:active{
+transform:translateY(4px);
+box-shadow:none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎹 Ultimate Piano Learning App</h1>
+
+<div class="controls">
+
+<button onclick="startGame()">🎮 Rhythm Game</button>
+<button onclick="playSong(twinkle)">🎵 Twinkle</button>
+<button onclick="playSong(mary)">🎵 Mary</button>
+<button onclick="playSong(scale)">🎼 Practice Scale</button>
+
+<button onclick="startRecording()">⏺ Record</button>
+<button onclick="stopRecording()">⏹ Stop</button>
+<button onclick="playRecording()">▶ Playback</button>
+
+</div>
+
+<div id="stats">
+Score: <span id="score">0</span> |
+Combo: <span id="combo">0</span>
+</div>
+
+<div id="gameArea"></div>
+
+<div id="keyboard"></div>
+
+<h3>🥁 Drum Pads</h3>
+
+<div>
+<div class="pad" onclick="drum(80)">Kick</div>
+<div class="pad" onclick="drum(160)">Snare</div>
+<div class="pad" onclick="drum(300)">Hat</div>
+</div>
+
+Volume<br>
+<input id="volume" type="range" min="0" max="1" step="0.01" value="0.6">
+
+<script>
+
+const AudioContext=window.AudioContext||window.webkitAudioContext
+const ctx=new AudioContext()
+
+const base=[261,293,329,349,392,440,493]
+
+const notes=[]
+
+for(let o=0;o<4;o++){
+base.forEach((f,i)=>{
+notes.push({
+freq:f*Math.pow(2,o),
+name:["C","D","E","F","G","A","B"][i],
+color:["c","d","e","f","g","a","b"][i]
+})
+})
+}
+
+const keyboard=document.getElementById("keyboard")
+
+notes.forEach((n,i)=>{
+
+const key=document.createElement("div")
+
+key.className="key "+n.color
+key.innerText=n.name
+key.dataset.index=i
+
+key.onmousedown=()=>press(i)
+key.ontouchstart=()=>press(i)
+
+keyboard.appendChild(key)
+
+})
+
+function press(i){
+
+play(notes[i].freq)
+
+const key=document.querySelectorAll(".key")[i]
+key.classList.add("active")
+setTimeout(()=>key.classList.remove("active"),120)
+
+record(notes[i].freq)
+checkHit(i)
+
+}
+
+function play(freq){
+
+const osc=ctx.createOscillator()
+const gain=ctx.createGain()
+
+osc.type="triangle"
+osc.frequency.value=freq
+
+gain.gain.setValueAtTime(
+document.getElementById("volume").value,
+ctx.currentTime
+)
+
+gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.8)
+
+osc.connect(gain)
+gain.connect(ctx.destination)
+
+osc.start()
+osc.stop(ctx.currentTime+.8)
+
+}
+
+function drum(freq){
+
+const osc=ctx.createOscillator()
+const gain=ctx.createGain()
+
+osc.type="square"
+osc.frequency.value=freq
+
+gain.gain.setValueAtTime(.8,ctx.currentTime)
+gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4)
+
+osc.connect(gain)
+gain.connect(ctx.destination)
+
+osc.start()
+osc.stop(ctx.currentTime+.4)
+
+}
+
+let score=0
+let combo=0
+let falling=[]
+
+function startGame(){
+
+score=0
+combo=0
+updateScore()
+
+setInterval(spawnNote,800)
+
+}
+
+function spawnNote(){
+
+const i=Math.floor(Math.random()*notes.length)
+
+const note=document.createElement("div")
+note.className="note"
+
+note.style.left=(i*38)+"px"
+note.dataset.index=i
+
+document.getElementById("gameArea").appendChild(note)
+
+let y=-30
+
+const fall=setInterval(()=>{
+
+y+=5
+note.style.top=y+"px"
+
+if(y>260){
+combo=0
+updateScore()
+note.remove()
+clearInterval(fall)
+}
+
+},20)
+
+falling.push(note)
+
+}
+
+function checkHit(i){
+
+falling.forEach((n,index)=>{
+
+if(n.dataset.index==i){
+
+const y=parseInt(n.style.top)
+
+if(y>200 && y<260){
+
+score+=10
+combo++
+
+updateScore()
+
+n.remove()
+falling.splice(index,1)
+
+}
+
+}
+
+})
+
+}
+
+function updateScore(){
+
+document.getElementById("score").innerText=score
+document.getElementById("combo").innerText=combo
+
+}
+
+function guide(i){
+
+const key=document.querySelectorAll(".key")[i]
+
+key.classList.add("guide")
+
+setTimeout(()=>{
+key.classList.remove("guide")
+},400)
+
+}
+
+function playSong(song){
+
+song.forEach((n,i)=>{
+
+setTimeout(()=>{
+
+guide(n)
+press(n)
+
+},i*600)
+
+})
+
+}
+
+let recording=[]
+let rec=false
+let start=0
+
+function startRecording(){
+
+recording=[]
+rec=true
+start=Date.now()
+
+}
+
+function stopRecording(){
+rec=false
+}
+
+function record(freq){
+
+if(!rec) return
+
+recording.push({
+freq:freq,
+time:Date.now()-start
+})
+
+}
+
+function playRecording(){
+
+recording.forEach(n=>{
+
+setTimeout(()=>{
+
+const i=notes.findIndex(x=>x.freq===n.freq)
+if(i>=0) press(i)
+
+},n.time)
+
+})
+
+}
+
+const twinkle=[0,0,7,7,9,9,7,5,5,4,4,2,2,0]
+
+const mary=[2,1,0,1,2,2,2,1,1,1,2,4,4]
+
+const scale=[0,1,2,3,4,5,6,7]
+
+</script>
+
+</body>
+</html>

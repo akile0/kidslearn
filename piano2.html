@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Piano Learning Game</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(#6fd3ff,#ffffff);
+text-align:center;
+}
+
+h1{margin:10px}
+
+#score{
+font-size:20px;
+margin:5px;
+}
+
+#gameArea{
+height:260px;
+border-bottom:3px solid black;
+position:relative;
+overflow:hidden;
+}
+
+.note{
+position:absolute;
+width:40px;
+height:25px;
+border-radius:6px;
+background:red;
+top:-30px;
+}
+
+#keyboard{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+padding:10px;
+}
+
+.key{
+width:40px;
+height:170px;
+margin:2px;
+border-radius:6px;
+display:flex;
+align-items:flex-end;
+justify-content:center;
+font-size:11px;
+cursor:pointer;
+transition:.1s;
+}
+
+.key.active{
+transform:scale(.9);
+filter:brightness(.7);
+}
+
+.c{background:#ff6b6b}
+.d{background:#ffd93d}
+.e{background:#6bcB77}
+.f{background:#4d96ff}
+.g{background:#b983ff}
+.a{background:#ff8fab}
+.b{background:#ffa94d}
+
+button{
+padding:10px 14px;
+margin:5px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎹 Piano Learning Game</h1>
+
+<div>
+<button onclick="startSong(twinkle)">Twinkle Twinkle</button>
+<button onclick="startSong(mary)">Mary Had a Lamb</button>
+<button onclick="freePlay()">Free Play</button>
+</div>
+
+<div id="score">
+Score: <span id="points">0</span> |
+Streak: <span id="streak">0</span>
+</div>
+
+<div id="gameArea"></div>
+
+<div id="keyboard"></div>
+
+<script>
+const AudioContext=window.AudioContext||window.webkitAudioContext
+const ctx=new AudioContext()
+
+const base=[261,293,329,349,392,440,493]
+
+const notes=[]
+
+for(let o=0;o<3;o++){
+base.forEach((f,i)=>{
+notes.push({
+freq:f*Math.pow(2,o),
+name:["C","D","E","F","G","A","B"][i],
+color:["c","d","e","f","g","a","b"][i]
+})
+})
+}
+
+const keyboard=document.getElementById("keyboard")
+
+notes.forEach((n,i)=>{
+
+const key=document.createElement("div")
+
+key.className="key "+n.color
+key.innerText=n.name
+key.dataset.index=i
+
+key.onclick=()=>pressKey(i)
+
+keyboard.appendChild(key)
+
+})
+
+function play(freq){
+
+const osc=ctx.createOscillator()
+const gain=ctx.createGain()
+
+osc.type="triangle"
+osc.frequency.value=freq
+
+gain.gain.setValueAtTime(.7,ctx.currentTime)
+gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.8)
+
+osc.connect(gain)
+gain.connect(ctx.destination)
+
+osc.start()
+osc.stop(ctx.currentTime+.8)
+
+}
+
+let score=0
+let streak=0
+let falling=[]
+
+function pressKey(i){
+
+play(notes[i].freq)
+
+const key=document.querySelectorAll(".key")[i]
+
+key.classList.add("active")
+setTimeout(()=>key.classList.remove("active"),120)
+
+checkHit(i)
+
+}
+
+function spawn(index){
+
+const note=document.createElement("div")
+
+note.className="note"
+note.style.left=(index*44)+"px"
+note.dataset.index=index
+
+document.getElementById("gameArea").appendChild(note)
+
+let y=-30
+
+const fall=setInterval(()=>{
+
+y+=5
+note.style.top=y+"px"
+
+if(y>240){
+streak=0
+updateScore()
+note.remove()
+clearInterval(fall)
+}
+
+},20)
+
+falling.push(note)
+
+}
+
+function checkHit(i){
+
+falling.forEach((n,index)=>{
+
+if(n.dataset.index==i){
+
+const y=parseInt(n.style.top)
+
+if(y>190 && y<240){
+
+score+=10
+streak++
+
+updateScore()
+
+n.remove()
+falling.splice(index,1)
+
+}
+
+}
+
+})
+
+}
+
+function updateScore(){
+
+document.getElementById("points").innerText=score
+document.getElementById("streak").innerText=streak
+
+}
+
+function startSong(song){
+
+score=0
+streak=0
+updateScore()
+
+song.forEach((n,i)=>{
+
+setTimeout(()=>{
+spawn(n)
+},i*800)
+
+})
+
+}
+
+function freePlay(){
+score=0
+streak=0
+updateScore()
+}
+
+const twinkle=[
+0,0,4,4,5,5,4,
+3,3,2,2,1,1,0
+]
+
+const mary=[
+2,1,0,1,2,2,2,
+1,1,1,2,4,4
+]
+
+</script>
+
+</body>
+</html>

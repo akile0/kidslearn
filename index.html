@@ -194,15 +194,15 @@ function shuffle(arr){return[...arr].sort(()=>Math.random()-.5);}
 // ═══════════════════════════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════════════════════════
-function loadProfiles(){try{return JSON.parse(localStorage.getItem("kl3_profiles")||"[]");}catch{return[];}}
-function saveProfiles(p){try{localStorage.setItem("kl3_profiles",JSON.stringify(p));}catch{}}
+function loadProfiles(){var defs=[["Emma","\uD83D\uDC67","#FF6B9D"],["Jonny","\uD83D\uDC66","#3B82F6"],["Delu","\uD83E\uDD8A","#F97316"],["Adonai","\uD83E\uDD81","#8B5CF6"],["Gasha","\uD83D\uDC7D","#14B8A6"]];return defs.map(function(d){var s={};try{s=JSON.parse(localStorage.getItem("klp_"+d[0])||"{}");}catch{}return{name:d[0],avatar:d[1],color:d[2],grade:"ALL",stars:s.stars||0,progress:s.progress||{}};});}
+function saveProfiles(p){if(!p)return;p.forEach(function(pr){try{localStorage.setItem("klp_"+pr.name,JSON.stringify({stars:pr.stars||0,progress:pr.progress||{}}));}catch{}});}
 
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
-const APP_PWD="twocats";
-function isAuthed(){try{return sessionStorage.getItem('kl_auth')==='1';}catch{return false;}}
-function setAuthed(){try{sessionStorage.setItem('kl_auth','1');}catch{}}
+function isAuthed(){try{return!!sessionStorage.getItem('kl_active');}catch{return false;}}
+function setAuthed(n){try{sessionStorage.setItem('kl_active',n);}catch{}}
+function getActive(){try{return sessionStorage.getItem('kl_active')||'';}catch{return ''}}
 
 let S={
   screen:"login",
@@ -262,6 +262,14 @@ let S={
   gTimeQ:null,gTimeResult:null,gTimeScore:0,
   gMoneyQ:null,gMoneyResult:null,gMoneyScore:0,
   gPianoQ:null,gPianoResult:null,gPianoScore:0,
+  // Dinosaurs
+  dinoIdx:0,dinoMode:"browse",dinoQ:null,dinoResult:null,dinoScore:0,dinoLoading:false,
+  // Animals
+  animalIdx:0,animalMode:"browse",animalQ:null,animalResult:null,animalScore:0,animalLoading:false,animalCategory:"All",
+  // Data & Probability
+  dataIdx:0,dataMode:"browse",dataQ:null,dataResult:null,dataScore:0,dataLoading:false,dataTopic:"all",
+  // Geometry & Measurement
+  geoIdx:0,geoMode:"browse",geoQ:null,geoResult:null,geoScore:0,geoLoading:false,geoTopic:"all",
   // Auth
   loginError:"",
   // Profiles
@@ -683,12 +691,13 @@ Pick a random note and give a fun music fact or memory tip.`,
 // ── G SPELLING ───────────────────────────────────────────────────
 // Spelling already has 100 words but we make the word AI-driven too
 const SPELL_BANK={
-  JK:[{word:"CAT",emoji:"\uD83D\uDC31",level:1,hint:"A furry pet"},{word:"DOG",emoji:"\uD83D\uDC36",level:1,hint:"Man's best friend"},{word:"SUN",emoji:"☀️",level:1,hint:"Shines in the sky"},{word:"HAT",emoji:"\uD83C\uDFA9",level:1,hint:"Wear on your head"},{word:"BUS",emoji:"\uD83D\uDE8C",level:1,hint:"Takes you to school"},{word:"BIG",emoji:"\uD83E\uDD81",level:1,hint:"Opposite of small"},{word:"RED",emoji:"\uD83D\uDD34",level:1,hint:"Colour of apples"},{word:"HOP",emoji:"\uD83D\uDC38",level:1,hint:"What frogs do"},{word:"CUP",emoji:"\uD83E\uDD64",level:1,hint:"Drink from this"},{word:"PIG",emoji:"\uD83D\uDC37",level:1,hint:"Oink oink!"}],
-  SK:[{word:"CAKE",emoji:"\uD83C\uDF82",level:2,hint:"A birthday treat"},{word:"FISH",emoji:"\uD83D\uDC1F",level:2,hint:"Lives in water"},{word:"BIRD",emoji:"\uD83D\uDC26",level:2,hint:"Has wings"},{word:"JUMP",emoji:"\uD83E\uDD98",level:2,hint:"Leap up high"},{word:"RAIN",emoji:"\uD83C\uDF27️",level:2,hint:"Water from clouds"},{word:"FROG",emoji:"\uD83D\uDC38",level:2,hint:"Green and jumpy"},{word:"STAR",emoji:"⭐",level:2,hint:"Shines at night"},{word:"TREE",emoji:"\uD83C\uDF33",level:2,hint:"Has leaves"},{word:"BOAT",emoji:"⛵",level:2,hint:"Floats on water"},{word:"LAMB",emoji:"\uD83D\uDC11",level:2,hint:"Baby sheep"}],
-  G1:[{word:"CLOUD",emoji:"☁️",level:2,hint:"Fluffy sky thing"},{word:"HAPPY",emoji:"\uD83D\uDE0A",level:2,hint:"Feeling great"},{word:"PLANT",emoji:"\uD83C\uDF31",level:2,hint:"Grows in soil"},{word:"TIGER",emoji:"\uD83D\uDC2F",level:2,hint:"Striped big cat"},{word:"BREAD",emoji:"\uD83C\uDF5E",level:2,hint:"Baked food"},{word:"NIGHT",emoji:"\uD83C\uDF19",level:2,hint:"Dark time of day"},{word:"CHAIR",emoji:"\uD83E\uDE91",level:2,hint:"You sit on it"},{word:"WHEEL",emoji:"\uD83C\uDFA1",level:2,hint:"Round and rolls"},{word:"SNAKE",emoji:"\uD83D\uDC0D",level:2,hint:"Slithers on ground"},{word:"FLAME",emoji:"\uD83D\uDD25",level:2,hint:"Fire makes this"}],
-  G2:[{word:"ORANGE",emoji:"\uD83C\uDF4A",level:3,hint:"Citrus fruit"},{word:"JUNGLE",emoji:"\uD83C\uDF34",level:3,hint:"Wild tropical forest"},{word:"PLANET",emoji:"\uD83E\uDE90",level:3,hint:"Orbits the sun"},{word:"WINTER",emoji:"❄️",level:3,hint:"Coldest season"},{word:"FRIEND",emoji:"\uD83D\uDC6B",level:3,hint:"Someone you like"},{word:"SCHOOL",emoji:"\uD83C\uDFEB",level:3,hint:"Where you learn"},{word:"ROCKET",emoji:"\uD83D\uDE80",level:3,hint:"Goes to space"},{word:"BUTTER",emoji:"\uD83E\uDDC8",level:3,hint:"Spread on bread"},{word:"FLOWER",emoji:"\uD83C\uDF38",level:3,hint:"Pretty and colourful"},{word:"SUNSET",emoji:"\uD83C\uDF05",level:3,hint:"Evening sky colours"}],
-  G3:[{word:"DOLPHIN",emoji:"\uD83D\uDC2C",level:3,hint:"Smart ocean mammal"},{word:"THUNDER",emoji:"⛈️",level:3,hint:"Loud storm sound"},{word:"LIBRARY",emoji:"\uD83D\uDCDA",level:4,hint:"Full of books"},{word:"CAPTAIN",emoji:"⚓",level:4,hint:"Leader of a ship"},{word:"PYRAMID",emoji:"\uD83D\uDD3A",level:4,hint:"Ancient structure"},{word:"BLANKET",emoji:"\uD83D\uDECF️",level:3,hint:"Keeps you warm"},{word:"CHICKEN",emoji:"\uD83D\uDC14",level:3,hint:"Farm bird"},{word:"DIAMOND",emoji:"\uD83D\uDC8E",level:4,hint:"Precious gem"},{word:"OCTOPUS",emoji:"\uD83D\uDC19",level:4,hint:"8 arms creature"},{word:"VOLCANO",emoji:"\uD83C\uDF0B",level:4,hint:"Erupts with lava"}],
+  JK:[{word:"CAT",emoji:"\uD83D\uDC31",level:1,hint:"A furry pet"},{word:"DOG",emoji:"\uD83D\uDC36",level:1,hint:"Man's best friend"},{word:"SUN",emoji:"\u2600\uFE0F",level:1,hint:"Shines in the sky"},{word:"HAT",emoji:"\uD83C\uDFA9",level:1,hint:"Wear on your head"},{word:"BUS",emoji:"\uD83D\uDE8C",level:1,hint:"Takes you to school"},{word:"BIG",emoji:"\uD83E\uDD81",level:1,hint:"Opposite of small"},{word:"RED",emoji:"\uD83D\uDD34",level:1,hint:"Colour of apples"},{word:"HOP",emoji:"\uD83D\uDC38",level:1,hint:"What frogs do"},{word:"CUP",emoji:"\uD83E\uDD64",level:1,hint:"Drink from this"},{word:"PIG",emoji:"\uD83D\uDC37",level:1,hint:"Oink oink!"},{word:"ANT",emoji:"\uD83D\uDC1C",level:1,hint:"Tiny insect"},{word:"FAN",emoji:"\uD83D\uDCA8",level:1,hint:"Keeps you cool"},{word:"MAP",emoji:"\uD83D\uDDFA\uFE0F",level:1,hint:"Shows where to go"},{word:"WEB",emoji:"\uD83D\uDD77\uFE0F",level:1,hint:"Spider makes this"},{word:"MUD",emoji:"\uD83D\uDC3E",level:1,hint:"Wet and dirty earth"},{word:"LOG",emoji:"\uD83E\uDEB5",level:1,hint:"Piece of a tree"},{word:"NAP",emoji:"\uD83D\uDCA4",level:1,hint:"A short sleep"},{word:"TIP",emoji:"\uD83D\uDCA1",level:1,hint:"The pointy end"},{word:"FOG",emoji:"\uD83C\uDF2B\uFE0F",level:1,hint:"Misty weather"},{word:"JAM",emoji:"\uD83C\uDF53",level:1,hint:"Spread on bread"},{word:"PEN",emoji:"\u270F\uFE0F",level:1,hint:"Write with this"},{word:"BED",emoji:"\uD83D\uDECF\uFE0F",level:1,hint:"Sleep here at night"},{word:"NET",emoji:"\uD83C\uDFBE",level:1,hint:"Catch things in it"},{word:"HEN",emoji:"\uD83D\uDC14",level:1,hint:"A female chicken"},{word:"BOX",emoji:"\uD83D\uDCE6",level:1,hint:"Square container"}],
+  SK:[{word:"CAKE",emoji:"\uD83C\uDF82",level:2,hint:"A birthday treat"},{word:"FISH",emoji:"\uD83D\uDC1F",level:2,hint:"Lives in water"},{word:"BIRD",emoji:"\uD83D\uDC26",level:2,hint:"Has wings"},{word:"JUMP",emoji:"\uD83E\uDD98",level:2,hint:"Leap up high"},{word:"RAIN",emoji:"\uD83C\uDF27\uFE0F",level:2,hint:"Water from clouds"},{word:"FROG",emoji:"\uD83D\uDC38",level:2,hint:"Green and jumpy"},{word:"STAR",emoji:"\u2B50",level:2,hint:"Shines at night"},{word:"TREE",emoji:"\uD83C\uDF33",level:2,hint:"Has leaves"},{word:"BOAT",emoji:"\u26F5",level:2,hint:"Floats on water"},{word:"LAMB",emoji:"\uD83D\uDC11",level:2,hint:"Baby sheep"},{word:"FROG",emoji:"\uD83D\uDC38",level:2,hint:"Hops and ribbits"},{word:"BELL",emoji:"\uD83D\uDD14",level:2,hint:"Rings and chimes"},{word:"CRAB",emoji:"\uD83E\uDD80",level:2,hint:"Has claws, lives in sea"},{word:"DRUM",emoji:"\uD83E\uDD41",level:2,hint:"Bang to make music"},{word:"FLAG",emoji:"\uD83D\uDEA9",level:2,hint:"Waves in the wind"},{word:"GLOW",emoji:"\uD83D\uDCA1",level:2,hint:"Shines softly"},{word:"GRIP",emoji:"\uD83D\uDCAA",level:2,hint:"Hold on tight"},{word:"SHIP",emoji:"\uD83D\uDEA2",level:2,hint:"Large sailing vessel"},{word:"SLED",emoji:"\uD83D\uDEF7",level:2,hint:"Slides on snow"},{word:"SPIN",emoji:"\uD83C\uDF00",level:2,hint:"Go round and round"},{word:"STEM",emoji:"\uD83C\uDF31",level:2,hint:"Part of a flower"},{word:"TRAP",emoji:"\uD83D\uDEA7",level:2,hint:"Catch something"},{word:"TWIN",emoji:"\uD83D\uDC6B",level:2,hint:"Two exactly alike"},{word:"FLIP",emoji:"\uD83E\uDD38",level:2,hint:"Turn upside down"},{word:"CLAP",emoji:"\uD83D\uDC4F",level:2,hint:"Hit hands together"}],
+  G1:[{word:"CLOUD",emoji:"\u2601\uFE0F",level:2,hint:"Fluffy sky thing"},{word:"HAPPY",emoji:"\uD83D\uDE0A",level:2,hint:"Feeling great"},{word:"PLANT",emoji:"\uD83C\uDF31",level:2,hint:"Grows in soil"},{word:"TIGER",emoji:"\uD83D\uDC2F",level:2,hint:"Striped big cat"},{word:"BREAD",emoji:"\uD83C\uDF5E",level:2,hint:"Baked food"},{word:"NIGHT",emoji:"\uD83C\uDF19",level:2,hint:"Dark time of day"},{word:"CHAIR",emoji:"\uD83E\uDE91",level:2,hint:"You sit on it"},{word:"WHEEL",emoji:"\uD83C\uDFA1",level:2,hint:"Round and rolls"},{word:"SNAKE",emoji:"\uD83D\uDC0D",level:2,hint:"Slithers on ground"},{word:"FLAME",emoji:"\uD83D\uDD25",level:2,hint:"Fire makes this"},{word:"APPLE",emoji:"\uD83C\uDF4E",level:2,hint:"A crunchy red fruit"},{word:"BRAVE",emoji:"\uD83E\uDDB8",level:2,hint:"Not scared of anything"},{word:"DREAM",emoji:"\uD83D\uDCAD",level:2,hint:"Happens while sleeping"},{word:"EARTH",emoji:"\uD83C\uDF0D",level:2,hint:"Our home planet"},{word:"GRAPE",emoji:"\uD83C\uDF47",level:2,hint:"Small purple fruit"},{word:"HONEY",emoji:"\uD83C\uDF6F",level:2,hint:"Bees make this"},{word:"KNIFE",emoji:"\uD83D\uDD2A",level:2,hint:"Sharp kitchen tool"},{word:"LEMON",emoji:"\uD83C\uDF4B",level:2,hint:"Yellow sour fruit"},{word:"MAGIC",emoji:"\u2728",level:2,hint:"Something wonderful"},{word:"OCEAN",emoji:"\uD83C\uDF0A",level:2,hint:"Huge body of water"},{word:"PEARL",emoji:"\uD83D\uDC8E",level:2,hint:"Found in an oyster"},{word:"RIVER",emoji:"\uD83C\uDFDE\uFE0F",level:2,hint:"Flowing water"},{word:"SMILE",emoji:"\uD83D\uDE04",level:2,hint:"Happy expression"},{word:"VIVID",emoji:"\uD83C\uDFA8",level:2,hint:"Bright and clear"},{word:"WITCH",emoji:"\uD83E\uDDD9",level:2,hint:"Magic spell caster"}],
+  G2:[{word:"ORANGE",emoji:"\uD83C\uDF4A",level:3,hint:"Citrus fruit"},{word:"JUNGLE",emoji:"\uD83C\uDF34",level:3,hint:"Wild tropical forest"},{word:"PLANET",emoji:"\uD83E\uDE90",level:3,hint:"Orbits the sun"},{word:"WINTER",emoji:"\u2744\uFE0F",level:3,hint:"Coldest season"},{word:"FRIEND",emoji:"\uD83D\uDC6B",level:3,hint:"Someone you like"},{word:"SCHOOL",emoji:"\uD83C\uDFEB",level:3,hint:"Where you learn"},{word:"ROCKET",emoji:"\uD83D\uDE80",level:3,hint:"Goes to space"},{word:"BUTTER",emoji:"\uD83E\uDDC8",level:3,hint:"Spread on bread"},{word:"FLOWER",emoji:"\uD83C\uDF38",level:3,hint:"Pretty and colourful"},{word:"SUNSET",emoji:"\uD83C\uDF05",level:3,hint:"Evening sky colours"},{word:"JACKET",emoji:"\uD83E\uDDE5",level:3,hint:"Wear when cold"},{word:"KITCHEN",emoji:"\uD83C\uDF73",level:3,hint:"Room for cooking"},{word:"LADDER",emoji:"\uD83E\uDE9C",level:3,hint:"Climb up with this"},{word:"MAGNET",emoji:"\uD83E\uDDF2",level:3,hint:"Attracts metal"},{word:"NAPKIN",emoji:"\uD83E\uDDF4",level:3,hint:"Wipe your mouth"},{word:"PENCIL",emoji:"\u270F\uFE0F",level:3,hint:"Write and draw"},{word:"RABBIT",emoji:"\uD83D\uDC07",level:3,hint:"Fluffy long-eared pet"},{word:"TROPHY",emoji:"\uD83C\uDFC6",level:3,hint:"Prize for winning"},{word:"VALLEY",emoji:"\uD83C\uDFDE\uFE0F",level:3,hint:"Low land between hills"},{word:"WALNUT",emoji:"\uD83E\uDD5C",level:3,hint:"Wrinkly brown nut"},{word:"ZIPPER",emoji:"\uD83D\uDC5A",level:3,hint:"Opens and closes clothes"},{word:"BASKET",emoji:"\uD83E\uDDFA",level:3,hint:"Carry things in it"},{word:"CASTLE",emoji:"\uD83C\uDFF0",level:3,hint:"Where kings live"},{word:"BRIDGE",emoji:"\uD83C\uDF09",level:3,hint:"Crosses over water"},{word:"FROZEN",emoji:"\uD83E\uDDCA",level:3,hint:"Turned to ice"}],
+  G3:[{word:"DOLPHIN",emoji:"\uD83D\uDC2C",level:3,hint:"Smart ocean mammal"},{word:"THUNDER",emoji:"\u26C8\uFE0F",level:3,hint:"Loud storm sound"},{word:"LIBRARY",emoji:"\uD83D\uDCDA",level:4,hint:"Full of books"},{word:"CAPTAIN",emoji:"\u2693",level:4,hint:"Leader of a ship"},{word:"PYRAMID",emoji:"\uD83D\uDD3A",level:4,hint:"Ancient structure"},{word:"BLANKET",emoji:"\uD83D\uDECF\uFE0F",level:3,hint:"Keeps you warm"},{word:"CHICKEN",emoji:"\uD83D\uDC14",level:3,hint:"Farm bird"},{word:"DIAMOND",emoji:"\uD83D\uDC8E",level:4,hint:"Precious gem"},{word:"OCTOPUS",emoji:"\uD83D\uDC19",level:4,hint:"8 arms creature"},{word:"VOLCANO",emoji:"\uD83C\uDF0B",level:4,hint:"Erupts with lava"},{word:"ABSOLUTE",emoji:"\uD83D\uDCAF",level:4,hint:"Completely certain"},{word:"CALENDAR",emoji:"\uD83D\uDCC5",level:4,hint:"Shows days and months"},{word:"DAUGHTER",emoji:"\uD83D\uDC67",level:4,hint:"Female child"},{word:"ELEPHANT",emoji:"\uD83D\uDC18",level:4,hint:"Biggest land animal"},{word:"FUNCTION",emoji:"\uD83D\uDCBB",level:4,hint:"A purpose or use"},{word:"HOSPITAL",emoji:"\uD83C\uDFE5",level:4,hint:"Where doctors work"},{word:"KEYBOARD",emoji:"\u2328\uFE0F",level:4,hint:"Type letters on this"},{word:"LANGUAGE",emoji:"\uD83D\uDDE3\uFE0F",level:4,hint:"How we communicate"},{word:"MEDICINE",emoji:"\uD83D\uDC8A",level:4,hint:"Helps when you are sick"},{word:"NOTEBOOK",emoji:"\uD83D\uDCD3",level:4,hint:"Write notes inside"},{word:"OBSTACLE",emoji:"\uD83D\uDEA7",level:4,hint:"Something in the way"},{word:"PAINTING",emoji:"\uD83C\uDFA8",level:4,hint:"Art on a canvas"},{word:"RESEARCH",emoji:"\uD83D\uDD2C",level:4,hint:"Study and find out"},{word:"VACATION",emoji:"\uD83C\uDFD6\uFE0F",level:4,hint:"Time off from school"},{word:"XYLOPHONE",emoji:"\uD83C\uDFB6",level:4,hint:"Musical instrument with bars"}],
 };
+
 function getSpellFallback(){
   const g=(prof()||{}).grade||"G1";
   const bank=SPELL_BANK[g]||SPELL_BANK.G1;
@@ -923,6 +932,10 @@ const screens={
     g_piano:renderGPiano,
     g_world:renderWorldMap,
     g_galaxy:renderGalaxy,
+    g_dinos:renderDinos,
+    g_animals:renderAnimals,
+    g_data:renderDataProb,
+    g_geo:renderGeometry,
   };
   var _html=(screens[S.screen]||renderHome)();
   app.innerHTML=_html;
@@ -936,24 +949,444 @@ const screens={
 }
 
 // ─── PROFILES ─────────────────────────────────────────────────
+
+// ─── DINOSAUR DATA ───────────────────────────────────────────
+const DINO_DATA=[
+  {name:"T-Rex",emoji:"\uD83E\uDD96",period:"Late Cretaceous (68-66M yrs ago)",diet:"Carnivore",size:"12m long, 4m tall",weight:"8 tonnes",fact:"T-Rex had the strongest bite of any land animal ever — enough to crush bone!",desc:"Tyrannosaurus Rex was one of the largest meat-eating dinosaurs. It had tiny arms but enormous jaws with 60 serrated teeth.",quiz:[{q:"What did T-Rex eat?",opts:["Plants","Meat","Fish","Insects"],ans:1},{q:"How long was T-Rex?",opts:["5 metres","8 metres","12 metres","20 metres"],ans:2},{q:"When did T-Rex live?",opts:["Jurassic","Triassic","Cretaceous","Permian"],ans:2}]},
+  {name:"Triceratops",emoji:"\uD83E\uDD95",period:"Late Cretaceous (68-66M yrs ago)",diet:"Herbivore",size:"9m long",weight:"12 tonnes",fact:"Triceratops had three horns and a large bony frill around its neck for protection!",desc:"Triceratops was a large plant-eater with three horns on its face. Its name means 'three-horned face' in Greek.",quiz:[{q:"How many horns did Triceratops have?",opts:["1","2","3","4"],ans:2},{q:"What did Triceratops eat?",opts:["Meat","Plants","Fish","Both"],ans:1},{q:"What does Triceratops mean?",opts:["Big lizard","Three-horned face","Spiked tail","Armoured beast"],ans:1}]},
+  {name:"Stegosaurus",emoji:"\uD83E\uDD95",period:"Late Jurassic (155-150M yrs ago)",diet:"Herbivore",size:"9m long",weight:"5 tonnes",fact:"Stegosaurus had a brain the size of a walnut — very small for such a large dinosaur!",desc:"Stegosaurus had large bony plates along its back and a spiked tail. Despite its huge size, it had a tiny brain.",quiz:[{q:"What were the plates on Stegosaurus's back made of?",opts:["Metal","Bone","Wood","Scales"],ans:1},{q:"What period did Stegosaurus live in?",opts:["Cretaceous","Triassic","Jurassic","Permian"],ans:2},{q:"What was special about Stegosaurus's tail?",opts:["It was sticky","It had spikes","It was very long","It glowed"],ans:1}]},
+  {name:"Brachiosaurus",emoji:"\uD83E\uDD95",period:"Late Jurassic (154-153M yrs ago)",diet:"Herbivore",size:"26m long, 13m tall",weight:"60 tonnes",fact:"Brachiosaurus could reach the tops of trees 13 metres high — as tall as a 4-storey building!",desc:"Brachiosaurus was one of the tallest dinosaurs ever. Its front legs were longer than its back legs, making it look like a giraffe.",quiz:[{q:"How tall was Brachiosaurus?",opts:["5 metres","8 metres","13 metres","20 metres"],ans:2},{q:"What was unusual about Brachiosaurus's legs?",opts:["Front legs longer","Back legs longer","All same length","No back legs"],ans:0},{q:"What did Brachiosaurus eat?",opts:["Meat","Insects","Plants","Fish"],ans:2}]},
+  {name:"Velociraptor",emoji:"\uD83E\uDD96",period:"Late Cretaceous (75-71M yrs ago)",diet:"Carnivore",size:"2m long",weight:"15 kg",fact:"Velociraptors were actually about the size of a turkey — movies made them look much bigger!",desc:"Velociraptors were quick, smart hunters about the size of a turkey. They had a large curved claw on each foot.",quiz:[{q:"How big was a real Velociraptor?",opts:["Car-sized","Horse-sized","Turkey-sized","Elephant-sized"],ans:2},{q:"What special feature did Velociraptor have?",opts:["Wings","A curved claw","Armour plates","Three horns"],ans:1},{q:"Velociraptor means:",opts:["Fast thief","Sharp tooth","Big lizard","Night hunter"],ans:0}]},
+  {name:"Ankylosaurus",emoji:"\uD83E\uDD95",period:"Late Cretaceous (68-66M yrs ago)",diet:"Herbivore",size:"8m long",weight:"8 tonnes",fact:"Ankylosaurus had a bony club tail that could break the leg of a T-Rex!",desc:"Ankylosaurus was like a living tank. Its body was covered in thick bony armour called osteoderms.",quiz:[{q:"What was Ankylosaurus covered in?",opts:["Feathers","Scales","Bony armour","Fur"],ans:2},{q:"What weapon did Ankylosaurus have?",opts:["Horns","Claws","Tail club","Long neck"],ans:2},{q:"What did Ankylosaurus eat?",opts:["Meat","Plants","Fish","Both"],ans:1}]},
+  {name:"Pterodactyl",emoji:"\uD83E\uDD85",period:"Late Jurassic (150-148M yrs ago)",diet:"Carnivore",size:"Wingspan 1m",weight:"1 kg",fact:"Pterodactyls were not dinosaurs — they were flying reptiles called pterosaurs!",desc:"Pterodactyl was a flying reptile that lived alongside dinosaurs. It had a long beak and a wingspan of about 1 metre.",quiz:[{q:"Was Pterodactyl a dinosaur?",opts:["Yes","No — it was a flying reptile","Yes, a bird dinosaur","No — it was a fish"],ans:1},{q:"How did Pterodactyl move?",opts:["Ran fast","Swam","Flew","Burrowed"],ans:2},{q:"What did Pterodactyl eat?",opts:["Plants","Meat and fish","Only insects","Berries"],ans:1}]},
+  {name:"Spinosaurus",emoji:"\uD83E\uDD96",period:"Cretaceous (112-97M yrs ago)",diet:"Carnivore",size:"15m long",weight:"20 tonnes",fact:"Spinosaurus was bigger than T-Rex and spent most of its time in water hunting fish!",desc:"Spinosaurus was the largest meat-eating dinosaur. It had a huge sail on its back and was adapted for swimming.",quiz:[{q:"What was special about Spinosaurus's back?",opts:["Armour plates","A large sail","Feathers","Spikes"],ans:1},{q:"Where did Spinosaurus hunt?",opts:["Deserts","Treetops","Water","Underground"],ans:2},{q:"How did Spinosaurus compare to T-Rex in size?",opts:["Smaller","Same size","Bigger","Half the size"],ans:2}]},
+  {name:"Diplodocus",emoji:"\uD83E\uDD95",period:"Late Jurassic (154-152M yrs ago)",diet:"Herbivore",size:"27m long",weight:"16 tonnes",fact:"Diplodocus could swing its long tail like a whip, making a crack louder than a thunderclap!",desc:"Diplodocus was one of the longest dinosaurs ever. Its neck and tail were both extremely long.",quiz:[{q:"What was Diplodocus famous for?",opts:["Its horns","Its extreme length","Its armour","Its speed"],ans:1},{q:"What could Diplodocus do with its tail?",opts:["Swim","Crack like a whip","Dig holes","Hold things"],ans:1},{q:"What did Diplodocus eat?",opts:["Meat","Plants","Fish","Insects"],ans:1}]},
+  {name:"Iguanodon",emoji:"\uD83E\uDD95",period:"Early Cretaceous (126-125M yrs ago)",diet:"Herbivore",size:"10m long",weight:"4 tonnes",fact:"Iguanodon was one of the first dinosaurs ever discovered and named, back in 1825!",desc:"Iguanodon was a large plant-eater that could walk on two or four legs. It had a spike on each thumb.",quiz:[{q:"What was special about Iguanodon's hands?",opts:["Three fingers","Thumb spikes","Claws like T-Rex","Webbed fingers"],ans:1},{q:"When was Iguanodon discovered?",opts:["1725","1825","1925","2001"],ans:1},{q:"How did Iguanodon move?",opts:["Only on 2 legs","Only on 4 legs","Could use 2 or 4 legs","It flew"],ans:2}]},
+];
+
+// ─── ANIMALS DATA ─────────────────────────────────────────────
+const ANIMALS_FULL=[
+  // MAMMALS
+  {name:"Lion",emoji:"\uD83E\uDD81",category:"Mammals",habitat:"African savanna",diet:"Carnivore",lifespan:"12-16 years",fact:"Lions are the only cats that live in groups called prides!",desc:"Lions are the second largest wild cat. Male lions have a big mane of hair around their face. Females do most of the hunting.",quiz:[{q:"What is a group of lions called?",opts:["Pack","Pride","Herd","Flock"],ans:1},{q:"Which lions do most of the hunting?",opts:["Males","Females","Cubs","All equally"],ans:1},{q:"Where do lions live?",opts:["Rainforest","Arctic","Savanna","Ocean"],ans:2}]},
+  {name:"Elephant",emoji:"\uD83D\uDC18",category:"Mammals",habitat:"African savanna & Asian forests",diet:"Herbivore",lifespan:"60-70 years",fact:"Elephants are the only animals that cannot jump!",desc:"Elephants are the largest land animals on Earth. They use their trunks to breathe, smell, drink and pick up objects. They never forget!",quiz:[{q:"What is special about elephants?",opts:["They can fly","They cannot jump","They have 6 legs","They lay eggs"],ans:1},{q:"What do elephants use their trunk for?",opts:["Only smelling","Only drinking","Breathing, smelling & drinking","Running faster"],ans:2},{q:"How long can elephants live?",opts:["20 years","40 years","60-70 years","100 years"],ans:2}]},
+  {name:"Giraffe",emoji:"\uD83E\uDD92",category:"Mammals",habitat:"African savanna",diet:"Herbivore",lifespan:"25 years",fact:"A giraffe's tongue is 45 cm long and bluish-black in colour!",desc:"Giraffes are the tallest animals on Earth, up to 6 metres tall. Their long necks help them reach leaves at the tops of trees.",quiz:[{q:"How tall can a giraffe grow?",opts:["3m","4m","6m","10m"],ans:2},{q:"What colour is a giraffe's tongue?",opts:["Pink","Red","Bluish-black","Yellow"],ans:2},{q:"What do giraffes eat?",opts:["Meat","Tree leaves","Fish","Insects"],ans:1}]},
+  {name:"Cheetah",emoji:"\uD83D\uDC06",category:"Mammals",habitat:"African savanna",diet:"Carnivore",lifespan:"10-12 years",fact:"Cheetahs are the fastest land animals, reaching 120 km/h!",desc:"The cheetah is built for speed with a flexible spine and semi-retractable claws. Unlike other big cats, cheetahs cannot roar — they chirp!",quiz:[{q:"How fast can a cheetah run?",opts:["60 km/h","80 km/h","100 km/h","120 km/h"],ans:3},{q:"What sound does a cheetah make?",opts:["Roar","Chirp and purr","Howl","Hiss"],ans:1},{q:"What makes cheetahs fast?",opts:["Big paws","Flexible spine","Long tail","Heavy body"],ans:1}]},
+  {name:"Gorilla",emoji:"\uD83E\uDD8D",category:"Mammals",habitat:"Central African rainforests",diet:"Herbivore",lifespan:"35-40 years",fact:"Gorillas share 98.3% of their DNA with humans!",desc:"Gorillas are the largest primates on Earth. They live in family groups led by a silverback — a large dominant male.",quiz:[{q:"How much DNA do gorillas share with humans?",opts:["50%","75%","98.3%","100%"],ans:2},{q:"What is a dominant male gorilla called?",opts:["Goldback","Silverback","Blackback","Strongback"],ans:1},{q:"What do gorillas eat?",opts:["Meat","Plants and fruit","Fish","Insects only"],ans:1}]},
+  {name:"Polar Bear",emoji:"\uD83D\uDC3B\u200D\u2744\uFE0F",category:"Mammals",habitat:"Arctic",diet:"Carnivore",lifespan:"25-30 years",fact:"Polar bear fur is actually transparent — it only looks white!",desc:"Polar bears are the world's largest land carnivores. They are excellent swimmers and can swim for days in icy water.",quiz:[{q:"What colour is polar bear fur really?",opts:["White","Transparent","Yellow","Grey"],ans:1},{q:"Where do polar bears live?",opts:["Antarctic","Arctic","Rainforest","Desert"],ans:1},{q:"What are polar bears excellent at?",opts:["Climbing trees","Swimming","Running uphill","Digging"],ans:1}]},
+  {name:"Dolphin",emoji:"\uD83D\uDC2C",category:"Mammals",habitat:"Oceans worldwide",diet:"Carnivore",lifespan:"25-30 years",fact:"Dolphins sleep with one eye open and half their brain awake!",desc:"Dolphins are highly intelligent marine mammals. They use echolocation — sending out sound waves — to find food and navigate.",quiz:[{q:"How do dolphins find food?",opts:["By sight","Echolocation","By smell","Random swimming"],ans:1},{q:"How do dolphins sleep?",opts:["Fully asleep","One eye open","On land","They do not sleep"],ans:1},{q:"Are dolphins fish or mammals?",opts:["Fish","Mammals","Reptiles","Birds"],ans:1}]},
+  {name:"Kangaroo",emoji:"\uD83E\uDD98",category:"Mammals",habitat:"Australian grasslands",diet:"Herbivore",lifespan:"6-8 years",fact:"Baby kangaroos (joeys) are only the size of a jellybean when born!",desc:"Kangaroos are marsupials — they carry their young in a pouch. They can jump 9 metres in a single bound and reach 70 km/h.",quiz:[{q:"What is a baby kangaroo called?",opts:["Cub","Joey","Pup","Foal"],ans:1},{q:"How far can a kangaroo jump?",opts:["3m","5m","7m","9m"],ans:3},{q:"Where do kangaroos live?",opts:["Africa","South America","Australia","Europe"],ans:2}]},
+  {name:"Wolf",emoji:"\uD83D\uDC3A",category:"Mammals",habitat:"Forests and tundra worldwide",diet:"Carnivore",lifespan:"6-8 years",fact:"Wolves can howl loud enough to be heard 10 km away!",desc:"Wolves live and hunt in packs with a strict social order. They are the ancestors of all domestic dogs.",quiz:[{q:"How far can a wolf howl be heard?",opts:["1km","3km","5km","10km"],ans:3},{q:"What are wolves related to?",opts:["Cats","Domestic dogs","Bears","Foxes"],ans:1},{q:"What is a group of wolves called?",opts:["Herd","Pride","Pack","Flock"],ans:2}]},
+  {name:"Chimpanzee",emoji:"\uD83D\uDC35",category:"Mammals",habitat:"Central & West African forests",diet:"Omnivore",lifespan:"45-60 years",fact:"Chimpanzees use tools — like sticks to get termites out of mounds!",desc:"Chimpanzees are our closest living relatives, sharing 98.7% of human DNA. They are highly intelligent and social animals.",quiz:[{q:"What percentage of DNA do chimps share with humans?",opts:["80%","90%","98.7%","95%"],ans:2},{q:"What tools do chimps use?",opts:["Rocks to hunt","Sticks to get termites","Leaves as umbrellas","All of these"],ans:3},{q:"What do chimpanzees eat?",opts:["Only plants","Only meat","Both plants and meat","Only fruit"],ans:2}]},
+  {name:"Zebra",emoji:"\uD83E\uDD93",category:"Mammals",habitat:"African savanna",diet:"Herbivore",lifespan:"20-25 years",fact:"Every zebra has a unique stripe pattern — like a fingerprint!",desc:"Zebras are closely related to horses. Their black and white stripes confuse predators and help regulate body temperature.",quiz:[{q:"What is unique about each zebra's stripes?",opts:["They are all the same","Each pattern is unique","They change colour","Only males have stripes"],ans:1},{q:"What are zebras closely related to?",opts:["Donkeys","Horses","Deer","Cows"],ans:1},{q:"What do zebras eat?",opts:["Meat","Grass and plants","Fish","Insects"],ans:1}]},
+  {name:"Hippopotamus",emoji:"\uD83E\uDD9B",category:"Mammals",habitat:"African rivers and lakes",diet:"Herbivore",lifespan:"40-50 years",fact:"Hippos can run faster than humans on land — up to 30 km/h!",desc:"Hippos spend most of the day in water to stay cool. Despite being plant eaters, they are one of Africa's most dangerous animals.",quiz:[{q:"How fast can a hippo run?",opts:["10 km/h","20 km/h","30 km/h","5 km/h"],ans:2},{q:"Why do hippos spend time in water?",opts:["To find fish","To stay cool","To hide from lions","To sleep"],ans:1},{q:"What do hippos eat?",opts:["Fish","Plants","Meat","Insects"],ans:1}]},
+  {name:"Orangutan",emoji:"\uD83D\uDC25",category:"Mammals",habitat:"Borneo & Sumatra rainforests",diet:"Herbivore",lifespan:"35-45 years",fact:"Orangutans build a new sleeping nest in the trees every single night!",desc:"Orangutans are the only great apes found in Asia. Their name means 'person of the forest' in Malay. They have very long arms.",quiz:[{q:"Where do orangutans live?",opts:["Africa","Asia","Australia","South America"],ans:1},{q:"What does orangutan mean?",opts:["Red monkey","Person of the forest","Tree climber","Jungle king"],ans:1},{q:"What do orangutans build every night?",opts:["A dam","A nest in trees","A burrow","A cave"],ans:1}]},
+  {name:"Koala",emoji:"\uD83D\uDC28",category:"Mammals",habitat:"Australian eucalyptus forests",diet:"Herbivore",lifespan:"13-18 years",fact:"Koalas sleep up to 22 hours a day because eucalyptus leaves are hard to digest!",desc:"Koalas are marsupials that carry their young in a pouch. They eat only eucalyptus leaves, which are toxic to most animals.",quiz:[{q:"How many hours a day do koalas sleep?",opts:["8 hours","12 hours","18 hours","22 hours"],ans:3},{q:"What do koalas eat?",opts:["Bamboo","Eucalyptus leaves","Fruit","Insects"],ans:1},{q:"Are koalas bears?",opts:["Yes","No — they are marsupials","Yes, a type of bear","No — they are rodents"],ans:1}]},
+  {name:"Panda",emoji:"\uD83D\uDC3C",category:"Mammals",habitat:"Chinese mountain forests",diet:"Herbivore",lifespan:"20 years",fact:"Pandas eat up to 40 kg of bamboo every single day!",desc:"Giant pandas are one of the world's most endangered animals. Despite being bears, they eat almost exclusively bamboo.",quiz:[{q:"How much bamboo does a panda eat daily?",opts:["5kg","15kg","40kg","100kg"],ans:2},{q:"Where do pandas live?",opts:["Japan","China","India","Korea"],ans:1},{q:"What do pandas mainly eat?",opts:["Meat","Fish","Bamboo","Berries"],ans:2}]},
+  {name:"Tiger",emoji:"\uD83D\uDC2F",category:"Mammals",habitat:"Asian forests and grasslands",diet:"Carnivore",lifespan:"10-15 years",fact:"Tigers are excellent swimmers and love playing in water!",desc:"Tigers are the largest wild cats in the world. Every tiger has a unique stripe pattern. They are solitary and mostly hunt at night.",quiz:[{q:"Are tigers good swimmers?",opts:["No, they hate water","Yes, they love water","Only cubs swim","Only in rivers"],ans:1},{q:"When do tigers mostly hunt?",opts:["Morning","Midday","Night","Evening only"],ans:2},{q:"What is unique about each tiger?",opts:["Eye colour","Stripe pattern","Ear shape","Tail length"],ans:1}]},
+  {name:"Rhinoceros",emoji:"\uD83E\uDD8F",category:"Mammals",habitat:"African and Asian grasslands",diet:"Herbivore",lifespan:"40-50 years",fact:"A rhino's horn is made of keratin — the same material as your fingernails!",desc:"Rhinos are the second largest land animals after elephants. They have very thick skin but are surprisingly gentle plant eaters.",quiz:[{q:"What is a rhino's horn made of?",opts:["Bone","Ivory","Keratin","Metal"],ans:2},{q:"What do rhinos eat?",opts:["Meat","Plants","Fish","Other animals"],ans:1},{q:"Which animal is larger than a rhino?",opts:["Lion","Hippo","Elephant","Giraffe"],ans:2}]},
+  {name:"Bat",emoji:"\uD83E\uDD87",category:"Mammals",habitat:"Caves and forests worldwide",diet:"Omnivore",lifespan:"20-30 years",fact:"Bats are the only mammals that can truly fly!",desc:"Bats use echolocation to navigate in the dark — they send out sound waves and listen for the echo. Most bats eat insects.",quiz:[{q:"What makes bats unique among mammals?",opts:["They have no teeth","They can truly fly","They lay eggs","They live underwater"],ans:1},{q:"How do bats navigate in the dark?",opts:["By sight","Echolocation","By smell","By touch"],ans:1},{q:"What do most bats eat?",opts:["Fruit","Blood","Insects","Fish"],ans:2}]},
+  // BIRDS
+  {name:"Penguin",emoji:"\uD83D\uDC27",category:"Birds",habitat:"Antarctic & Southern Ocean",diet:"Carnivore",lifespan:"15-20 years",fact:"Penguins cannot fly but can swim at 25 km/h!",desc:"Penguins are flightless birds perfectly adapted for life in water. Their wings work as flippers. They huddle together for warmth.",quiz:[{q:"Can penguins fly?",opts:["Yes","No","Only young ones","Only in warm weather"],ans:1},{q:"How fast can penguins swim?",opts:["5 km/h","15 km/h","25 km/h","40 km/h"],ans:2},{q:"What do penguins eat?",opts:["Plants","Grass","Fish and krill","Berries"],ans:2}]},
+  {name:"Eagle",emoji:"\uD83E\uDD85",category:"Birds",habitat:"Mountains and forests worldwide",diet:"Carnivore",lifespan:"20-30 years",fact:"Eagles can spot a rabbit from 3 kilometres away!",desc:"Eagles are powerful birds of prey. Their eyesight is 4-8 times stronger than humans. They build the largest bird nests called eyries.",quiz:[{q:"How far can an eagle spot a rabbit?",opts:["500m","1km","2km","3km"],ans:3},{q:"How much stronger is eagle eyesight vs humans?",opts:["Same","2x","4-8x","20x"],ans:2},{q:"What is an eagle's nest called?",opts:["Den","Burrow","Eyrie","Lodge"],ans:2}]},
+  {name:"Flamingo",emoji:"\uD83E\uDDA9",category:"Birds",habitat:"African and South American lakes",diet:"Omnivore",lifespan:"20-30 years",fact:"Flamingos are born grey — they turn pink from the food they eat!",desc:"Flamingos get their pink colour from pigments in the algae and shrimp they eat. They sleep standing on one leg.",quiz:[{q:"Why are flamingos pink?",opts:["They are born pink","From food they eat","From the sun","They paint themselves"],ans:1},{q:"How do flamingos sleep?",opts:["Lying down","Standing on one leg","In water","In trees"],ans:1},{q:"What colour are baby flamingos?",opts:["Pink","White","Grey","Yellow"],ans:2}]},
+  {name:"Parrot",emoji:"\uD83E\uDD9C",category:"Birds",habitat:"Tropical rainforests worldwide",diet:"Herbivore",lifespan:"50-80 years",fact:"Parrots can live as long as humans — some over 80 years!",desc:"Parrots are highly intelligent birds that can mimic human speech. They have strong curved beaks for cracking nuts and seeds.",quiz:[{q:"How long can parrots live?",opts:["10 years","30 years","50-80 years","5 years"],ans:2},{q:"What are parrots known for?",opts:["Fast running","Mimicking speech","Excellent swimming","Building dams"],ans:1},{q:"What do parrots eat?",opts:["Meat","Seeds, nuts and fruit","Fish","Insects only"],ans:1}]},
+  {name:"Owl",emoji:"\uD83E\uDD89",category:"Birds",habitat:"Forests worldwide",diet:"Carnivore",lifespan:"5-25 years",fact:"Owls can rotate their heads 270 degrees!",desc:"Owls are nocturnal hunters with exceptional night vision and hearing. Their silent flight helps them surprise prey.",quiz:[{q:"How far can owls rotate their heads?",opts:["90 degrees","180 degrees","270 degrees","360 degrees"],ans:2},{q:"When do owls hunt?",opts:["Morning","Midday","Night","Evening only"],ans:2},{q:"What is special about owl flight?",opts:["Very fast","Very silent","Very high","Very colourful"],ans:1}]},
+  {name:"Peacock",emoji:"\uD83E\uDD9A",category:"Birds",habitat:"South Asian forests",diet:"Omnivore",lifespan:"20 years",fact:"Only male peacocks have the beautiful colourful tail feathers!",desc:"Peacocks spread their magnificent tail feathers to attract females. The female is called a peahen and is mostly brown.",quiz:[{q:"Which peacocks have colourful tail feathers?",opts:["Females","Males","Both","Neither"],ans:1},{q:"What is a female peacock called?",opts:["Peecock","Peahen","Peachick","Peacluck"],ans:1},{q:"Why do peacocks spread their tail feathers?",opts:["To fly better","To scare predators","To attract females","To cool down"],ans:2}]},
+  {name:"Toucan",emoji:"\uD83D\uDC26",category:"Birds",habitat:"South American rainforests",diet:"Omnivore",lifespan:"20 years",fact:"A toucan's beak is hollow and can be up to half its body length!",desc:"Toucans are known for their enormous colourful beaks. Despite looking heavy, the beak is lightweight as it is mostly hollow.",quiz:[{q:"What is special about a toucan's beak?",opts:["It is very heavy","It is hollow and lightweight","It glows at night","It can open wide"],ans:1},{q:"How long can a toucan's beak be?",opts:["A quarter of its body","A third","Half its body length","Longer than its body"],ans:2},{q:"Where do toucans live?",opts:["Africa","Asia","South America","Australia"],ans:2}]},
+  // REPTILES
+  {name:"Crocodile",emoji:"\uD83D\uDC0A",category:"Reptiles",habitat:"African and Asian rivers",diet:"Carnivore",lifespan:"70-100 years",fact:"Crocodiles have the strongest bite force of any living animal!",desc:"Crocodiles are ancient reptiles that have barely changed in 200 million years. They can hold their breath for up to an hour.",quiz:[{q:"How long can crocodiles hold their breath?",opts:["10 minutes","30 minutes","1 hour","2 hours"],ans:2},{q:"What is special about a crocodile's bite?",opts:["It is the weakest","It is the strongest of any animal","It has no teeth","It is very slow"],ans:1},{q:"How long have crocodiles existed?",opts:["10M years","50M years","200M years","1M years"],ans:2}]},
+  {name:"Chameleon",emoji:"\uD83E\uDD8E",category:"Reptiles",habitat:"African and Asian forests",diet:"Carnivore",lifespan:"5-10 years",fact:"Chameleons change colour to communicate mood — not just to camouflage!",desc:"Chameleons are masters of colour change. Their eyes can move independently, so they can look in two directions at once.",quiz:[{q:"Why do chameleons mainly change colour?",opts:["For camouflage","To communicate mood","To attract food","To scare rivals only"],ans:1},{q:"What can a chameleon's eyes do?",opts:["Glow at night","See in colour","Move independently","See behind them"],ans:2},{q:"What do chameleons eat?",opts:["Plants","Insects","Fish","Fruit"],ans:1}]},
+  {name:"Komodo Dragon",emoji:"\uD83E\uDD96",category:"Reptiles",habitat:"Indonesian islands",diet:"Carnivore",lifespan:"30 years",fact:"Komodo dragons can detect smell from 9 km away using their tongue!",desc:"Komodo dragons are the world's largest lizards, reaching 3 metres long. They flick their forked tongue to smell the air.",quiz:[{q:"How long can a Komodo dragon grow?",opts:["1m","2m","3m","5m"],ans:2},{q:"How do Komodo dragons smell?",opts:["With their nose","With their tongue","With their ears","With their skin"],ans:1},{q:"Where do Komodo dragons live?",opts:["Africa","Australia","Indonesia","South America"],ans:2}]},
+  {name:"Sea Turtle",emoji:"\uD83D\uDC22",category:"Reptiles",habitat:"Tropical oceans worldwide",diet:"Herbivore",lifespan:"80-100 years",fact:"Sea turtles return to the exact same beach where they were born to lay their eggs!",desc:"Sea turtles have existed for over 100 million years. They can hold their breath for up to 7 hours while resting.",quiz:[{q:"Where do sea turtles lay their eggs?",opts:["Anywhere on a beach","The same beach they were born","In the ocean","In rivers"],ans:1},{q:"How long can sea turtles hold their breath?",opts:["30 minutes","2 hours","7 hours","24 hours"],ans:2},{q:"How long have sea turtles existed?",opts:["10M years","50M years","100M years","200M years"],ans:2}]},
+  // FISH & OCEAN
+  {name:"Shark",emoji:"\uD83E\uDD88",category:"Fish",habitat:"Oceans worldwide",diet:"Carnivore",lifespan:"20-30 years",fact:"Sharks never run out of teeth — they grow new ones their whole lives!",desc:"Sharks are apex predators that have existed for over 450 million years. They have an incredible sense of smell, detecting blood from miles away.",quiz:[{q:"How long have sharks existed?",opts:["100M years","200M years","450M years","10M years"],ans:2},{q:"What is special about shark teeth?",opts:["They are blue","They keep regrowing","They never fall out","They are soft"],ans:1},{q:"Are sharks mammals or fish?",opts:["Mammals","Fish","Reptiles","Amphibians"],ans:1}]},
+  {name:"Clownfish",emoji:"\uD83D\uDC1F",category:"Fish",habitat:"Tropical coral reefs",diet:"Omnivore",lifespan:"6-10 years",fact:"Clownfish are immune to sea anemone stings — they live inside them!",desc:"Clownfish have a special mucus coating that protects them from anemone stings. They live in a symbiotic relationship with anemones.",quiz:[{q:"Where do clownfish live?",opts:["Open ocean","Inside sea anemones","In rivers","In coral caves"],ans:1},{q:"What protects clownfish from anemone stings?",opts:["Hard scales","Special mucus coating","Thick skin","Speed"],ans:1},{q:"What do clownfish eat?",opts:["Only plants","Only animals","Both plants and animals","Only plankton"],ans:2}]},
+  {name:"Seahorse",emoji:"\uD83E\uDD84",category:"Fish",habitat:"Tropical shallow waters",diet:"Carnivore",lifespan:"1-5 years",fact:"Male seahorses carry and give birth to the babies — not the females!",desc:"Seahorses are the only animals where the male gets pregnant and gives birth. They swim upright and are very slow swimmers.",quiz:[{q:"Which seahorse gives birth?",opts:["The female","The male","Both","Neither"],ans:1},{q:"How do seahorses swim?",opts:["On their side","Upside down","Upright","In circles"],ans:2},{q:"Are seahorses fast swimmers?",opts:["Yes, very fast","No, very slow","Medium speed","Fastest fish"],ans:1}]},
+  {name:"Octopus",emoji:"\uD83D\uDC19",category:"Invertebrates",habitat:"Oceans worldwide",diet:"Carnivore",lifespan:"1-5 years",fact:"Octopuses have three hearts and blue blood!",desc:"Octopuses are highly intelligent with 8 arms. They can change colour instantly to camouflage, and can open jars and solve puzzles.",quiz:[{q:"How many hearts does an octopus have?",opts:["1","2","3","4"],ans:2},{q:"How many arms does an octopus have?",opts:["6","8","10","12"],ans:1},{q:"What colour is octopus blood?",opts:["Red","Green","Blue","Yellow"],ans:2}]},
+  {name:"Jellyfish",emoji:"\uD83E\uDEAC",category:"Invertebrates",habitat:"Oceans worldwide",diet:"Carnivore",lifespan:"1 year (some are immortal!)",fact:"One species of jellyfish is considered biologically immortal — it can revert back to its juvenile form!",desc:"Jellyfish have no brain, heart, bones or eyes. They are 95% water. They have existed for over 500 million years.",quiz:[{q:"What body parts do jellyfish NOT have?",opts:["Tentacles","Brain and heart","A body","Cells"],ans:1},{q:"What percentage of a jellyfish is water?",opts:["50%","75%","95%","100%"],ans:2},{q:"How long have jellyfish existed?",opts:["100M years","300M years","500M years","10M years"],ans:2}]},
+  {name:"Starfish",emoji:"\uD83C\uDF1F",category:"Invertebrates",habitat:"Ocean floors worldwide",diet:"Carnivore",lifespan:"35 years",fact:"Starfish can regrow a lost arm — and the lost arm can grow a whole new body!",desc:"Starfish (sea stars) have no brain or blood. They use seawater to pump through their body for nutrients and movement.",quiz:[{q:"What can a starfish do if it loses an arm?",opts:["It dies","Regrow the arm","Nothing changes","Ask for help"],ans:1},{q:"What pumps through a starfish instead of blood?",opts:["Air","Seawater","Juice","Nothing"],ans:1},{q:"Does a starfish have a brain?",opts:["Yes, a small one","Yes, in its centre","No brain","Yes, in each arm"],ans:2}]},
+  // INSECTS & SMALL
+  {name:"Butterfly",emoji:"\uD83E\uDD8B",category:"Insects",habitat:"Worldwide in gardens and meadows",diet:"Herbivore",lifespan:"2-4 weeks as adult",fact:"Butterflies taste with their feet!",desc:"Butterflies start as eggs, then caterpillars, then go through metamorphosis inside a chrysalis before emerging as beautiful adults.",quiz:[{q:"How do butterflies taste food?",opts:["With their mouth","With their antennae","With their feet","With their wings"],ans:2},{q:"What stage comes before a butterfly?",opts:["Larva","Caterpillar","Pupa","Nymph"],ans:1},{q:"What is the shell a butterfly grows inside?",opts:["Cocoon","Chrysalis","Egg","Shell"],ans:1}]},
+  {name:"Bee",emoji:"\uD83D\uDC1D",category:"Insects",habitat:"Worldwide except Antarctica",diet:"Herbivore",lifespan:"6 weeks (worker)",fact:"A single bee makes only 1/12 teaspoon of honey in its lifetime!",desc:"Bees are essential pollinators. A colony can have up to 60,000 bees. They communicate by dancing to tell others where flowers are.",quiz:[{q:"How do bees tell each other where flowers are?",opts:["By buzzing loudly","By dancing","By colour change","By smell"],ans:1},{q:"How much honey does one bee make in its life?",opts:["1 jar","1 spoon","1/12 teaspoon","A bucket"],ans:2},{q:"Why are bees important?",opts:["They make honey only","They are pollinators","They eat pests","They clean flowers"],ans:1}]},
+  {name:"Ant",emoji:"\uD83D\uDC1C",category:"Insects",habitat:"Worldwide except Antarctica",diet:"Omnivore",lifespan:"1-3 years (queen: 30 years)",fact:"Ants can carry 50 times their own body weight!",desc:"Ants live in highly organised colonies with queens, workers and soldiers. They have existed for over 100 million years.",quiz:[{q:"How much can an ant carry?",opts:["Its own weight","10x its weight","50x its weight","100x its weight"],ans:2},{q:"Who leads an ant colony?",opts:["The strongest ant","The queen","The oldest ant","The largest worker"],ans:1},{q:"How long can a queen ant live?",opts:["1 year","5 years","15 years","30 years"],ans:3}]},
+  {name:"Ladybird",emoji:"\uD83D\uDC1E",category:"Insects",habitat:"Worldwide in gardens",diet:"Carnivore",lifespan:"1-2 years",fact:"Ladybirds bleed from their knees when threatened — the blood smells terrible to predators!",desc:"Ladybirds (ladybugs) are actually beetles. They are gardeners' best friends because they eat aphids that damage plants.",quiz:[{q:"What do ladybirds mainly eat?",opts:["Plants","Aphids","Honey","Leaves"],ans:1},{q:"How do ladybirds defend themselves?",opts:["They fly away fast","They bleed bad-smelling blood","They sting","They bite hard"],ans:1},{q:"What type of insect is a ladybird?",opts:["A fly","A bug","A beetle","A moth"],ans:2}]},
+  {name:"Dragonfly",emoji:"\uD83E\uDEB0",category:"Insects",habitat:"Near water worldwide",diet:"Carnivore",lifespan:"6 months as adult",fact:"Dragonflies catch 95% of the prey they chase — best hunters in the animal kingdom!",desc:"Dragonflies can fly forwards, backwards, sideways and hover in place. Their huge compound eyes give them nearly 360-degree vision.",quiz:[{q:"What percentage of prey do dragonflies catch?",opts:["50%","70%","85%","95%"],ans:3},{q:"What makes dragonflies amazing fliers?",opts:["Very fast only","Can fly in all directions","Largest wings","Loudest wings"],ans:1},{q:"What do dragonflies eat?",opts:["Plants","Insects","Nectar","Fish"],ans:1}]},
+  // AMPHIBIANS
+  {name:"Frog",emoji:"\uD83D\uDC38",category:"Amphibians",habitat:"Worldwide near water",diet:"Carnivore",lifespan:"5-15 years",fact:"Frogs absorb water through their skin — they never need to drink!",desc:"Frogs are amphibians that begin life as tadpoles in water before transforming into adults. They can jump 20 times their body length.",quiz:[{q:"How do frogs drink water?",opts:["Through their mouth","Through their skin","They do not drink","Through their eyes"],ans:1},{q:"What do young frogs (tadpoles) look like?",opts:["Tiny frogs","Fish-like creatures","Worms","Insects"],ans:1},{q:"How far can a frog jump?",opts:["5x body length","10x body length","20x body length","Equal to body length"],ans:2}]},
+  {name:"Axolotl",emoji:"\uD83E\uDDAC",category:"Amphibians",habitat:"Mexican lakes",diet:"Carnivore",lifespan:"10-15 years",fact:"Axolotls can regrow entire limbs, hearts, and even parts of their brain!",desc:"The axolotl is a remarkable amphibian that stays in its larval form its whole life. It can regenerate almost any part of its body.",quiz:[{q:"What can an axolotl regrow?",opts:["Only its tail","Limbs and organs","Only its skin","Nothing"],ans:1},{q:"Where do axolotls live?",opts:["Amazon River","Mexican lakes","Australian ponds","African rivers"],ans:1},{q:"What is unique about axolotls compared to other amphibians?",opts:["They can fly","They stay in larval form forever","They live on land only","They have no legs"],ans:1}]},
+];
+
+
+
+// ─── DATA & PROBABILITY TOPICS ────────────────────────────────
+const DATA_TOPICS=[
+  {id:"graphs",name:"Bar Graphs",emoji:"\uD83D\uDCCA",grade:["G2","G3"],
+   desc:"A bar graph uses bars to show and compare data. The longer the bar, the bigger the number.",
+   example:"A class votes for their favourite fruit: Apple=8, Banana=5, Orange=3. The Apple bar is tallest!",
+   tip:"Always read the title and labels on both sides of a bar graph.",
+   quiz:[
+    {q:"In a bar graph, what does a taller bar mean?",opts:["A smaller number","A bigger number","The same number","Nothing"],ans:1},
+    {q:"What should you always read first on a graph?",opts:["The bars","The title and labels","The colour","The border"],ans:1},
+    {q:"5 kids like dogs, 8 like cats. Which bar is taller?",opts:["Dogs","Cats","Same height","No bar"],ans:1},
+   ]},
+  {id:"pictograph",name:"Pictographs",emoji:"\uD83D\uDDBC\uFE0F",grade:["G2","G3"],
+   desc:"A pictograph uses pictures or symbols to represent data. Each picture stands for a certain number.",
+   example:"Each star \u2B50 = 2 students. If 3 stars are shown, that means 6 students.",
+   tip:"Always check what each symbol represents — called the KEY.",
+   quiz:[
+    {q:"In a pictograph, each \uD83C\uDF4E = 4 apples. 3 apples shown means:",opts:["3 apples","8 apples","12 apples","4 apples"],ans:2},
+    {q:"What tells you what each symbol means?",opts:["The title","The key","The colour","The border"],ans:1},
+    {q:"Why do we use pictographs?",opts:["To make data harder","To show data with pictures","To confuse people","To count faster"],ans:1},
+   ]},
+  {id:"probability",name:"Probability",emoji:"\uD83C\uDFB2",grade:["G2","G3"],
+   desc:"Probability tells us how likely something is to happen. We use words like certain, likely, unlikely, and impossible.",
+   example:"Flipping a coin — getting heads is LIKELY (50%). Rolling a 7 on a dice is IMPOSSIBLE.",
+   tip:"Probability scale goes from 0 (impossible) to 1 (certain).",
+   quiz:[
+    {q:"What does IMPOSSIBLE mean in probability?",opts:["Very unlikely","Cannot happen","Will happen","Might happen"],ans:1},
+    {q:"Flipping a coin and getting heads is:",opts:["Certain","Impossible","Likely (50%)","Unlikely"],ans:2},
+    {q:"Rolling a 7 on a standard dice is:",opts:["Certain","Likely","Unlikely","Impossible"],ans:3},
+   ]},
+  {id:"sorting",name:"Sorting & Classifying",emoji:"\uD83D\uDD00",grade:["G2","G3"],
+   desc:"Sorting means putting things into groups based on what they have in common — like colour, shape, or size.",
+   example:"Sort these shapes: red circles, blue circles, red squares → Groups: by colour OR by shape.",
+   tip:"You can sort the same objects in different ways depending on what attribute you choose.",
+   quiz:[
+    {q:"Sorting means:",opts:["Counting objects","Grouping by common features","Measuring","Drawing"],ans:1},
+    {q:"Which is NOT a way to sort objects?",opts:["By colour","By size","By weight","By their name in alphabetical order"],ans:3},
+    {q:"Can the same objects be sorted in different ways?",opts:["No, only one way","Yes, by different attributes","Only by colour","Only by size"],ans:1},
+   ]},
+  {id:"mean",name:"Mean (Average)",emoji:"\u2696\uFE0F",grade:["G3"],
+   desc:"The mean (average) is found by adding all numbers together, then dividing by how many numbers there are.",
+   example:"Scores: 4, 6, 8. Add them: 4+6+8=18. Divide by 3: 18\xF73=6. The mean is 6!",
+   tip:"Remember: ADD all numbers, then DIVIDE by how many there are.",
+   quiz:[
+    {q:"Find the mean of 2, 4, 6:",opts:["3","4","5","6"],ans:1},
+    {q:"To find the mean you first:",opts:["Subtract","Add all numbers","Multiply","Divide first"],ans:1},
+    {q:"The mean of 10, 20, 30 is:",opts:["15","20","25","30"],ans:1},
+   ]},
+];
+
+// ─── GEOMETRY & MEASUREMENT TOPICS ───────────────────────────
+const GEO_TOPICS=[
+  {id:"perimeter",name:"Perimeter",emoji:"\uD83D\uDCCF",grade:["G2","G3"],
+   desc:"Perimeter is the total distance around the outside of a shape. Add up all the sides!",
+   example:"A rectangle 5cm wide and 3cm tall: Perimeter = 5+3+5+3 = 16 cm",
+   tip:"Perimeter measures the OUTSIDE — like a fence around a garden.",
+   quiz:[
+    {q:"What is perimeter?",opts:["Area inside a shape","Distance around outside","Height of a shape","Volume"],ans:1},
+    {q:"A square has sides of 4cm. What is its perimeter?",opts:["8cm","12cm","16cm","4cm"],ans:2},
+    {q:"A rectangle is 6cm \xD7 2cm. What is its perimeter?",opts:["12cm","16cm","8cm","18cm"],ans:1},
+   ]},
+  {id:"area",name:"Area",emoji:"\uD83D\uDFE6",grade:["G2","G3"],
+   desc:"Area is the amount of space INSIDE a shape. For rectangles: Area = length \xD7 width.",
+   example:"A rectangle 5cm long and 3cm wide: Area = 5\xD73 = 15 cm\xB2",
+   tip:"Area is measured in square units — cm\xB2, m\xB2. Think of it as how many squares fit inside!",
+   quiz:[
+    {q:"Area = length \xD7 width. A rectangle is 4cm \xD7 3cm. Area?",opts:["7cm\xB2","12cm\xB2","14cm\xB2","24cm\xB2"],ans:1},
+    {q:"What units do we use for area?",opts:["cm","cm\xB2","cm\xB3","kg"],ans:1},
+    {q:"A square has sides of 5cm. What is its area?",opts:["10cm\xB2","20cm\xB2","25cm\xB2","15cm\xB2"],ans:2},
+   ]},
+  {id:"shapes2d",name:"2D Shapes",emoji:"\uD83D\uDD37",grade:["G2","G3"],
+   desc:"2D shapes are flat shapes with length and width but no depth. Common ones: circle, square, rectangle, triangle.",
+   example:"Triangle = 3 sides. Square = 4 equal sides. Hexagon = 6 sides. Octagon = 8 sides.",
+   tip:"Count the number of sides to identify the shape!",
+   quiz:[
+    {q:"How many sides does a hexagon have?",opts:["4","5","6","8"],ans:2},
+    {q:"A shape with 3 sides is called a:",opts:["Square","Rectangle","Triangle","Pentagon"],ans:2},
+    {q:"What makes a square different from a rectangle?",opts:["Squares have more sides","All sides of a square are equal","Rectangles have no sides","No difference"],ans:1},
+   ]},
+  {id:"shapes3d",name:"3D Shapes",emoji:"\uD83D\uDCE6",grade:["G2","G3"],
+   desc:"3D shapes have length, width AND depth (height). They take up space. Common ones: cube, sphere, cylinder, cone, pyramid.",
+   example:"A cube has 6 faces, 12 edges, 8 corners (vertices). A sphere has no flat faces.",
+   tip:"Faces=flat surfaces, Edges=where faces meet, Vertices=corners.",
+   quiz:[
+    {q:"How many faces does a cube have?",opts:["4","5","6","8"],ans:2},
+    {q:"A sphere has:",opts:["6 flat faces","1 curved surface, no flat faces","4 flat faces","8 edges"],ans:1},
+    {q:"What do we call the corners of a 3D shape?",opts:["Faces","Edges","Vertices","Sides"],ans:2},
+   ]},
+  {id:"measuring",name:"Measuring & Rulers",emoji:"\uD83D\uDCCF",grade:["G2","G3"],
+   desc:"We use rulers to measure length. In Canada we use centimetres (cm) and metres (m). 100 cm = 1 metre.",
+   example:"A pencil might be 15 cm long. A door is about 2 metres tall.",
+   tip:"Always start measuring from the 0 mark on a ruler, not the edge!",
+   quiz:[
+    {q:"How many centimetres are in 1 metre?",opts:["10","50","100","1000"],ans:2},
+    {q:"Where do you start measuring on a ruler?",opts:["From the edge","From 0","From 1","From the middle"],ans:1},
+    {q:"Which unit would you use to measure a classroom?",opts:["Millimetres","Centimetres","Metres","Kilometres"],ans:2},
+   ]},
+  {id:"symmetry",name:"Symmetry",emoji:"\uD83E\uDD8B",grade:["G2","G3"],
+   desc:"A shape has symmetry if you can fold it in half and both sides match exactly. The fold line is called the line of symmetry.",
+   example:"A square has 4 lines of symmetry. A circle has infinite lines! The letter A has 1 line of symmetry.",
+   tip:"Imagine folding the shape — if both halves match perfectly, it has symmetry!",
+   quiz:[
+    {q:"What is a line of symmetry?",opts:["A line around the shape","A fold line where both halves match","The longest side","The diagonal"],ans:1},
+    {q:"How many lines of symmetry does a square have?",opts:["1","2","4","0"],ans:2},
+    {q:"Does the letter B have a line of symmetry?",opts:["Yes, vertical","Yes, horizontal","No symmetry","Yes, both"],ans:1},
+   ]},
+];
+
+
+// ─── DINOSAURS ───────────────────────────────────────────────
+function initDino(){
+  var d=DINO_DATA[S.dinoIdx];
+  aiLoad("dinoQ","dinoLoading",
+    function(){return 'Generate a fun dinosaur quiz question about '+d.name+'. Make it different from: '+JSON.stringify(d.quiz[0].q)+'. Respond ONLY with valid JSON:\n{"q":"Question here?","opts":["A","B","C","D"],"ans":0,"fact":"Fun fact here!"}\nans is the index of the correct answer.';},
+    function(){var q=d.quiz[Math.floor(Math.random()*d.quiz.length)];return q;}
+  );
+  S.dinoResult=null;
+}
+
+function renderDinos(){
+  var d=DINO_DATA[S.dinoIdx];
+  if(S.dinoMode==="browse"){
+    return hdr("Dinosaurs","home",S.dinoScore)+
+    '<div style="text-align:center;padding:6px 0">'+
+    '<p style="color:var(--muted);font-size:12px;margin:2px 0">'+(S.dinoIdx+1)+' / '+DINO_DATA.length+'</p>'+
+    '<div style="font-size:80px;margin:8px 0">'+d.emoji+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:var(--text);margin-bottom:2px">'+d.name+'</div>'+
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">'+d.period+'</div>'+
+    '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">'+
+    '<span style="background:#F97316;color:#fff;border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700">'+d.diet+'</span>'+
+    '<span style="background:#3B82F6;color:#fff;border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700">'+d.size+'</span>'+
+    '<span style="background:#8B5CF6;color:#fff;border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700">'+d.weight+'</span>'+
+    '</div>'+
+    '<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;text-align:left">'+
+    '<p style="font-size:14px;color:var(--text);margin:0 0 8px 0;line-height:1.6">'+d.desc+'</p>'+
+    '<p style="font-size:13px;color:#F97316;font-weight:700;margin:0">\uD83E\uDD95 '+d.fact+'</p>'+
+    '</div></div>'+
+    '<div class="row" style="justify-content:center;gap:10px;margin:8px 0">'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px" data-a="dinoprev" '+(S.dinoIdx===0?'disabled':'')+'>◀ Prev</button>'+
+    '<button class="btn" style="background:#F97316;color:#fff;font-size:15px;font-weight:700;padding:10px 18px;border-radius:14px" data-a="dinoquiz">Quiz Me!</button>'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px" data-a="dinonext" '+(S.dinoIdx>=DINO_DATA.length-1?'disabled':'')+'>Next ▶</button>'+
+    '</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:4px">'+
+    DINO_DATA.map(function(dd,i){
+      return '<button class="btn btn-sm" style="font-size:11px;padding:4px 8px;background:'+(i===S.dinoIdx?'var(--primary)':'var(--border)')+'22;color:'+(i===S.dinoIdx?'var(--primary)':'var(--muted)')+';border:1.5px solid '+(i===S.dinoIdx?'var(--primary)':'var(--border)')+'" data-a="dinojump" data-i="'+i+'">'+dd.emoji+' '+dd.name+'</button>';
+    }).join('')+
+    '</div>';
+  } else {
+    var q=S.dinoQ;
+    if(!q) return hdr("Dinosaurs","home",S.dinoScore)+'<div style="text-align:center;padding:40px"><div style="font-size:64px">'+d.emoji+'</div><p style="color:var(--muted)">Loading quiz...</p></div>';
+    return hdr("Dinosaurs","home",S.dinoScore)+
+    '<div style="text-align:center;margin-bottom:12px"><div style="font-size:64px">'+d.emoji+'</div><div style="font-size:18px;font-weight:800;color:var(--text)">'+d.name+'</div></div>'+
+    '<div style="background:linear-gradient(135deg,#78350F,#92400E);border-radius:18px;padding:16px;margin-bottom:12px">'+
+    '<p style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin:0">'+q.q+'</p>'+
+    '</div>'+
+    q.opts.map(function(o,i){
+      var correct=S.dinoResult!==null&&i===q.ans;
+      var wrong=S.dinoResult!==null&&i===S.dinoResult&&i!==q.ans;
+      var bg=correct?'#22C55E':wrong?'#EF4444':'var(--card)';
+      var col=correct||wrong?'#fff':'var(--text)';
+      return '<button class="btn" style="width:100%;margin:5px 0;padding:13px;font-size:15px;font-weight:700;background:'+bg+';color:'+col+';border-radius:14px;border:2px solid '+(correct?'#22C55E':wrong?'#EF4444':'var(--border)')+'" data-a="dinoans" data-i="'+i+'" '+(S.dinoResult!==null?'disabled':'')+'>'+o+'</button>';
+    }).join('')+
+    (S.dinoResult!==null?
+      '<div style="margin-top:12px;text-align:center">'+
+      '<p style="font-weight:800;font-size:17px;color:'+(S.dinoResult===q.ans?'#22C55E':'#EF4444')+'">'+(S.dinoResult===q.ans?'\u2B50 Correct!':'\u274C Answer: '+q.opts[q.ans])+'</p>'+
+      (q.fact?'<p style="font-size:13px;color:var(--muted);margin:4px 0 10px">\uD83E\uDD95 '+q.fact+'</p>':'')+
+      '<div style="display:flex;gap:8px;justify-content:center">'+
+      '<button class="btn" style="background:#F97316;color:#fff;font-weight:700;padding:10px 20px;border-radius:14px" data-a="dinonextq">Next Question</button>'+
+      '<button class="btn" style="background:var(--border);color:var(--muted);padding:10px 16px;border-radius:12px" data-a="dinobrowse">Browse</button>'+
+      '</div></div>':'');
+  }
+}
+
+// ─── ANIMALS FULL ────────────────────────────────────────────
+function initAnimalFull(){
+  var a=ANIMALS_FULL[S.animalIdx];
+  aiLoad("animalQ","animalLoading",
+    function(){return 'Generate a quiz question about the '+a.name+' animal for kids. Make it interesting and educational. Respond ONLY with valid JSON:\n{"q":"Question?","opts":["A","B","C","D"],"ans":0,"fact":"Fun fact!"}\nans = index of correct answer.';},
+    function(){var q=a.quiz[Math.floor(Math.random()*a.quiz.length)];return q;}
+  );
+  S.animalResult=null;
+}
+
+function renderAnimals(){
+  var cats=["All","Mammals","Birds","Fish","Insects","Invertebrates"];
+  var filtered=S.animalCategory==="All"?ANIMALS_FULL:ANIMALS_FULL.filter(function(a){return a.category===S.animalCategory;});
+  if(S.animalIdx>=filtered.length)S.animalIdx=0;
+  var a=filtered[S.animalIdx];
+  if(S.animalMode==="browse"){
+    return hdr("Animals",a.category==="All"?"home":"home",S.animalScore)+
+    '<div style="text-align:center;padding:6px 0">'+
+    '<p style="color:var(--muted);font-size:12px;margin:2px 0">'+(S.animalIdx+1)+' / '+filtered.length+(S.animalCategory!=="All"?' — '+S.animalCategory:'')+' </p>'+
+    '<div style="font-size:80px;margin:8px 0">'+a.emoji+'</div>'+
+    '<div style="font-size:24px;font-weight:900;color:var(--text);margin-bottom:2px">'+a.name+'</div>'+
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">'+a.category+' • '+a.habitat+'</div>'+
+    '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px">'+
+    '<span style="background:#22C55E;color:#fff;border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700">'+a.diet+'</span>'+
+    '<span style="background:#3B82F6;color:#fff;border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700">Lifespan: '+a.lifespan+'</span>'+
+    '</div>'+
+    '<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;text-align:left">'+
+    '<p style="font-size:14px;color:var(--text);margin:0 0 8px 0;line-height:1.6">'+a.desc+'</p>'+
+    '<p style="font-size:13px;color:#22C55E;font-weight:700;margin:0">\uD83C\uDF1F '+a.fact+'</p>'+
+    '</div></div>'+
+    '<div class="row" style="justify-content:center;gap:10px;margin:8px 0">'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px" data-a="animalprev" '+(S.animalIdx===0?'disabled':'')+'>◀ Prev</button>'+
+    '<button class="btn" style="background:#22C55E;color:#fff;font-size:15px;font-weight:700;padding:10px 18px;border-radius:14px" data-a="animalquiz">Quiz!</button>'+
+    '<button class="btn" style="background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:10px 22px;border-radius:14px" data-a="animalnext" '+(S.animalIdx>=filtered.length-1?'disabled':'')+'>Next ▶</button>'+
+    '</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:4px">'+
+    cats.map(function(cat){
+      var active=cat===S.animalCategory;
+      return '<button class="btn btn-sm" style="font-size:11px;padding:5px 10px;background:'+(active?'var(--primary)':'var(--border)')+'22;color:'+(active?'var(--primary)':'var(--muted)')+';border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';font-weight:'+(active?'800':'600')+'" data-a="animalcat" data-cat="'+cat+'">'+cat+'</button>';
+    }).join('')+
+    '</div>';
+  } else {
+    var q=S.animalQ;
+    if(!q) return hdr("Animals","home",S.animalScore)+'<div style="text-align:center;padding:40px"><div style="font-size:64px">'+a.emoji+'</div><p style="color:var(--muted)">Loading...</p></div>';
+    return hdr("Animals","home",S.animalScore)+
+    '<div style="text-align:center;margin-bottom:12px"><div style="font-size:64px">'+a.emoji+'</div><div style="font-size:18px;font-weight:800;color:var(--text)">'+a.name+'</div></div>'+
+    '<div style="background:linear-gradient(135deg,#064E3B,#065F46);border-radius:18px;padding:16px;margin-bottom:12px">'+
+    '<p style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin:0">'+q.q+'</p>'+
+    '</div>'+
+    q.opts.map(function(o,i){
+      var correct=S.animalResult!==null&&i===q.ans;
+      var wrong=S.animalResult!==null&&i===S.animalResult&&i!==q.ans;
+      var bg=correct?'#22C55E':wrong?'#EF4444':'var(--card)';
+      var col=correct||wrong?'#fff':'var(--text)';
+      return '<button class="btn" style="width:100%;margin:5px 0;padding:13px;font-size:15px;font-weight:700;background:'+bg+';color:'+col+';border-radius:14px;border:2px solid '+(correct?'#22C55E':wrong?'#EF4444':'var(--border)')+'" data-a="animalans" data-i="'+i+'" '+(S.animalResult!==null?'disabled':'')+'>'+o+'</button>';
+    }).join('')+
+    (S.animalResult!==null?
+      '<div style="margin-top:12px;text-align:center">'+
+      '<p style="font-weight:800;font-size:17px;color:'+(S.animalResult===q.ans?'#22C55E':'#EF4444')+'">'+(S.animalResult===q.ans?'\u2B50 Correct!':'\u274C Answer: '+q.opts[q.ans])+'</p>'+
+      (q.fact?'<p style="font-size:13px;color:var(--muted);margin:4px 0 10px">\uD83C\uDF1F '+q.fact+'</p>':'')+
+      '<div style="display:flex;gap:8px;justify-content:center">'+
+      '<button class="btn" style="background:#22C55E;color:#fff;font-weight:700;padding:10px 20px;border-radius:14px" data-a="animalnextq">Next Question</button>'+
+      '<button class="btn" style="background:var(--border);color:var(--muted);padding:10px 16px;border-radius:12px" data-a="animalbrowse">Browse</button>'+
+      '</div></div>':'');
+  }
+}
+
+// ─── DATA & PROBABILITY ──────────────────────────────────────
+function initDataTopic(){
+  var topic=DATA_TOPICS.find(function(t){return t.id===S.dataTopic;})||DATA_TOPICS[0];
+  aiLoad("dataQ","dataLoading",
+    function(){return 'Generate a Grade 2-3 data and probability question about "'+topic.name+'". Make it fresh and educational. Respond ONLY with valid JSON:\n{"q":"Question?","opts":["A","B","C","D"],"ans":0,"explanation":"Why this answer is correct."}\nans = index of correct answer.';},
+    function(){var q=topic.quiz[Math.floor(Math.random()*topic.quiz.length)];return q;}
+  );
+  S.dataResult=null;
+}
+
+function renderDataProb(){
+  var grade=(prof()||{}).grade||"G2";
+  var topics=DATA_TOPICS.filter(function(t){return t.grade.includes(grade)||true;});
+  var topic=topics.find(function(t){return t.id===S.dataTopic;})||topics[0];
+  if(S.dataMode==="browse"){
+    return hdr("Data & Probability","home",S.dataScore)+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+
+    topics.map(function(t){
+      var active=t.id===S.dataTopic;
+      return '<button class="btn btn-sm" style="font-size:12px;padding:6px 12px;background:'+(active?'var(--primary)':'var(--border)')+'22;color:'+(active?'var(--primary)':'var(--muted)')+';border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';font-weight:'+(active?'800':'600')+'" data-a="datatopic" data-id="'+t.id+'">'+t.emoji+' '+t.name+'</button>';
+    }).join('')+
+    '</div>'+
+    '<div style="text-align:center;margin-bottom:10px"><div style="font-size:56px">'+topic.emoji+'</div>'+
+    '<div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">'+topic.name+'</div></div>'+
+    '<div style="background:rgba(59,130,246,0.07);border:1.5px solid rgba(59,130,246,0.2);border-radius:14px;padding:14px;margin-bottom:10px">'+
+    '<p style="font-size:14px;color:var(--text);line-height:1.7;margin:0 0 8px 0">'+topic.desc+'</p>'+
+    '<div style="background:rgba(59,130,246,0.1);border-radius:10px;padding:10px;margin-bottom:8px">'+
+    '<p style="font-size:12px;font-weight:700;color:var(--primary);margin:0 0 4px 0">\uD83D\uDCDA Example:</p>'+
+    '<p style="font-size:13px;color:var(--text);margin:0">'+topic.example+'</p></div>'+
+    '<p style="font-size:12px;color:#F97316;font-weight:700;margin:0">\uD83D\uDCA1 '+topic.tip+'</p>'+
+    '</div>'+
+    '<button class="btn" style="width:100%;background:var(--primary);color:#fff;font-size:16px;font-weight:800;padding:14px;border-radius:14px" data-a="dataquiz">Quiz Me! \u2B50</button>';
+  } else {
+    var q=S.dataQ;
+    if(!q) return hdr("Data & Probability","home",S.dataScore)+'<div style="text-align:center;padding:40px"><div style="font-size:56px">'+topic.emoji+'</div><p style="color:var(--muted)">Loading...</p></div>';
+    return hdr("Data & Probability","home",S.dataScore)+
+    '<div style="text-align:center;margin-bottom:8px"><div style="font-size:48px">'+topic.emoji+'</div>'+
+    '<div style="font-size:14px;font-weight:700;color:var(--primary)">'+topic.name+'</div></div>'+
+    '<div style="background:linear-gradient(135deg,#1E3A5F,#1E40AF);border-radius:18px;padding:16px;margin-bottom:12px">'+
+    '<p style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin:0">'+q.q+'</p>'+
+    '</div>'+
+    q.opts.map(function(o,i){
+      var correct=S.dataResult!==null&&i===q.ans;
+      var wrong=S.dataResult!==null&&i===S.dataResult&&i!==q.ans;
+      var bg=correct?'#22C55E':wrong?'#EF4444':'var(--card)';
+      var col=correct||wrong?'#fff':'var(--text)';
+      return '<button class="btn" style="width:100%;margin:5px 0;padding:13px;font-size:15px;font-weight:700;background:'+bg+';color:'+col+';border-radius:14px;border:2px solid '+(correct?'#22C55E':wrong?'#EF4444':'var(--border)')+'" data-a="dataans" data-i="'+i+'" '+(S.dataResult!==null?'disabled':'')+'>'+o+'</button>';
+    }).join('')+
+    (S.dataResult!==null?
+      '<div style="margin-top:12px;text-align:center">'+
+      '<p style="font-weight:800;font-size:17px;color:'+(S.dataResult===q.ans?'#22C55E':'#EF4444')+'">'+(S.dataResult===q.ans?'\u2B50 Correct!':'\u274C Answer: '+q.opts[q.ans])+'</p>'+
+      (q.explanation?'<p style="font-size:13px;color:var(--muted);margin:4px 0 10px">\uD83D\uDCA1 '+q.explanation+'</p>':'')+
+      '<div style="display:flex;gap:8px;justify-content:center">'+
+      '<button class="btn" style="background:var(--primary);color:#fff;font-weight:700;padding:10px 20px;border-radius:14px" data-a="datanextq">Next Question</button>'+
+      '<button class="btn" style="background:var(--border);color:var(--muted);padding:10px 16px;border-radius:12px" data-a="databrowse">Learn</button>'+
+      '</div></div>':'');
+  }
+}
+
+// ─── GEOMETRY & MEASUREMENT ──────────────────────────────────
+function initGeoTopic(){
+  var topic=GEO_TOPICS.find(function(t){return t.id===S.geoTopic;})||GEO_TOPICS[0];
+  aiLoad("geoQ","geoLoading",
+    function(){return 'Generate a Grade 2-3 geometry/measurement question about "'+topic.name+'". Make it practical and varied. Respond ONLY with valid JSON:\n{"q":"Question?","opts":["A","B","C","D"],"ans":0,"explanation":"Why this answer is correct."}\nans = index of correct answer.';},
+    function(){var q=topic.quiz[Math.floor(Math.random()*topic.quiz.length)];return q;}
+  );
+  S.geoResult=null;
+}
+
+function renderGeometry(){
+  var topics=GEO_TOPICS;
+  var topic=topics.find(function(t){return t.id===S.geoTopic;})||topics[0];
+  if(S.geoMode==="browse"){
+    return hdr("Geometry","home",S.geoScore)+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+
+    topics.map(function(t){
+      var active=t.id===S.geoTopic;
+      return '<button class="btn btn-sm" style="font-size:12px;padding:6px 12px;background:'+(active?'#8B5CF6':'var(--border)')+'22;color:'+(active?'#8B5CF6':'var(--muted)')+';border:1.5px solid '+(active?'#8B5CF6':'var(--border)')+';font-weight:'+(active?'800':'600')+'" data-a="geotopic" data-id="'+t.id+'">'+t.emoji+' '+t.name+'</button>';
+    }).join('')+
+    '</div>'+
+    '<div style="text-align:center;margin-bottom:10px"><div style="font-size:56px">'+topic.emoji+'</div>'+
+    '<div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">'+topic.name+'</div></div>'+
+    '<div style="background:rgba(139,92,246,0.07);border:1.5px solid rgba(139,92,246,0.25);border-radius:14px;padding:14px;margin-bottom:10px">'+
+    '<p style="font-size:14px;color:var(--text);line-height:1.7;margin:0 0 8px 0">'+topic.desc+'</p>'+
+    '<div style="background:rgba(139,92,246,0.1);border-radius:10px;padding:10px;margin-bottom:8px">'+
+    '<p style="font-size:12px;font-weight:700;color:#8B5CF6;margin:0 0 4px 0">\uD83D\uDCCF Example:</p>'+
+    '<p style="font-size:13px;color:var(--text);margin:0">'+topic.example+'</p></div>'+
+    '<p style="font-size:12px;color:#F97316;font-weight:700;margin:0">\uD83D\uDCA1 '+topic.tip+'</p>'+
+    '</div>'+
+    '<button class="btn" style="width:100%;background:#8B5CF6;color:#fff;font-size:16px;font-weight:800;padding:14px;border-radius:14px" data-a="geoquiz">Quiz Me! \u2B50</button>';
+  } else {
+    var q=S.geoQ;
+    if(!q) return hdr("Geometry","home",S.geoScore)+'<div style="text-align:center;padding:40px"><div style="font-size:56px">'+topic.emoji+'</div><p style="color:var(--muted)">Loading...</p></div>';
+    return hdr("Geometry","home",S.geoScore)+
+    '<div style="text-align:center;margin-bottom:8px"><div style="font-size:48px">'+topic.emoji+'</div>'+
+    '<div style="font-size:14px;font-weight:700;color:#8B5CF6">'+topic.name+'</div></div>'+
+    '<div style="background:linear-gradient(135deg,#2E1065,#4C1D95);border-radius:18px;padding:16px;margin-bottom:12px">'+
+    '<p style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin:0">'+q.q+'</p>'+
+    '</div>'+
+    q.opts.map(function(o,i){
+      var correct=S.geoResult!==null&&i===q.ans;
+      var wrong=S.geoResult!==null&&i===S.geoResult&&i!==q.ans;
+      var bg=correct?'#22C55E':wrong?'#EF4444':'var(--card)';
+      var col=correct||wrong?'#fff':'var(--text)';
+      return '<button class="btn" style="width:100%;margin:5px 0;padding:13px;font-size:15px;font-weight:700;background:'+bg+';color:'+col+';border-radius:14px;border:2px solid '+(correct?'#22C55E':wrong?'#EF4444':'var(--border)')+'" data-a="geoans" data-i="'+i+'" '+(S.geoResult!==null?'disabled':'')+'>'+o+'</button>';
+    }).join('')+
+    (S.geoResult!==null?
+      '<div style="margin-top:12px;text-align:center">'+
+      '<p style="font-weight:800;font-size:17px;color:'+(S.geoResult===q.ans?'#22C55E':'#EF4444')+'">'+(S.geoResult===q.ans?'\u2B50 Correct!':'\u274C Answer: '+q.opts[q.ans])+'</p>'+
+      (q.explanation?'<p style="font-size:13px;color:var(--muted);margin:4px 0 10px">\uD83D\uDCA1 '+q.explanation+'</p>':'')+
+      '<div style="display:flex;gap:8px;justify-content:center">'+
+      '<button class="btn" style="background:#8B5CF6;color:#fff;font-weight:700;padding:10px 20px;border-radius:14px" data-a="geonextq">Next Question</button>'+
+      '<button class="btn" style="background:var(--border);color:var(--muted);padding:10px 16px;border-radius:12px" data-a="geobrowse">Learn</button>'+
+      '</div></div>':'');
+  }
+}
+
 function renderLogin(){
-  const err=S.loginError||"";
-  return `
-  <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0">
-    <div style="font-size:60px;margin-bottom:14px">\uD83C\uDF92</div>
-    <h2 style="font-size:24px;font-weight:900;color:var(--text);margin-bottom:4px;text-align:center">KidsLearn</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:28px;text-align:center">Enter the password to continue</p>
-    <div style="width:100%;max-width:300px">
-      <div style="position:relative;margin-bottom:12px">
-        <input type="password" id="pwdinput" placeholder="Password"
-          style="width:100%;border:2px solid var(--border);border-radius:13px;padding:13px 44px 13px 16px;font-size:16px;font-family:inherit;outline:none;background:#ffffff;color:#1E293B;letter-spacing:2px;"
-          autocomplete="current-password"/>
-        <button id="togglepwd" data-a="togglepwd" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">\uD83D\uDC41️</button>
-      </div>
-      ${err?`<div style="color:var(--red);font-size:13px;font-weight:700;margin-bottom:10px;text-align:center">❌ ${err}</div>`:""}
-      <button class="btn btn-full" style="background:var(--primary);font-size:16px;padding:14px" data-a="login">Unlock App \uD83D\uDD13</button>
-    </div>
-  </div>`;
+  var err=S.loginError||"";
+  var borderCol=err?"var(--red)":"var(--primary)";
+  var html='<div style="min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0">';
+  html+='<div style="font-size:64px;margin-bottom:10px">\uD83C\uDF92</div>';
+  html+='<h2 style="font-size:26px;font-weight:900;color:var(--text);margin-bottom:4px;text-align:center">KidsLearn</h2>';
+  html+='<p style="font-size:14px;color:var(--muted);margin-bottom:28px;text-align:center">Type your name to start!</p>';
+  html+='<div style="width:100%">';
+  html+='<input id="nameinput" type="text" placeholder="Your name..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" style="width:100%;padding:16px 18px;font-size:22px;font-weight:700;border-radius:16px;border:2.5px solid '+borderCol+';background:var(--bg);color:var(--text);text-align:center;font-family:inherit;margin-bottom:12px;outline:none"/>';
+  if(err) html+='<p style="color:var(--red);font-size:14px;font-weight:700;text-align:center;margin-bottom:12px">\u274C '+err+'</p>';
+  html+='<button data-a="namlogin" style="width:100%;padding:16px;font-size:18px;font-weight:800;background:var(--primary);color:#fff;border:none;border-radius:16px;cursor:pointer;touch-action:manipulation;font-family:inherit">\u25B6 Let\'s Go!</button>';
+  html+='</div></div>';
+  return html;
 }
 
 function renderProfiles(){  let h=`<div style="text-align:center;margin-bottom:20px"><div style="font-size:44px;margin-bottom:6px">\uD83C\uDF92</div><h2 style="font-size:22px;font-weight:900;color:var(--text)">Who's Learning Today?</h2></div>`;
@@ -1007,6 +1440,8 @@ function renderHome(){
     {id:"sk_sight",   l:"Sight Words",   e:"\uD83D\uDC40", c:"#0EA5E9"},
     {id:"sk_pattern", l:"Patterns",      e:"\uD83D\uDD34", c:"#D946EF"},
     {id:"sk_seasons", l:"Seasons",       e:"\uD83C\uDF42", c:"#84CC16"},
+    {id:"g_animals",  l:"Animals",       e:"\uD83D\uDC18", c:"#22C55E"},
+    {id:"g_dinos",   l:"Dinosaurs",     e:"\uD83E\uDD96", c:"#F97316"},
   ]:[
     {id:"abc",      l:"ABC & Letters",  e:"\uD83D\uDD24", c:"var(--primary)"},
     {id:"spelling", l:"Spelling",       e:"✏️", c:"var(--orange)"},
@@ -1018,6 +1453,12 @@ function renderHome(){
     {id:"g_piano",  l:"Piano Notes",    e:"\uD83C\uDFB9", c:"#8B5CF6"},
     {id:"g_world",  l:"World Capitals",  e:"\uD83C\uDF0E", c:"#0EA5E9"},
     {id:"g_galaxy", l:"Galaxy & Planets",e:"\uD83D\uDE80", c:"#6366F1"},
+    {id:"g_animals",l:"Animals",         e:"\uD83D\uDC18", c:"#22C55E"},
+    {id:"g_dinos",l:"Dinosaurs",         e:"\uD83E\uDD96", c:"#F97316"},
+    ...(p.grade==="G2"||p.grade==="G3"?[
+      {id:"g_data", l:"Data & Probability",e:"\uD83D\uDCCA",c:"#3B82F6"},
+      {id:"g_geo",  l:"Geometry",        e:"\uD83D\uDCCF", c:"#8B5CF6"},
+    ]:[]),
   ];
   const pr=p.progress||{};
   return `
@@ -1591,9 +2032,10 @@ function hdr(title,back,score,sub){
 // ═══════════════════════════════════════════════════════════════
 function bindEvents(){
   // Wire up text input enter keys after each render
-  var pi=document.getElementById("pwdinput");
-  if(pi){
-    pi.onkeydown=function(e){if(e.key==="Enter")act("login");};
+  var ni=document.getElementById("nameinput");
+  if(ni){
+    ni.focus();
+    ni.onkeydown=function(e){if(e.key==="Enter")act("namlogin");};
   }
   var cn=document.getElementById("cname");
   if(cn){
@@ -1633,12 +2075,21 @@ function act(a,d={}){
   try{
   switch(a){
     // Auth
-    case"login":{
-      const p=document.getElementById("pwdinput");
-      const val=(p?p.value:"")||"";
-      if(val===APP_PWD){setAuthed();S.loginError="";S.screen="profiles";}
-      else{S.loginError="Wrong password. Try again.";}
-      break;}
+    case"namlogin":{
+  var _inp=(document.getElementById("nameinput")||{value:""}).value||"";
+  var _name=_inp.trim();
+  var _known=["Emma","Jonny","Delu","Adonai","Gasha"];
+  var _match=_known.find(function(n){return n.toLowerCase()===_name.toLowerCase();});
+  if(_match){
+    setAuthed(_match);
+    var _i=S.profiles.findIndex(function(p){return p.name===_match;});
+    S.activeIdx=_i>=0?_i:0;
+    S.loginError="";
+    S.screen="home";
+  } else {
+    S.loginError=_name?("Hmm, \""+_name+"\" is not on the list!"):"Please type your name first!";
+  }
+  break;}
     // Profiles
     case"selprof":S.activeIdx=+d.i;S.screen="home";break;
     case"delprof":if(confirm(`Remove ${S.profiles[+d.i].name}?`)){S.profiles.splice(+d.i,1);saveProfiles(S.profiles);}break;
@@ -1648,7 +2099,7 @@ function act(a,d={}){
     case"setcg":S.createGrade=d.g;break;
     case"createprof":{const n=(document.getElementById("cname")||{value:S.createName}).value||S.createName;if(!n.trim())return;S.profiles.push({name:n.trim(),avatar:AVATARS[S.createAvatar],grade:S.createGrade,stars:0,progress:{}});saveProfiles(S.profiles);S.createMode=false;break;}
     // Home
-    case"logout":S.activeIdx=null;S.screen="profiles";break;
+    case"logout":S.activeIdx=null;try{sessionStorage.removeItem("kl_active");}catch{}S.screen="login";break;
     case"editgrade":S.screen="editgrade";break;
     case"gomod":{
       const id=d.id;
@@ -1677,6 +2128,10 @@ function act(a,d={}){
       else if(id==="g_piano"){S.screen="g_piano";S.gPianoScore=0;S.gPianoResult=null;initGPiano();}
       else if(id==="g_world"){S.screen="g_world";S.worldScore=0;S.worldIdx=0;S.worldMode="browse";S.worldContinent="All";S.worldQ=null;S.worldResult=null;}
       else if(id==="g_galaxy"){S.screen="g_galaxy";S.spaceScore=0;S.planetIdx=0;S.spaceMode="browse";S.spaceQ=null;S.spaceResult=null;}
+      else if(id==="g_dinos"){S.screen="g_dinos";S.dinoScore=0;S.dinoIdx=0;S.dinoMode="browse";S.dinoQ=null;S.dinoResult=null;}
+      else if(id==="g_animals"){S.screen="g_animals";S.animalScore=0;S.animalIdx=0;S.animalMode="browse";S.animalQ=null;S.animalResult=null;S.animalCategory="All";initAnimalFull();}
+      else if(id==="g_data"){S.screen="g_data";S.dataScore=0;S.dataMode="browse";S.dataQ=null;S.dataResult=null;S.dataTopic=DATA_TOPICS[0].id;}
+      else if(id==="g_geo"){S.screen="g_geo";S.geoScore=0;S.geoMode="browse";S.geoQ=null;S.geoResult=null;S.geoTopic=GEO_TOPICS[0].id;}
       break;}
     case"togglepwd":{const p=document.getElementById("pwdinput");if(p)p.type=p.type==="password"?"text":"password";break;}
     case"back":S.screen=d.t||"home";break;
@@ -1819,6 +2274,35 @@ function act(a,d={}){
     case"spacebrowse":S.spaceMode="browse";break;
     case"spacenextq":S.spaceQ=null;S.spaceResult=null;break;
     case"spaceans":if(!S.spaceResult){S.spaceResult=d.ans;if(d.ans===S.spaceQ.ans){addStars(1,"g_galaxy");S.spaceScore++;}}break;
+  
+  // Dinosaurs
+  case"dinoprev":if(S.dinoIdx>0){S.dinoIdx--;S.dinoMode="browse";S.dinoQ=null;}break;
+  case"dinonext":if(S.dinoIdx<DINO_DATA.length-1){S.dinoIdx++;S.dinoMode="browse";S.dinoQ=null;}break;
+  case"dinojump":S.dinoIdx=+d.i;S.dinoMode="browse";S.dinoQ=null;break;
+  case"dinoquiz":S.dinoMode="quiz";S.dinoQ=null;initDino();break;
+  case"dinobrowse":S.dinoMode="browse";break;
+  case"dinonextq":S.dinoQ=null;S.dinoResult=null;initDino();break;
+  case"dinoans":if(S.dinoResult===null){var _di=+d.i;S.dinoResult=_di;if(_di===S.dinoQ.ans){S.dinoScore++;addStars(1,"g_dinos");}}break;
+  // Animals Full
+  case"animalprev":{var _af=S.animalCategory==="All"?ANIMALS_FULL:ANIMALS_FULL.filter(function(a){return a.category===S.animalCategory;});if(S.animalIdx>0){S.animalIdx--;S.animalMode="browse";S.animalQ=null;}}break;
+  case"animalnext":{var _af2=S.animalCategory==="All"?ANIMALS_FULL:ANIMALS_FULL.filter(function(a){return a.category===S.animalCategory;});if(S.animalIdx<_af2.length-1){S.animalIdx++;S.animalMode="browse";S.animalQ=null;}}break;
+  case"animalcat":S.animalCategory=d.cat;S.animalIdx=0;S.animalMode="browse";S.animalQ=null;break;
+  case"animalquiz":S.animalMode="quiz";S.animalQ=null;initAnimalFull();break;
+  case"animalbrowse":S.animalMode="browse";break;
+  case"animalnextq":S.animalQ=null;S.animalResult=null;initAnimalFull();break;
+  case"animalans":if(S.animalResult===null){var _ai=+d.i;S.animalResult=_ai;if(_ai===S.animalQ.ans){S.animalScore++;addStars(1,"g_animals");}}break;
+  // Data & Probability
+  case"datatopic":S.dataTopic=d.id;S.dataMode="browse";S.dataQ=null;S.dataResult=null;break;
+  case"dataquiz":S.dataMode="quiz";S.dataQ=null;initDataTopic();break;
+  case"databrowse":S.dataMode="browse";break;
+  case"datanextq":S.dataQ=null;S.dataResult=null;initDataTopic();break;
+  case"dataans":if(S.dataResult===null){var _ddi=+d.i;S.dataResult=_ddi;if(_ddi===S.dataQ.ans){S.dataScore++;addStars(1,"g_data");}}break;
+  // Geometry
+  case"geotopic":S.geoTopic=d.id;S.geoMode="browse";S.geoQ=null;S.geoResult=null;break;
+  case"geoquiz":S.geoMode="quiz";S.geoQ=null;initGeoTopic();break;
+  case"geobrowse":S.geoMode="browse";break;
+  case"geonextq":S.geoQ=null;S.geoResult=null;initGeoTopic();break;
+  case"geoans":if(S.geoResult===null){var _gi=+d.i;S.geoResult=_gi;if(_gi===S.geoQ.ans){S.geoScore++;addStars(1,"g_geo");}}break;
   // Grade
     case"setgrade":S.profiles[S.activeIdx]={...S.profiles[S.activeIdx],grade:d.g};saveProfiles(S.profiles);S.screen="home";break;
   }
@@ -1898,15 +2382,10 @@ const SORT_DATA=[
   {q:"Tap all the things that FLY ✈️",items:[{e:"\uD83D\uDC26",match:true},{e:"✈️",match:true},{e:"\uD83D\uDE97",match:false},{e:"\uD83E\uDD8B",match:true},{e:"\uD83D\uDC1F",match:false},{e:"\uD83C\uDFE0",match:false}],ans:"things that fly",hint:"They go up in the air!"},
   {q:"Tap all the ROUND things ⚽",items:[{e:"⚽",match:true},{e:"\uD83C\uDF6A",match:true},{e:"\uD83D\uDE97",match:false},{e:"\uD83C\uDF15",match:true},{e:"\uD83D\uDCDA",match:false},{e:"✏️",match:false}],ans:"round things",hint:"They are shaped like a circle!"},
 ];
-const RHYME_SETS=[
-  {word:"CAT",rhymes:["HAT","BAT","MAT","RAT"],non:["DOG","SUN","CUP","BIG"]},
-  {word:"DOG",rhymes:["LOG","FOG","HOG","JOG"],non:["CAT","SUN","HOP","BED"]},
-  {word:"SUN",rhymes:["FUN","RUN","BUN","GUN"],non:["CAT","DOG","HOP","BIG"]},
-  {word:"BED",rhymes:["RED","TED","FED","LED"],non:["SUN","CAT","HOP","CUP"]},
-  {word:"HOP",rhymes:["TOP","POP","MOP","COP"],non:["BED","SUN","CAT","BIG"]},
-  {word:"PEN",rhymes:["HEN","TEN","MEN","DEN"],non:["HOP","SUN","CAT","BED"]},
-];
-const SIGHT_WORDS=["the","a","and","is","in","it","to","of","I","you","he","she","we","are","was","my","on","at","do","go","can","up","big","run","yes","no","see","look","come","play","like","here","help","with","said","that","this","have","all"];
+const RHYME_SETS=[{word:"CAT",rhymes:["bat","hat","mat","rat","sat","fat"],non:["dog","sun","cup","bus"]},{word:"DOG",rhymes:["log","fog","hog","bog","jog","cog"],non:["cat","top","him","run"]},{word:"SUN",rhymes:["fun","run","bun","gun","nun","pun"],non:["bed","hat","cup","lip"]},{word:"BED",rhymes:["red","fed","led","wed","shed","sled"],non:["top","sun","map","cup"]},{word:"HOP",rhymes:["top","mop","pop","cop","drop","shop"],non:["bat","hen","sun","leg"]},{word:"PEN",rhymes:["hen","ten","men","den","when","then"],non:["hop","cat","bus","log"]},{word:"CAKE",rhymes:["lake","make","rake","bake","shake","flake"],non:["dog","cup","run","hat"]},{word:"RING",rhymes:["king","sing","wing","spring","thing","string"],non:["cat","bed","hop","sun"]},{word:"BALL",rhymes:["tall","wall","call","fall","hall","small"],non:["pen","cup","dog","sun"]},{word:"FISH",rhymes:["dish","wish","swish","squish"],non:["cat","ball","run","hop"]},{word:"STAR",rhymes:["car","bar","jar","far","scar","guitar"],non:["pen","top","bus","hat"]},{word:"RAIN",rhymes:["train","brain","chain","drain","grain","plain"],non:["dog","cup","hop","bed"]}]
+
+const SIGHT_WORDS=["the","and","a","to","said","in","he","I","of","it","was","you","they","on","she","is","for","at","his","but","that","with","all","we","can","are","up","had","my","her","what","there","out","be","have","am","do","did","get","if","will","yes","no","not","got","big","when","come","some","like","into","then","one","two","three","four","five","six","seven","eight","nine","ten","him","its","your","our","how","old","by","from","who","way","may","down","over","day","take","too","put","end","far","own","new","boy","girl","play","made","blue","red","green","black","white","here","now","see","look","jump","run","eat","help","want","need"]
+
 const PATTERN_DATA=[
   {seq:["\uD83D\uDD34","\uD83D\uDD35","\uD83D\uDD34","\uD83D\uDD35","\uD83D\uDD34"],ans:"\uD83D\uDD35",type:"AB"},{seq:["⭐","\uD83C\uDF19","⭐","\uD83C\uDF19","⭐"],ans:"\uD83C\uDF19",type:"AB"},
   {seq:["\uD83D\uDC36","\uD83D\uDC36","\uD83D\uDC31","\uD83D\uDC36","\uD83D\uDC36"],ans:"\uD83D\uDC31",type:"AAB"},{seq:["\uD83C\uDF4E","\uD83C\uDF4A","\uD83C\uDF4B","\uD83C\uDF4E","\uD83C\uDF4A"],ans:"\uD83C\uDF4B",type:"ABC"},
@@ -2669,16 +3148,8 @@ const PLANETS_DATA=[
    fact:"Has the strongest winds in the solar system!",
    desc:"A year on Neptune = 165 Earth years."},
 ];
-const SPACE_FACTS=[
-  {q:"What is our galaxy called?",opts:["Milky Way","Andromeda","Triangulum","Cosmos"],ans:"Milky Way",fact:"Our galaxy has over 200 billion stars!"},
-  {q:"What is a shooting star really?",opts:["A falling star","A meteor","A comet","A satellite"],ans:"A meteor",fact:"Space rocks burn up in Earth's atmosphere making a streak of light!"},
-  {q:"Rocky bodies orbiting the Sun between Mars and Jupiter are called?",opts:["Moons","Comets","Asteroids","Nebulae"],ans:"Asteroids",fact:"The asteroid belt has millions of space rocks!"},
-  {q:"How far is a light year?",opts:["One year of sunshine","Distance light travels in one year","A short distance","Width of a galaxy"],ans:"Distance light travels in one year",fact:"One light year is about 9.46 trillion kilometres!"},
-  {q:"What kind of object is our Sun?",opts:["A planet","A moon","A star","An asteroid"],ans:"A star",fact:"The Sun is 1.3 million times bigger than Earth!"},
-  {q:"A black hole is a region where...?",opts:["It is always dark","Gravity is so strong light cannot escape","Stars are born","Planets are destroyed"],ans:"Gravity is so strong light cannot escape",fact:"The nearest black hole is about 1,000 light years away!"},
-  {q:"What is the name of the force that keeps planets in orbit?",opts:["Magnetism","Electricity","Gravity","Wind"],ans:"Gravity",fact:"Gravity from the Sun keeps all 8 planets in orbit!"},
-  {q:"Which planet has the most moons?",opts:["Jupiter","Neptune","Saturn","Uranus"],ans:"Saturn",fact:"Saturn has 146 known moons - the most of any planet!"},
-];
+const SPACE_FACTS=[{q:"What is our galaxy called?",opts:["Milky Way","Andromeda","Triangulum","Cosmos"],ans:"Milky Way",fact:"Our galaxy has over 200 billion stars!"},{q:"What is a shooting star?",opts:["A falling star","A meteor","A comet","A satellite"],ans:"A meteor",fact:"Space rocks burn up in Earths atmosphere!"},{q:"Rocky bodies between Mars and Jupiter?",opts:["Moons","Comets","Asteroids","Nebulae"],ans:"Asteroids",fact:"The asteroid belt has millions of space rocks!"},{q:"What kind of object is our Sun?",opts:["A planet","A moon","A star","An asteroid"],ans:"A star",fact:"The Sun is 1.3 million times bigger than Earth!"},{q:"Which planet has the most moons?",opts:["Jupiter","Neptune","Saturn","Uranus"],ans:"Saturn",fact:"Saturn has 146 known moons!"},{q:"What keeps planets in orbit?",opts:["Magnetism","Electricity","Gravity","Wind"],ans:"Gravity",fact:"Gravity from the Sun keeps all 8 planets in orbit!"},{q:"How long does sunlight take to reach Earth?",opts:["8 seconds","8 minutes","8 hours","8 days"],ans:"8 minutes",fact:"Light travels at 300,000 km per second!"},{q:"What is the largest planet?",opts:["Saturn","Neptune","Jupiter","Uranus"],ans:"Jupiter",fact:"Jupiter could fit 1,300 Earths inside it!"},{q:"What is a nebula?",opts:["A type of moon","A cloud of gas and dust","A small planet","A type of comet"],ans:"A cloud of gas and dust",fact:"Stars are born inside nebulae!"},{q:"Which planet is called the Red Planet?",opts:["Venus","Jupiter","Mars","Mercury"],ans:"Mars",fact:"Mars gets its red colour from iron oxide!"},{q:"What is Earths natural satellite?",opts:["Titan","Europa","The Moon","Phobos"],ans:"The Moon",fact:"The Moon moves 3.8 cm further from Earth every year!"},{q:"Which planet spins on its side?",opts:["Neptune","Saturn","Uranus","Venus"],ans:"Uranus",fact:"Uranus rotates at a 98 degree tilt!"},{q:"What shape is the Milky Way?",opts:["Circle","Oval","Spiral","Square"],ans:"Spiral",fact:"The Milky Way is about 100,000 light-years wide!"},{q:"Which is the smallest planet?",opts:["Mars","Venus","Mercury","Earth"],ans:"Mercury",fact:"Mercury is only slightly bigger than our Moon!"},{q:"Which planet has beautiful rings?",opts:["Jupiter","Mars","Saturn","Neptune"],ans:"Saturn",fact:"Saturns rings are made of ice and rock!"}]
+
 
 let audioCtx=null;
 function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
